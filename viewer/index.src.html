@@ -120,6 +120,17 @@ button.run:hover { filter: brightness(1.08); }
 .facts b { font-weight: 600; color: var(--accent); }
 .carpick { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 6px 10px; align-items: center; }
 .carpick > span { font-size: 12px; color: var(--muted); }
+details.more { font-size: 11px; color: var(--muted); }
+details.more > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; color: var(--muted); user-select: none; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before { content: "+"; font-family: var(--font-data); }
+details.more[open] > summary::before { content: "−"; }
+details.more > summary:hover { color: var(--fg); border-color: var(--muted); }
+details.more[open] > :not(summary) { margin-top: 10px; }
+details.more .note { font-size: 11px; }
+details.foot { border-top: 1px solid var(--line); padding-top: 12px; }
+details.foot .spec { border-top: 0; padding-top: 0; font-size: 11px; }
 .srcline { border-top: 1px solid var(--line); padding-top: 10px; font-size: 11px; line-height: 1.55; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
 .srcline b { color: var(--fg); font-weight: 500; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -275,7 +286,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <button type="button" class="run" id="runDyno">Chạy dyno</button>
       <button type="button" class="run" id="runDrag">Chạy drag 1/4 dặm</button>
     </section>
-    <p class="note">Danh mục, mức giá, thương hiệu và cờ đăng kiểm lấy từ bảng benchmark Chili Paprika; giá là ước lượng thị trường, chưa gồm công. Công suất, tăng tốc, tốc độ tối đa chạy qua bộ mô phỏng (xe zin lệch 0–5% so với số hãng). Handling, Phanh, Drift/grip, Độ êm là thang điểm ước lượng của tiệm, không phải số đo.</p>
+    <details class="more"><summary>Cách tính</summary><p class="note">Danh mục, mức giá, thương hiệu và cờ đăng kiểm lấy từ bảng benchmark Chili Paprika; giá là ước lượng thị trường, chưa gồm công. Công suất, tăng tốc, tốc độ tối đa chạy qua bộ mô phỏng (xe zin lệch 0–5% so với số hãng). Handling, Phanh, Drift/grip, Độ êm là thang điểm ước lượng của tiệm, không phải số đo.</p></details>
   </div>
   <div id="tab-cmp" class="tabpane" hidden>
     <section>
@@ -313,10 +324,13 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <h2 class="label">Đọc luồng khói</h2>
       <ul class="facts" id="aeroFacts"></ul>
     </section>
-    <p class="note">Mang tính tham khảo. Cd·A suy từ tốc độ tối đa hãng công bố (bộ mô phỏng đã chỉnh cho khớp); diện tích mặt trước đo trên model 3D; Cd = Cd·A chia diện tích. Lực nâng/ép là ước lượng theo kiểu thân xe cộng phần thay đổi của từng món độ. Luồng khói là hình minh họa được nắn theo bóng xe, không phải mô phỏng chất lưu.</p>
+    <details class="more"><summary>Cách tính</summary><p class="note">Mang tính tham khảo. Cd·A suy từ tốc độ tối đa hãng công bố (bộ mô phỏng đã chỉnh cho khớp); diện tích mặt trước đo trên model 3D; Cd = Cd·A chia diện tích. Lực nâng/ép là ước lượng theo kiểu thân xe cộng phần thay đổi của từng món độ. Luồng khói là hình minh họa được nắn theo bóng xe, không phải mô phỏng chất lưu.</p></details>
   </div>
-  <dl class="spec" id="spec"></dl>
-  <footer class="srcline" id="srcline"></footer>
+  <details class="more foot">
+    <summary>Nguồn · Lưu ý · Miễn trừ trách nhiệm</summary>
+    <dl class="spec" id="spec"></dl>
+    <footer class="srcline" id="srcline"></footer>
+  </details>
   
 </aside>
 
