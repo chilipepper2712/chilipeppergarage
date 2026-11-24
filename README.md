@@ -14,7 +14,7 @@ Mở `viewer/index.html` trong trình duyệt. File tự chứa toàn bộ model
 | `cars/` | Profile từng xe: kích thước, đường bao đo trên blueprint, hốc grill/đèn, decal, biến thể đồ độ |
 | `pipeline/` | Bộ dựng xe bằng Blender (bpy): loft, khoét hốc, UV1 atlas 64 px/m, UV2 wrap chung, vẽ texture pixel, tách panel, socket, mâm, cánh gió, kiểm tra chồng blueprint |
 | `env/` | Bộ dựng garage (tường gạch, gác lửng, đèn công trình, neon) |
-| `perf/` | Mô phỏng dyno/drag (`sim.js`), thông số gốc từng xe, danh mục đồ độ, script hiệu chỉnh |
+| `perf/` | Mô phỏng dyno/drag/tốc độ tối đa (`sim.js`), model bản độ → 7 trục điểm, giá, đăng kiểm (`model.js`), thông số gốc từng xe (`cars.json`), danh mục đồ độ gộp từ bảng benchmark Chili Paprika (`parts.json`), script hiệu chỉnh |
 | `viewer/` | Garage 3D trên web (three.js). Sửa `index.src.html` / `perf-ui.js`, rồi build ra `index.html` |
 | `out/` | Model đã build: `.glb`, `.fbx`, texture, món độ trong `parts/` |
 | `blueprints/` | `calib.json` căn tỉ lệ từng bản vẽ (ảnh blueprint không commit) |

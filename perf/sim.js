@@ -118,6 +118,22 @@
     return { slip, trace };
   }
 
-  const api = { build, dyno, drag, stockCurve, interp };
+  // top speed: highest speed where tractive force in some gear (rpm <= redline) still beats drag
+  function topSpeed(v) {
+    const c = v.car, r = c.tyreR;
+    let best = 0;
+    for (let kmh = 60; kmh <= 320; kmh += 0.5) {
+      const vel = kmh / 3.6, drag = v.crr * v.mass * G + 0.5 * RHO * v.cda * vel * vel;
+      let ok = false;
+      for (const gr of c.gears) {
+        const rpm = vel / r * 60 / (2 * Math.PI) * gr * c.final;
+        if (rpm > v.redline || rpm < 1500) continue;
+        if (v.curve(rpm) * gr * c.final * c.eff / r >= drag) { ok = true; break; }
+      }
+      if (ok) best = kmh;
+    }
+    return Math.min(best, c.vmax || 999);
+  }
+  const api = { build, dyno, drag, topSpeed, stockCurve, interp };
   if (typeof module !== "undefined") module.exports = api; else root.PerfSim = api;
 })(typeof window !== "undefined" ? window : globalThis);

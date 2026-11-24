@@ -1,120 +1,225 @@
-// Performance tab: part picking, live stats, dyno + quarter-mile runs. Runs after the 3D module;
-// talks to it through window.__garage (state, apply, setLower). Sim = window.PerfSim, data = #perfdata.
-const G = window.__garage, S = window.PerfSim;
+// Performance + comparison tabs. Runs after the 3D module and talks to it through window.__garage.
+// Model: window.GarageModel (perf/model.js) on top of window.PerfSim (perf/sim.js); data in #perfdata.
+const G = window.__garage, S = window.PerfSim, M = window.GarageModel;
 const DATA = JSON.parse(document.getElementById("perfdata").textContent);
 const CARS = DATA.cars, CAT = DATA.parts;
 const $ = id => document.getElementById(id);
-const COL = { stock: "#5b8fd6", tuned: "#cf7a1f" };   // validated pair (dark surface); stock also dashed
+const COL = { stock: "#3987e5", tuned: "#d95926" };          // validated categorical slots 1-2 (dark)
+const OTHER = ["#199e70", "#c98500", "#d55181"];              // slots 3-5, fixed per pick, never repainted
+const NAMES = { mazda2_2013: "Mazda 2", civic_fd_2008: "Civic FD", cx5_2020: "CX-5", mini_f55_2018: "MINI S", ranger_raptor_2019: "Raptor" };
+const FLAG = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5v13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4.2 2.2h8.6l-2 3.1 2 3.2H4.2z" fill="currentColor"/></svg>';
 
-// one option list per group; "" = none / stock
-const ROWS = [
-  ["intake", "Hút khí", [["", "Zin"], ["intake", "Lọc gió"]]],
-  ["exhaust", "Pô", [["", "Zin"], ["axleback", "Axle-back"], ["catback", "Cat-back"]]],
-  ["tune", "ECU / map", [["", "Zin"], ["remap1", "Stage 1"], ["remap2", "Stage 2"], ["ecu", "ECU rời"]]],
-  ["forced", "Tăng áp", [["", "Không"], ["turbokit", "Turbo kit"]]],
-  ["shifter", "Cần số", [["", "Zin"], ["shortshifter", "Short shifter"]]],
-  ["pedal", "Chân ga", [["", "Zin"], ["pedalchip", "Chip"]]],
-  ["susp", "Gầm", [["", "Zin"], ["springs", "Lò xo hạ"], ["coilover", "Coilover"]]],
-  ["brace", "Thanh giằng", [["", "Không"], ["strutbar", "Lắp"]]],
-  ["cage", "Khung", [["", "Không"], ["rollcage", "Roll cage"]]],
-  ["tyre", "Vỏ xe", [["tyre_eco", "Tiết kiệm"], ["tyre_stock", "Zin"], ["tyre_sport", "Thể thao"], ["tyre_semi", "Bán slick"], ["tyre_drag", "Drag"]]],
-];
-const EMPTY = () => ({ intake: "", exhaust: "", tune: "", forced: "", shifter: "", pedal: "", susp: "", brace: "", cage: "", tyre: "tyre_stock" });
-let perf = EMPTY();
-const part = id => CAT.parts.find(p => p.id === id);
+let sel = new Set(), tier = "eco", preset = null;
+const openInfo = new Set();
+const others = new Map();                       // carKey -> colour slot
 const car = () => CARS[G.state.car];
-
-function allowed(id) {
-  const p = part(id); if (!p || !p.only) return true;
-  const c = car();
-  if (p.only.type && !p.only.type.includes(c.engine.type)) return false;
-  if (p.only.trans && !p.only.trans.includes(c.trans)) return false;
-  return true;
-}
-const groupOf = id => part(id)?.group;
-
-// picking a part pulls in what it requires; dropping a requirement drops what needed it
-function pick(group, id) {
-  const added = [];
-  perf[group] = id;
-  const want = id ? (part(id).requires || []) : [];
-  for (const r of want) if (perf[groupOf(r)] !== r) { perf[groupOf(r)] = r; added.push(part(r).name); }
-  for (const [g, v] of Object.entries(perf)) {
-    if (!v) continue;
-    const req = part(v).requires || [];
-    if (req.some(r => perf[groupOf(r)] !== r)) perf[g] = "";
-  }
-  syncSuspension();
-  render();
-  const p = id && part(id);
-  $("perfNote").textContent = p ? (added.length ? `Đã lắp kèm: ${added.join(", ")}. ` : "") + (p.note || "") : "";
-}
-
-// suspension drives ride height: springs = fixed 35 mm, coilover = slider 0-60, stock = 0
-function syncSuspension() {
-  const slider = $("lower"), s = perf.susp;
-  const mm = s === "springs" ? 35 : s === "coilover" ? (G.state.lower || 50) : 0;
-  slider.disabled = s !== "coilover";
-  $("lowerHint").textContent = s === "coilover" ? "Coilover: chỉnh độ cao 0–60 mm." :
-    s === "springs" ? "Lò xo hạ: cố định 35 mm." : "Cần lò xo hạ hoặc coilover (tab Hiệu năng).";
-  G.setLower(mm);
-}
-
-// exterior picks feed the sim too: aero (cda), wheel mass, price, fun
-function picked() {
-  const ids = Object.values(perf).filter(Boolean);
-  const extra = [], st = G.state, b = CAT.body;
-  const addBody = (slot, v) => { const e = b[slot] && b[slot][v]; if (e) extra.push({ id: `body_${slot}_${v}`, group: "body", price: e.price, fx: { cda: e.cda, fun: e.fun } }); };
-  addBody("bumper_F", st.bumper_F); addBody("bumper_R", st.bumper_R); addBody("skirt", st.skirt); addBody("spoiler", st.spoiler);
-  const w = CAT.wheels[st.wheel];
-  if (w && st.wheel !== "stock") extra.push({ id: `wheel_${st.wheel}`, group: "wheel", price: w.price, fx: { wheelKg: w.wheelKg, fun: 1 } });
-  return { ids: [...ids, ...extra.map(e => e.id)], catalog: { ...CAT, parts: [...CAT.parts, ...extra] } };
-}
-function vehicles() {
-  const c = car(), p = picked();
-  return { stock: S.build(c, [], CAT), tuned: S.build(c, p.ids, p.catalog) };
-}
+const mod = k => M.modOf(CAT, k);
+const ext = () => ({ bumper_F: G.state.bumper_F, bumper_R: G.state.bumper_R, skirt: G.state.skirt, spoiler: G.state.spoiler, wheel: G.state.wheel });
+const stockCache = {};
+const stockOf = key => (stockCache[key] ||= M.resolve(CARS[key], [], "eco", {}, CAT));
+const current = () => M.resolve(car(), [...sel], tier, ext(), CAT);
+function vehicles() { return { stock: stockOf(G.state.car).vehicle, tuned: current().vehicle }; }
 const peak = (v, k) => S.dyno(v).reduce((a, b) => (b[k] > a[k] ? b : a));
 const f1 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const f2 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fr = ([a, b]) => (a === b ? `${a} tr` : `${a}–${b} tr`);
 
-function render() {
-  const rows = $("perfRows"); rows.innerHTML = "";
-  for (const [g, label, opts] of ROWS) {
-    const n = document.createElement("span"); n.className = "name"; n.textContent = label;
-    const box = document.createElement("div"); box.className = opts.length > 4 ? "seg wrap" : "seg"; box.setAttribute("role", "group"); box.setAttribute("aria-label", label);
-    for (const [id, txt] of opts) {
-      const b = document.createElement("button"); b.type = "button"; b.textContent = txt;
-      const p = id && part(id);
-      b.disabled = !!id && !allowed(id);
-      b.title = b.disabled ? (p.only.trans ? "Chỉ cho xe số sàn" : "Chỉ cho máy hút khí tự nhiên") :
-        p ? `${p.name} · ${f1(p.price * (p.priceByRim ? car().rimIn / 15 : 1))} triệu` : "";
-      b.setAttribute("aria-pressed", perf[g] === id);
-      b.addEventListener("click", () => pick(g, id));
-      box.append(b);
+// ---- picking ---------------------------------------------------------------------------
+function toggle(key, on) {
+  const m = mod(key);
+  if (on) {
+    if (m.excl) for (const k of [...sel]) if (k !== key && mod(k).excl === m.excl) sel.delete(k);
+    sel.add(key);
+    for (const r of m.requires || []) { if (!sel.has(r)) { const rm = mod(r); if (rm.excl) for (const k of [...sel]) if (mod(k).excl === rm.excl) sel.delete(k); sel.add(r); } }
+  } else sel.delete(key);
+  for (const k of [...sel]) if ((mod(k).requires || []).some(r => !sel.has(r))) sel.delete(k);   // drop orphans
+  preset = null; refresh();
+}
+function applyPreset(k) {
+  preset = k; sel = new Set(CAT.presets[k].keys.filter(key => M.allowed(mod(key), car())));
+  refresh();
+}
+function syncSuspension() {
+  const slider = $("lower"), co = sel.has("coilover"), sp = sel.has("springs");
+  const mm = co ? (G.state.lower || 50) : sp ? 35 : 0;
+  slider.disabled = !co;
+  $("lowerHint").textContent = co ? "Coilover: chỉnh độ cao 0–60 mm." : sp ? "Lò xo hạ: cố định 35 mm." : "Cần lò xo hạ hoặc coilover (tab Hiệu năng).";
+  if (G.state.lower !== mm) G.setLower(mm);
+}
+
+// ---- performance tab ---------------------------------------------------------------------
+$("flagLegend").innerHTML = Object.entries(CAT.dk).map(([l, t]) => `<span><span class="dk-${l}">${FLAG}</span>${t}</span>`).join("");
+const presetEl = $("presetChips");
+for (const [k, p] of Object.entries(CAT.presets)) {
+  const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = p.label; b.dataset.perfpreset = k;
+  b.addEventListener("click", () => applyPreset(k)); presetEl.append(b);
+}
+{ const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = "Bỏ hết";
+  b.addEventListener("click", () => { sel.clear(); preset = null; refresh(); }); presetEl.append(b); }
+document.querySelectorAll("#tiers button").forEach(b => b.addEventListener("click", () => { tier = b.dataset.tier; refresh(); }));
+
+function renderMods() {
+  const c = car();
+  for (const g of ["spec", "comfort", "feel"]) {
+    const el = $(`mods-${g}`); el.innerHTML = "";
+    for (const m of CAT.mods.filter(x => x.group === g)) {
+      const ok = M.allowed(m, c), t = M.tierOf(m, tier);
+      if (!ok) sel.delete(m.key);
+      const level = t.dk || m.dk, note = t.dkNote ?? m.dkNote;
+      const why = m.only && m.only.trans ? "Xe số tự động, không áp dụng" : "Chỉ cho máy hút khí tự nhiên";
+      const req = (m.requires || []).map(r => mod(r).label);
+      const item = document.createElement("div"); item.className = "mod";
+      item.innerHTML = `<div class="mod-line"><label class="mod-row${ok ? "" : " off"}">
+          <input type="checkbox" ${sel.has(m.key) ? "checked" : ""} ${ok ? "" : "disabled"}>
+          <span class="mod-main"><span>${m.label}</span><span class="mod-sub">${ok ? `${t.brand} · ${fr(t.price)}${req.length ? ` · kèm ${req.join(", ")}` : ""}` : why}</span></span>
+          <span class="flag dk-${level}" title="${CAT.dk[level]}${note ? `: ${note}` : ""}">${FLAG}${level === "risk" ? "<span>Nên gỡ</span>" : ""}</span></label>
+        <button type="button" class="qbtn" aria-expanded="${openInfo.has(m.key)}" aria-label="${m.label} là gì">?</button></div>
+        <div class="mod-info"${openInfo.has(m.key) ? "" : " hidden"}>${m.info}${note ? `<br><span class="dk-${level}">${CAT.dk[level]}: ${note}.</span>` : ""}</div>`;
+      item.querySelector("input").addEventListener("change", e => toggle(m.key, e.target.checked));
+      item.querySelector(".qbtn").addEventListener("click", e => {
+        openInfo.has(m.key) ? openInfo.delete(m.key) : openInfo.add(m.key);
+        e.currentTarget.setAttribute("aria-expanded", openInfo.has(m.key));
+        item.querySelector(".mod-info").hidden = !openInfo.has(m.key);
+      });
+      el.append(item);
     }
-    rows.append(n, box);
   }
-  stats();
 }
 
 function stats() {
-  const { stock, tuned } = vehicles();
-  const a = S.drag(stock).slip, b = S.drag(tuned).slip;
-  const pa = peak(stock, "whp").whp, pb = peak(tuned, "whp").whp;
+  const a = stockOf(G.state.car), b = current();
+  const ra = a.raw, rb = b.raw;
   const tile = (k, v, d, better) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span><span class="d ${better === undefined ? "" : better ? "up" : "down"}">${d}</span></div>`;
-  const dt = (x, y) => (Math.abs(y - x) < 0.005 ? "như zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} s so với zin`);
+  const dt = (x, y, u) => (Math.abs(y - x) < 0.005 ? "như zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} ${u} so với zin`);
+  const same = (x, y) => Math.abs(x - y) < 0.005;
   $("stats").innerHTML =
-    tile("Công suất bánh", `${Math.round(pb)} whp`, pb - pa > 0.5 ? `+${Math.round(pb - pa)} whp so với zin` : "như zin", pb - pa > 0.5 ? true : undefined) +
-    tile("0–100 km/h", `${f2(b.t100)} s`, dt(a.t100, b.t100), Math.abs(b.t100 - a.t100) < 0.005 ? undefined : b.t100 < a.t100) +
-    tile("1/4 dặm", `${f2(b.t402)} s`, `${Math.round(b.v402)} km/h về đích`) +
-    tile("Khối lượng", `${Math.round(tuned.mass)} kg`, Math.round(tuned.mass - stock.mass) ? `${tuned.mass > stock.mass ? "+" : "−"}${Math.abs(Math.round(tuned.mass - stock.mass))} kg` : "như zin",
-      Math.round(tuned.mass - stock.mass) ? tuned.mass < stock.mass : undefined);
-  $("funFill").style.width = `${tuned.fun}%`;
-  $("funVal").textContent = `${tuned.fun}/100`;
-  $("perfCost").textContent = `${f1(tuned.price)} triệu`;
+    tile("Công suất bánh", `${Math.round(b.vehicle && peak(b.vehicle, "whp").whp)} whp`, rb.hp - ra.hp > 0.5 ? `+${Math.round(rb.hp - ra.hp)} hp so với zin` : "như zin", rb.hp - ra.hp > 0.5 ? true : undefined) +
+    tile("0–100 km/h", `${f2(rb.t100)} s`, dt(ra.t100, rb.t100, "s"), same(ra.t100, rb.t100) ? undefined : rb.t100 < ra.t100) +
+    tile("1/4 dặm", `${f2(rb.t402)} s`, `${Math.round(rb.v402)} km/h về đích`) +
+    tile("Khối lượng", `${Math.round(rb.kg)} kg`, Math.round(rb.kg - ra.kg) ? `${rb.kg > ra.kg ? "+" : "−"}${Math.abs(Math.round(rb.kg - ra.kg))} kg` : "như zin",
+      Math.round(rb.kg - ra.kg) ? rb.kg < ra.kg : undefined);
+  $("funFill").style.width = `${b.fun}%`; $("funVal").textContent = `${b.fun}/100`;
+  $("priceTotal").textContent = fr(b.price);
+  const items = [...sel].map(k => [mod(k).label, M.tierOf(mod(k), tier).price]);
+  const e = ext(), exteriorBits = [];
+  for (const [slot, v] of [["bumper_F", e.bumper_F], ["bumper_R", e.bumper_R], ["skirt", e.skirt], ["spoiler", e.spoiler]])
+    if (CAT.body[slot] && CAT.body[slot][v]) exteriorBits.push(CAT.body[slot][v].price);
+  if (e.wheel !== "stock") exteriorBits.push(CAT.wheels[e.wheel].price);
+  const exSum = exteriorBits.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]);
+  $("priceBreak").innerHTML = items.length || exSum[1] ? items.map(([l, p]) => `${l}: ${fr(p)}`).join("<br>") + (exSum[1] ? `${items.length ? "<br>" : ""}Ngoại thất: ${fr(exSum)}` : "") : "Chưa chọn món nào.";
+  $("dkList").innerHTML = b.dk.length ? b.dk.map(d => `<span class="dk-${d.level}">${FLAG}</span> ${d.label}: ${CAT.dk[d.level].toLowerCase()}${d.note ? `, ${d.note}` : ""}`).join("<br>")
+    : (items.length ? '<span class="dk-pass">' + FLAG + "</span> Cả bản độ qua đăng kiểm." : "");
 }
 
+function refresh() {
+  document.querySelectorAll("#tiers button").forEach(b => b.setAttribute("aria-pressed", b.dataset.tier === tier));
+  document.querySelectorAll("#presetChips [data-perfpreset]").forEach(b => b.setAttribute("aria-pressed", b.dataset.perfpreset === preset));
+  renderMods(); syncSuspension(); stats(); renderCompare();
+}
+
+// ---- comparison tab ------------------------------------------------------------------------
+let cmpMode = "bar";
+const AX = CAT.axes;
+const RAWAX = [r => `${Math.round(r.vmax)} km/h`, r => `0–100 ${f2(r.t100)} s`, r => `${Math.round(r.hpPerT)} hp/tấn`];
+function cmpSeries() {
+  const a = stockOf(G.state.car), b = current();
+  const list = [{ name: `${NAMES[G.state.car]} zin`, col: COL.stock, r: a }, { name: `${NAMES[G.state.car]} bản độ`, col: COL.tuned, r: b }];
+  for (const [k, slot] of others) list.push({ name: `${NAMES[k]} zin`, col: OTHER[slot], r: stockOf(k), other: true });
+  return list;
+}
+function renderCarChips() {
+  const el = $("cmpCars"); el.innerHTML = "";
+  for (const k of Object.keys(CARS)) {
+    if (k === G.state.car) continue;
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = NAMES[k];
+    const on = others.has(k);
+    b.setAttribute("aria-pressed", on);
+    if (on) b.style.borderColor = OTHER[others.get(k)];
+    b.disabled = !on && others.size >= 3;
+    b.addEventListener("click", () => {
+      if (others.has(k)) others.delete(k);
+      else { const used = new Set(others.values()); others.set(k, [0, 1, 2].find(i => !used.has(i))); }
+      renderCompare();
+    });
+    el.append(b);
+  }
+}
+document.querySelectorAll("#cmpMode button").forEach(b => b.addEventListener("click", () => {
+  cmpMode = b.dataset.m;
+  document.querySelectorAll("#cmpMode button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderCompare();
+}));
+
+function renderCompare() {
+  if ($("tab-cmp").hidden) return;
+  renderCarChips();
+  const L = cmpSeries();
+  $("cmpLegend").innerHTML = L.map(s => `<span><i style="border-color:${s.col};border-top-width:8px"></i>${s.name}</span>`).join("");
+  const box = $("cmpChart"); box.innerHTML = "";
+  if (cmpMode === "bar") {
+    const wrap = document.createElement("div"); wrap.className = "cbars";
+    AX.forEach((ax, i) => {
+      const a = L[0].r.scores[i], b = L[1].r.scores[i], d = Math.round((b - a) * 10) / 10;
+      const rawTxt = i < 3 ? `${RAWAX[i](L[0].r.raw)} → ${RAWAX[i](L[1].r.raw).replace("0–100 ", "")}` : (d ? `${d > 0 ? "+" : ""}${f1(d)} điểm` : "như zin");
+      const blk = document.createElement("div"); blk.className = "cax";
+      blk.innerHTML = `<div class="cax-h"><span>${ax}</span><span>${rawTxt}</span></div>` + L.map(s => {
+        const v = s.r.scores[i];
+        const tip = `${s.name} · ${ax}: ${f1(v)}/10${i < 3 ? ` (${RAWAX[i](s.r.raw)})` : ""}`;
+        return `<div class="crow" title="${tip}"><div class="ctrack"><div class="cfill" style="width:${v * 10}%;background:${s.col}"></div></div><span class="cval">${f1(v)}</span></div>`;
+      }).join("");
+      wrap.append(blk);
+    });
+    box.append(wrap);
+  } else {
+    // radar: own-car before/after, then one small radar per compared car (only two shapes per chart)
+    const grid = document.createElement("div"); grid.className = "radars"; box.append(grid);
+    const fig = (cls, cap, pairs) => {
+      const f = document.createElement("figure"); if (cls) f.className = cls;
+      const cv = document.createElement("canvas"); f.append(cv);
+      const c = document.createElement("figcaption"); c.textContent = cap; f.append(c);
+      grid.append(f); requestAnimationFrame(() => radar(cv, pairs, cls === "big"));
+    };
+    fig("big", "Trước / sau khi độ", [L[0], L[1]]);
+    for (const s of L.slice(2)) fig("", `Bản độ vs ${s.name}`, [L[1], s]);
+  }
+  // tables
+  const head = `<tr><th></th>${L.map(s => `<th style="border-bottom:2px solid ${s.col}">${s.name.replace(" bản độ", " độ")}</th>`).join("")}</tr>`;
+  const rows = [
+    ["Công suất", r => `${Math.round(r.hp)} hp`, r => r.hp, 1], ["Mô-men", r => `${Math.round(r.nm)} Nm`, r => r.nm, 1],
+    ["Khối lượng", r => `${Math.round(r.kg)} kg`, r => r.kg, -1], ["hp/tấn", r => Math.round(r.hpPerT), r => r.hpPerT, 1],
+    ["0–100 km/h", r => `${f2(r.t100)} s`, r => r.t100, -1], ["1/4 dặm", r => `${f2(r.t402)} s`, r => r.t402, -1],
+    ["Tốc độ tối đa", r => `${Math.round(r.vmax)} km/h`, r => r.vmax, 1],
+  ];
+  const cls = (a, b, dir) => (Math.abs(a - b) < 1e-3 ? "" : (b - a) * dir > 0 ? "up" : "down");
+  $("cmpRaw").innerHTML = head + rows.map(([n, fmt, val, dir]) => `<tr><td>${n}</td>${L.map((s, j) =>
+    `<td class="${j === 1 ? cls(val(L[0].r.raw), val(s.r.raw), dir) : ""}">${fmt(s.r.raw)}</td>`).join("")}</tr>`).join("");
+  $("cmpScore").innerHTML = head + [...AX.map((ax, i) => [ax, s => s.r.scores[i]]), ["Lái vui", s => s.r.fun / 10]].map(([n, val]) =>
+    `<tr><td>${n}</td>${L.map((s, j) => `<td class="${j === 1 ? cls(val(L[0]), val(s), 1) : ""}">${f1(val(s))}</td>`).join("")}</tr>`).join("");
+}
+
+function radar(cv, pairs, big) {
+  const r0 = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio, 2);
+  cv.width = r0.width * dpr; cv.height = r0.height * dpr;
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const W = r0.width, cx = W / 2, cy = W / 2 + (big ? 4 : 2), R = W / 2 - (big ? 68 : 14);
+  const n = AX.length, ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
+  const P = (i, v) => [cx + Math.cos(ang(i)) * R * v / 10, cy + Math.sin(ang(i)) * R * v / 10];
+  g.strokeStyle = "rgba(138,144,155,.18)"; g.lineWidth = 1;
+  for (let k = 2; k <= 10; k += 2) { g.beginPath(); for (let i = 0; i <= n; i++) { const [x, y] = P(i % n, k); i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+  for (let i = 0; i < n; i++) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(...P(i, 10)); g.stroke(); }
+  if (big) {
+    g.fillStyle = "#8a909b"; g.font = "11px 'Be Vietnam Pro', system-ui, sans-serif"; g.textBaseline = "middle";
+    AX.forEach((ax, i) => { const [x, y] = P(i, 11.6); g.textAlign = Math.abs(x - cx) < 4 ? "center" : x < cx ? "right" : "left"; g.fillText(ax, x, y); });
+  }
+  const pts = [];
+  pairs.forEach((s, j) => {
+    g.beginPath(); s.r.scores.forEach((v, i) => { const [x, y] = P(i, v); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath();
+    g.fillStyle = s.col + "29"; g.fill(); g.strokeStyle = s.col; g.lineWidth = 2; g.setLineDash(j === 0 && !s.other && pairs[1] && !pairs[1].other ? [5, 4] : []); g.stroke(); g.setLineDash([]);
+    s.r.scores.forEach((v, i) => { const [x, y] = P(i, v); pts.push({ x, y, s, i, v });
+      g.fillStyle = "#16181d"; g.beginPath(); g.arc(x, y, big ? 4.5 : 3.5, 0, 7); g.fill(); g.fillStyle = s.col; g.beginPath(); g.arc(x, y, big ? 3.5 : 2.5, 0, 7); g.fill(); });
+  });
+  cv.title = pairs.map(s => `${s.name}: ${s.r.scores.map((v, i) => `${AX[i]} ${f1(v)}`).join(", ")}`).join("\n");
+}
 // ---- results overlay ------------------------------------------------------------------
 const cv = $("resCanvas"), tip = $("resTip");
 let anim = 0, mode = "whp", lastDyno = null;
@@ -213,7 +318,7 @@ function runDrag() {
   $("resTable").innerHTML = `<tr><th>Mốc</th><th>Zin</th><th>Bản độ</th><th>Chênh</th></tr>` +
     rows.map(([n, k]) => `<tr><td>${n}</td><td>${f2(A.slip[k])} s</td><td>${f2(B.slip[k])} s</td><td>${diff(A.slip[k], B.slip[k])}</td></tr>`).join("") +
     `<tr><td>Tốc độ về đích</td><td>${Math.round(A.slip.v402)} km/h</td><td>${Math.round(B.slip.v402)} km/h</td><td></td></tr>`;
-  const illegal = B.slip.t402 < 11.5 && perf.cage !== "rollcage";
+  const illegal = B.slip.t402 < 11.5 && !sel.has("rollcage");
   $("resNote").textContent = illegal ? "Không hợp lệ ở giải: chạy dưới 11,5 s bắt buộc có khung bảo vệ." :
     `Mô phỏng ${car().trans === "mt" ? "đề pa giữ vòng tua rồi nhả côn" : "đạp ga từ vòng tua không tải"}; không tính thời gian phản xạ của tài xế.`;
   // christmas tree, then both cars run in real time
@@ -257,26 +362,17 @@ $("runDyno").addEventListener("click", runDyno);
 $("runDrag").addEventListener("click", runDrag);
 document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
-  $("tab-ext").hidden = b.dataset.tab !== "ext"; $("tab-perf").hidden = b.dataset.tab !== "perf";
-  stats();
+  for (const t of ["ext", "perf", "cmp"]) $(`tab-${t}`).hidden = b.dataset.tab !== t;
+  stats(); renderCompare();
 }));
-// presets and car switches reset the performance build to match
-const PRESET_PERF = {
-  stock: {},
-  street: { intake: "intake", exhaust: "axleback", pedal: "pedalchip", susp: "springs", tyre: "tyre_sport" },
-  sport: { intake: "intake", exhaust: "catback", tune: "remap2", shifter: "shortshifter", pedal: "pedalchip",
-           susp: "coilover", brace: "strutbar", tyre: "tyre_semi" },
-};
-document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => setTimeout(() => {
-  perf = Object.assign(EMPTY(), PRESET_PERF[b.dataset.preset]);
-  for (const [g, v] of Object.entries(perf)) if (v && !allowed(v)) perf[g] = g === "tyre" ? "tyre_stock" : "";
-  if (b.dataset.preset === "sport") G.state.lower = 50;
-  syncSuspension(); render();
-}, 0)));
+// exterior presets only touch body kit / wheels; ride height stays with the suspension pick
 document.querySelectorAll("[data-car]").forEach(b => b.addEventListener("click", () => setTimeout(() => {
-  perf = EMPTY(); syncSuspension(); render(); $("results").hidden = true;
+  sel.clear(); preset = null; others.delete(G.state.car); $("results").hidden = true; refresh();
 }, 0)));
-// exterior changes (bumpers, wheels, spoiler) change aero / mass: refresh stats on any panel click
-document.querySelector("aside").addEventListener("click", () => setTimeout(stats, 0));
-$("lower").addEventListener("input", () => { if (perf.susp === "coilover") stats(); });
-syncSuspension(); render();
+document.querySelector("aside").addEventListener("click", e => {
+  if (e.target.closest("#tab-perf, #tab-cmp")) return;
+  setTimeout(() => { syncSuspension(); stats(); renderCompare(); }, 0);
+});
+$("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
+addEventListener("resize", () => { if (cmpMode === "radar") renderCompare(); });
+refresh();

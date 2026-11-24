@@ -23,7 +23,7 @@
 html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px;
-  display: grid; grid-template-columns: minmax(0, 1fr) 360px; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) 380px; overflow: hidden;
 }
 #bay { position: relative; min-width: 0; height: 100%; background: #000; }
 #bay canvas { width: 100%; height: 100%; display: block; }
@@ -86,7 +86,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .spec dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 .note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
 .hint { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.45; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--line); }
 .tabs button { background: none; border: 0; color: var(--muted); font: 400 12px var(--font-display); letter-spacing: .06em; text-transform: uppercase; padding: 10px 4px; cursor: pointer; border-bottom: 2px solid transparent; }
 .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
 .tabpane { display: flex; flex-direction: column; gap: 16px; }
@@ -116,6 +116,46 @@ button.run:hover { filter: brightness(1.08); }
 .legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
 .chartwrap { position: relative; }
 #resCanvas { width: 100%; height: 220px; display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 12px var(--font-body); padding: 6px 11px; background: var(--raise); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); background: #3a2a12; }
+.chip:disabled { opacity: .4; cursor: not-allowed; }
+.seg.small button { padding: 5px 10px; font-size: 12px; }
+.flag-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); }
+.flag-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.mods { display: flex; flex-direction: column; }
+.mod { border-bottom: 1px solid var(--line); }
+.mod:last-child { border-bottom: 0; }
+.mod-line { display: flex; align-items: center; gap: 8px; }
+.mod-row { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 2px; font-size: 13px; cursor: pointer; }
+.mod-row input { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+.mod-row.off { opacity: .45; cursor: default; }
+.mod-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.mod-sub { font: 11px var(--font-data); color: var(--muted); overflow-wrap: anywhere; }
+.qbtn { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--line); background: var(--raise); color: var(--muted); font: 12px var(--font-data); cursor: pointer; padding: 0; }
+.qbtn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.mod-info { font-size: 12px; line-height: 1.55; color: var(--muted); background: var(--raise); border-radius: 3px; padding: 8px 10px; margin: 0 0 8px 26px; }
+.flag { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; font: 10px var(--font-data); }
+.dk-pass { color: #5fae7a; } .dk-warn { color: #d39a2a; } .dk-risk { color: #e2604a; }
+.price { border: 1px solid var(--accent); border-radius: 4px; padding: 12px; gap: 4px; }
+.price b { font: 600 26px var(--font-data); color: var(--accent); }
+.price-break { font: 12px var(--font-data); color: var(--muted); line-height: 1.6; }
+.dk-list { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.tablewrap { overflow-x: auto; }
+.cbars { display: flex; flex-direction: column; gap: 10px; }
+.cax { display: flex; flex-direction: column; gap: 2px; }
+.cax-h { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg); }
+.cax-h span:last-child { color: var(--muted); font: 11px var(--font-data); }
+.crow { display: grid; grid-template-columns: minmax(0, 1fr) 34px; gap: 6px; align-items: center; height: 13px; }
+.ctrack { position: relative; height: 8px; }
+.cfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+.cval { font: 11px/13px var(--font-data); text-align: right; color: var(--fg); font-variant-numeric: tabular-nums; }
+.radars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.radars canvas { width: 100%; aspect-ratio: 1; display: block; }
+.radars .big { grid-column: 1 / -1; }
+.radars figure { margin: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.radars figcaption { font-size: 11px; color: var(--muted); text-align: center; }
+table.slip td.up { color: #8fd18f; } table.slip td.down { color: #e98a7a; }
 .tip { position: absolute; pointer-events: none; background: #1d2026; border: 1px solid var(--line); border-radius: 3px; padding: 6px 8px; font: 12px var(--font-data); white-space: nowrap; }
 table.slip { width: 100%; border-collapse: collapse; font: 12px var(--font-data); font-variant-numeric: tabular-nums; }
 table.slip th { text-align: right; color: var(--muted); font-weight: 400; padding: 3px 6px; border-bottom: 1px solid var(--line); }
@@ -164,6 +204,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
   <div class="tabs" role="tablist">
     <button type="button" role="tab" data-tab="ext" aria-selected="true">Ngoại thất</button>
     <button type="button" role="tab" data-tab="perf" aria-selected="false">Hiệu năng</button>
+    <button type="button" role="tab" data-tab="cmp" aria-selected="false">So sánh</button>
   </div>
   <div id="tab-ext" class="tabpane">
   <section>
@@ -199,15 +240,46 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <div class="funbar"><span class="label">Lái vui</span><div class="bar"><i id="funFill"></i></div><span class="val" id="funVal"></span></div>
     </section>
     <section>
-      <div class="line"><h2 class="label">Đồ độ hiệu năng</h2><span class="val" id="perfCost"></span></div>
-      <div class="rows" id="perfRows"></div>
-      <p class="hint" id="perfNote"></p>
+      <h2 class="label">After market range</h2>
+      <div class="seg" id="tiers"><button type="button" data-tier="eco">Phổ thông</button><button type="button" data-tier="pro">Premium</button></div>
+    </section>
+    <section>
+      <h2 class="label">Gói độ gợi ý</h2>
+      <div class="chips" id="presetChips"></div>
+    </section>
+    <div class="flag-legend" id="flagLegend"></div>
+    <section><h2 class="label">Độ thay đổi số liệu</h2><div class="mods" id="mods-spec"></div></section>
+    <section><h2 class="label">Độ êm ái</h2><div class="mods" id="mods-comfort"></div></section>
+    <section><h2 class="label">Độ thay cảm giác (không đổi số liệu)</h2><div class="mods" id="mods-feel"></div></section>
+    <section class="price">
+      <span class="label">Tạm tính, gồm cả đồ ngoại thất</span>
+      <b id="priceTotal">0 tr</b>
+      <div class="price-break" id="priceBreak"></div>
+      <div class="dk-list" id="dkList"></div>
     </section>
     <section class="runrow">
       <button type="button" class="run" id="runDyno">Chạy dyno</button>
       <button type="button" class="run" id="runDrag">Chạy drag 1/4 dặm</button>
     </section>
-    <p class="note">Mô phỏng chạy thẳng: đường cong mô-men theo loại máy, hộp số thật, bám đường có dồn tải, cản gió, thời gian sang số. Hiệu chỉnh xe zin theo 0–100 hãng công bố (lệch 0–5%). Thanh giằng và phuộc chỉ tăng "lái vui", không đổi thời gian chạy thẳng.</p>
+    <p class="note">Danh mục, mức giá, thương hiệu và cờ đăng kiểm lấy từ bảng benchmark Chili Paprika; giá là ước lượng thị trường, chưa gồm công. Công suất, tăng tốc, tốc độ tối đa chạy qua bộ mô phỏng (xe zin lệch 0–5% so với số hãng). Handling, Phanh, Drift/grip, Độ êm là thang điểm ước lượng của tiệm, không phải số đo.</p>
+  </div>
+  <div id="tab-cmp" class="tabpane" hidden>
+    <section>
+      <div class="line"><h2 class="label">Trước / sau khi độ</h2>
+        <div class="seg small" id="cmpMode"><button type="button" data-m="bar" aria-pressed="true">Cột</button><button type="button" data-m="radar" aria-pressed="false">Radar</button></div></div>
+      <p class="hint">So bản đang độ với bản zin của chính xe này. Thêm tối đa 3 xe khác (bản zin) để đối chiếu.</p>
+      <div class="chips" id="cmpCars"></div>
+    </section>
+    <div class="legend" id="cmpLegend"></div>
+    <div id="cmpChart"></div>
+    <section>
+      <h2 class="label">Thông số thực</h2>
+      <div class="tablewrap"><table class="slip" id="cmpRaw"></table></div>
+    </section>
+    <section>
+      <h2 class="label">Thang điểm</h2>
+      <div class="tablewrap"><table class="slip" id="cmpScore"></table></div>
+    </section>
   </div>
   <dl class="spec" id="spec"></dl>
   <p class="note">Hình khối PS1, ánh sáng realtime: đèn treo, nắng qua cửa sổ có đổ bóng, bloom và color grade. Tỉ lệ từng xe đo trên blueprint riêng. Vệt bánh trước/sau đang là số tạm.</p>
@@ -269,9 +341,9 @@ const SLOTS = [
 ];
 const RIMS = [["stock","Zin"],["mesh","Lưới"],["dish","Lòng sâu"],["steel","Mâm sắt"],["black6","6 chấu"]];
 const PRESETS = {
-  stock:  { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none", lower:0 },
-  street: { bumper_F:"lip", bumper_R:"stock", skirt:"skirt", wheel:"mesh", spoiler:"roof_ext", lower:35 },
-  sport:  { bumper_F:"sport", bumper_R:"diffuser", skirt:"skirt", wheel:"dish", spoiler:"gt_wing", lower:50 },
+  stock:  { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none" },
+  street: { bumper_F:"lip", bumper_R:"stock", skirt:"skirt", wheel:"mesh", spoiler:"roof_ext" },
+  sport:  { bumper_F:"sport", bumper_R:"diffuser", skirt:"skirt", wheel:"dish", spoiler:"gt_wing" },
 };
 const CARS = {
   mazda2_2013:   { name: "MAZDA 2", title: "MAZDA 2 DE · 2013", sub: "1.5 MT · 3885×1695×1475 · WB 2490",
@@ -285,7 +357,7 @@ const CARS = {
   ranger_raptor_2019: { name: "RAPTOR", title: "FORD RANGER RAPTOR · 2019", sub: "2.0 Bi-Turbo 10AT · 5398×2028×1873 · WB 3220",
                    plate: "60C-219.19", paint: "Trắng", rim: "Mâm 17″ · lốp 285/70", clearance: 283, cam: 1.22 },
 };
-const state = { car: "mazda2_2013", ...PRESETS.stock, paint: "Xanh Mazda", lights: false };
+const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", lights: false };
 const $ = id => document.getElementById(id);
 
 // ---- renderer, camera ---------------------------------------------------------
@@ -661,7 +733,7 @@ async function part(file, kind = "car") {
 
 async function selectCar(key) {
   state.car = key;
-  Object.assign(state, PRESETS.stock, { paint: CARS[key].paint });
+  Object.assign(state, PRESETS.stock, { lower: 0, paint: CARS[key].paint });
   body.clear(); wheelGroup.clear(); stock = {}; sockets = {}; swapped = {};
   if (!carCache[key]) {
     const car = await load(key);

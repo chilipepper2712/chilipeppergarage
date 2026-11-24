@@ -23,7 +23,7 @@
 html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px;
-  display: grid; grid-template-columns: minmax(0, 1fr) 360px; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) 380px; overflow: hidden;
 }
 #bay { position: relative; min-width: 0; height: 100%; background: #000; }
 #bay canvas { width: 100%; height: 100%; display: block; }
@@ -86,7 +86,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .spec dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 .note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
 .hint { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.45; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--line); }
 .tabs button { background: none; border: 0; color: var(--muted); font: 400 12px var(--font-display); letter-spacing: .06em; text-transform: uppercase; padding: 10px 4px; cursor: pointer; border-bottom: 2px solid transparent; }
 .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
 .tabpane { display: flex; flex-direction: column; gap: 16px; }
@@ -116,6 +116,46 @@ button.run:hover { filter: brightness(1.08); }
 .legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
 .chartwrap { position: relative; }
 #resCanvas { width: 100%; height: 220px; display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 12px var(--font-body); padding: 6px 11px; background: var(--raise); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); background: #3a2a12; }
+.chip:disabled { opacity: .4; cursor: not-allowed; }
+.seg.small button { padding: 5px 10px; font-size: 12px; }
+.flag-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); }
+.flag-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.mods { display: flex; flex-direction: column; }
+.mod { border-bottom: 1px solid var(--line); }
+.mod:last-child { border-bottom: 0; }
+.mod-line { display: flex; align-items: center; gap: 8px; }
+.mod-row { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 2px; font-size: 13px; cursor: pointer; }
+.mod-row input { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+.mod-row.off { opacity: .45; cursor: default; }
+.mod-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.mod-sub { font: 11px var(--font-data); color: var(--muted); overflow-wrap: anywhere; }
+.qbtn { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--line); background: var(--raise); color: var(--muted); font: 12px var(--font-data); cursor: pointer; padding: 0; }
+.qbtn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.mod-info { font-size: 12px; line-height: 1.55; color: var(--muted); background: var(--raise); border-radius: 3px; padding: 8px 10px; margin: 0 0 8px 26px; }
+.flag { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; font: 10px var(--font-data); }
+.dk-pass { color: #5fae7a; } .dk-warn { color: #d39a2a; } .dk-risk { color: #e2604a; }
+.price { border: 1px solid var(--accent); border-radius: 4px; padding: 12px; gap: 4px; }
+.price b { font: 600 26px var(--font-data); color: var(--accent); }
+.price-break { font: 12px var(--font-data); color: var(--muted); line-height: 1.6; }
+.dk-list { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.tablewrap { overflow-x: auto; }
+.cbars { display: flex; flex-direction: column; gap: 10px; }
+.cax { display: flex; flex-direction: column; gap: 2px; }
+.cax-h { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg); }
+.cax-h span:last-child { color: var(--muted); font: 11px var(--font-data); }
+.crow { display: grid; grid-template-columns: minmax(0, 1fr) 34px; gap: 6px; align-items: center; height: 13px; }
+.ctrack { position: relative; height: 8px; }
+.cfill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+.cval { font: 11px/13px var(--font-data); text-align: right; color: var(--fg); font-variant-numeric: tabular-nums; }
+.radars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.radars canvas { width: 100%; aspect-ratio: 1; display: block; }
+.radars .big { grid-column: 1 / -1; }
+.radars figure { margin: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.radars figcaption { font-size: 11px; color: var(--muted); text-align: center; }
+table.slip td.up { color: #8fd18f; } table.slip td.down { color: #e98a7a; }
 .tip { position: absolute; pointer-events: none; background: #1d2026; border: 1px solid var(--line); border-radius: 3px; padding: 6px 8px; font: 12px var(--font-data); white-space: nowrap; }
 table.slip { width: 100%; border-collapse: collapse; font: 12px var(--font-data); font-variant-numeric: tabular-nums; }
 table.slip th { text-align: right; color: var(--muted); font-weight: 400; padding: 3px 6px; border-bottom: 1px solid var(--line); }
@@ -164,6 +204,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
   <div class="tabs" role="tablist">
     <button type="button" role="tab" data-tab="ext" aria-selected="true">Ngoại thất</button>
     <button type="button" role="tab" data-tab="perf" aria-selected="false">Hiệu năng</button>
+    <button type="button" role="tab" data-tab="cmp" aria-selected="false">So sánh</button>
   </div>
   <div id="tab-ext" class="tabpane">
   <section>
@@ -199,15 +240,46 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <div class="funbar"><span class="label">Lái vui</span><div class="bar"><i id="funFill"></i></div><span class="val" id="funVal"></span></div>
     </section>
     <section>
-      <div class="line"><h2 class="label">Đồ độ hiệu năng</h2><span class="val" id="perfCost"></span></div>
-      <div class="rows" id="perfRows"></div>
-      <p class="hint" id="perfNote"></p>
+      <h2 class="label">After market range</h2>
+      <div class="seg" id="tiers"><button type="button" data-tier="eco">Phổ thông</button><button type="button" data-tier="pro">Premium</button></div>
+    </section>
+    <section>
+      <h2 class="label">Gói độ gợi ý</h2>
+      <div class="chips" id="presetChips"></div>
+    </section>
+    <div class="flag-legend" id="flagLegend"></div>
+    <section><h2 class="label">Độ thay đổi số liệu</h2><div class="mods" id="mods-spec"></div></section>
+    <section><h2 class="label">Độ êm ái</h2><div class="mods" id="mods-comfort"></div></section>
+    <section><h2 class="label">Độ thay cảm giác (không đổi số liệu)</h2><div class="mods" id="mods-feel"></div></section>
+    <section class="price">
+      <span class="label">Tạm tính, gồm cả đồ ngoại thất</span>
+      <b id="priceTotal">0 tr</b>
+      <div class="price-break" id="priceBreak"></div>
+      <div class="dk-list" id="dkList"></div>
     </section>
     <section class="runrow">
       <button type="button" class="run" id="runDyno">Chạy dyno</button>
       <button type="button" class="run" id="runDrag">Chạy drag 1/4 dặm</button>
     </section>
-    <p class="note">Mô phỏng chạy thẳng: đường cong mô-men theo loại máy, hộp số thật, bám đường có dồn tải, cản gió, thời gian sang số. Hiệu chỉnh xe zin theo 0–100 hãng công bố (lệch 0–5%). Thanh giằng và phuộc chỉ tăng "lái vui", không đổi thời gian chạy thẳng.</p>
+    <p class="note">Danh mục, mức giá, thương hiệu và cờ đăng kiểm lấy từ bảng benchmark Chili Paprika; giá là ước lượng thị trường, chưa gồm công. Công suất, tăng tốc, tốc độ tối đa chạy qua bộ mô phỏng (xe zin lệch 0–5% so với số hãng). Handling, Phanh, Drift/grip, Độ êm là thang điểm ước lượng của tiệm, không phải số đo.</p>
+  </div>
+  <div id="tab-cmp" class="tabpane" hidden>
+    <section>
+      <div class="line"><h2 class="label">Trước / sau khi độ</h2>
+        <div class="seg small" id="cmpMode"><button type="button" data-m="bar" aria-pressed="true">Cột</button><button type="button" data-m="radar" aria-pressed="false">Radar</button></div></div>
+      <p class="hint">So bản đang độ với bản zin của chính xe này. Thêm tối đa 3 xe khác (bản zin) để đối chiếu.</p>
+      <div class="chips" id="cmpCars"></div>
+    </section>
+    <div class="legend" id="cmpLegend"></div>
+    <div id="cmpChart"></div>
+    <section>
+      <h2 class="label">Thông số thực</h2>
+      <div class="tablewrap"><table class="slip" id="cmpRaw"></table></div>
+    </section>
+    <section>
+      <h2 class="label">Thang điểm</h2>
+      <div class="tablewrap"><table class="slip" id="cmpScore"></table></div>
+    </section>
   </div>
   <dl class="spec" id="spec"></dl>
   <p class="note">Hình khối PS1, ánh sáng realtime: đèn treo, nắng qua cửa sổ có đổ bóng, bloom và color grade. Tỉ lệ từng xe đo trên blueprint riêng. Vệt bánh trước/sau đang là số tạm.</p>
@@ -334,11 +406,107 @@ table.slip td { text-align: right; padding: 3px 6px; }
     return { slip, trace };
   }
 
-  const api = { build, dyno, drag, stockCurve, interp };
+  // top speed: highest speed where tractive force in some gear (rpm <= redline) still beats drag
+  function topSpeed(v) {
+    const c = v.car, r = c.tyreR;
+    let best = 0;
+    for (let kmh = 60; kmh <= 320; kmh += 0.5) {
+      const vel = kmh / 3.6, drag = v.crr * v.mass * G + 0.5 * RHO * v.cda * vel * vel;
+      let ok = false;
+      for (const gr of c.gears) {
+        const rpm = vel / r * 60 / (2 * Math.PI) * gr * c.final;
+        if (rpm > v.redline || rpm < 1500) continue;
+        if (v.curve(rpm) * gr * c.final * c.eff / r >= drag) { ok = true; break; }
+      }
+      if (ok) best = kmh;
+    }
+    return Math.min(best, c.vmax || 999);
+  }
+  const api = { build, dyno, drag, topSpeed, stockCurve, interp };
   if (typeof module !== "undefined") module.exports = api; else root.PerfSim = api;
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
-<script id="perfdata" type="application/json">{"cars": {"mazda2_2013": {"name": "Mazda 2 1.5 MT", "engine": {"type": "na", "kw": 76.8, "nm": 137, "rpmT": 4000, "rpmP": 6000, "redline": 6500, "idle": 800}, "trans": "mt", "gears": [3.416, 1.842, 1.29, 0.972, 0.775], "final": 3.85, "eff": 0.92, "drive": "fwd", "frontShare": 0.62, "hcg": 0.52, "wheelbase": 2.49, "mass": 1110, "tyreR": 0.292, "rimIn": 15, "wheelKg": 16, "cda": 0.63, "shiftTime": 0.35, "throttleTau": 0.2, "launchRpm": 3500, "fun": 55, "target0100": 10.4, "sources": ["Mazda USA 2014 Mazda2 spec sheet (gears, final)", "autoboom.co.il / Top Gear (103 hp, 137 Nm, 1035 kg, 10.4 s)"], "tbd": ["cda", "hcg"]}, "civic_fd_2008": {"name": "Honda Civic FD 1.8 MT", "engine": {"type": "na", "kw": 103, "nm": 174, "rpmT": 4300, "rpmP": 6300, "redline": 6800, "idle": 750}, "trans": "mt", "gears": [3.142, 1.869, 1.235, 0.948, 0.727], "final": 4.294, "eff": 0.92, "drive": "fwd", "frontShare": 0.61, "hcg": 0.53, "wheelbase": 2.7, "mass": 1315, "tyreR": 0.317, "rimIn": 15, "wheelKg": 17, "cda": 0.67, "shiftTime": 0.32, "throttleTau": 0.18, "launchRpm": 3800, "fun": 60, "target0100": 8.9, "sources": ["Goo-net / cars-data.com (140 PS R18A, 8.9 s claim for the 1.8 MT, hatch)"], "tbd": ["nm", "gears", "final", "cda", "hcg", "mass (VN 1.8 MT ~1240 kerb)"]}, "cx5_2020": {"name": "Mazda CX-5 2.0 AT", "engine": {"type": "na", "kw": 121, "nm": 213, "rpmT": 4000, "rpmP": 6000, "redline": 6500, "idle": 700}, "trans": "at", "gears": [3.552, 2.022, 1.452, 1.0, 0.708, 0.599], "final": 4.624, "eff": 0.85, "drive": "fwd", "frontShare": 0.59, "hcg": 0.62, "wheelbase": 2.7, "mass": 1625, "tyreR": 0.365, "rimIn": 19, "wheelKg": 24, "cda": 0.86, "shiftTime": 0.25, "throttleTau": 0.22, "stallRpm": 2400, "fun": 35, "target0100": 10.4, "sources": ["paultan.org (Malaysia 2.0 2WD: 162 hp, 213 Nm, 10.4 s)", "bonbanh (VN kerb 1550 kg)"], "tbd": ["gears", "final", "cda", "hcg"]}, "mini_f55_2018": {"name": "MINI Cooper S 5 cửa MT", "engine": {"type": "turbo", "kw": 141, "nm": 300, "rpmT0": 1350, "rpmT1": 4600, "rpmP": 5500, "redline": 6500, "idle": 750}, "trans": "mt", "gears": [3.923, 2.038, 1.32, 0.981, 0.818, 0.683], "final": 3.588, "eff": 0.92, "drive": "fwd", "frontShare": 0.62, "hcg": 0.5, "wheelbase": 2.567, "mass": 1295, "tyreR": 0.308, "rimIn": 17, "wheelKg": 19, "cda": 0.69, "shiftTime": 0.3, "throttleTau": 0.16, "launchRpm": 3200, "fun": 72, "target0100": 6.9, "sources": ["autotijd.be (192 PS manual, 6.9 s)", "auto-data.net (1220 kg)", "BMW Group 03/2014 sheet (1st 3.923, 6th 0.756)"], "tbd": ["gears 2-6", "final", "cda", "hcg"], "tuned": ["nm 280 -> 300 (auto-data / ultimatespecs list 300)", "2nd gear 2.038 so 2nd reaches ~100 km/h like the real car"]}, "ranger_raptor_2019": {"name": "Ford Ranger Raptor 2.0 Bi-Turbo 10AT", "engine": {"type": "diesel", "kw": 157, "nm": 500, "rpmT0": 1750, "rpmT1": 2000, "rpmP": 3750, "redline": 4500, "idle": 750}, "trans": "at", "gears": [4.696, 2.985, 2.146, 1.769, 1.52, 1.275, 1.0, 0.854, 0.689, 0.636], "final": 3.73, "eff": 0.82, "drive": "rwd", "frontShare": 0.57, "hcg": 0.8, "wheelbase": 3.22, "mass": 2407, "tyreR": 0.415, "rimIn": 17, "wheelKg": 34, "cda": 1.7, "shiftTime": 0.2, "throttleTau": 0.3, "stallRpm": 2000, "fun": 58, "engineInertia": 1.6, "target0100": 10.5, "sources": ["Wikiwand Ranger T6 (213 PS, 500 Nm, 10R80)", "Carsales (10.5 s claim)", "4x4 Australia (2332 kg kerb)"], "tbd": ["final", "cda", "hcg"]}}, "parts": {"_note": "Performance parts. Prices are rough VND (triệu) for the demo. fx = effect for every engine, fxBy.<na|turbo|diesel> overrides. tq/pw = fractional gain at low-mid rpm / top end; boost = bolt-on turbo gain after spool; kg = mass change; shift/tau = multipliers on shift time / throttle lag; cda = fractional aero change; hcg = CoG height change (m); lower = ride height drop (mm, drives the viewer); fun = 'lái vui' points. Effects follow what people typically measure on the street: NA cars gain little from bolt-ons, turbo cars a lot from a remap.", "groups": {"intake": "Hút khí", "exhaust": "Pô", "tune": "ECU / map", "forced": "Tăng áp", "shifter": "Cần số", "pedal": "Chân ga", "susp": "Gầm", "brace": "Thanh giằng", "cage": "Khung", "tyre": "Vỏ xe"}, "parts": [{"id": "intake", "group": "intake", "name": "Lọc gió thể thao", "price": 3, "fx": {"pw": 0.02, "fun": 2}, "fxBy": {"turbo": {"tq": 0.02, "pw": 0.02}, "diesel": {"tq": 0.01, "pw": 0.01}}, "note": "Tiếng hút gió vui tai, công suất gần như không đổi."}, {"id": "axleback", "group": "exhaust", "name": "Pô axle-back", "price": 7, "fx": {"pw": 0.01, "kg": -3, "fun": 3}, "note": "Chủ yếu là tiếng."}, {"id": "catback", "group": "exhaust", "name": "Pô cat-back", "price": 18, "fx": {"pw": 0.03, "kg": -9, "fun": 4}, "fxBy": {"turbo": {"tq": 0.03, "pw": 0.04}, "diesel": {"tq": 0.02, "pw": 0.02}}, "note": "Nhẹ hơn pô zin, máy turbo hưởng lợi nhiều hơn."}, {"id": "remap1", "group": "tune", "name": "Map công suất stage 1", "price": 12, "fx": {"tq": 0.04, "pw": 0.06, "rev": 300, "fun": 3}, "fxBy": {"turbo": {"tq": 0.25, "pw": 0.2, "rev": 0}, "diesel": {"tq": 0.22, "pw": 0.18, "rev": 0}}, "note": "Máy turbo tăng mạnh nhờ tăng áp suất turbo; máy hút khí tự nhiên chỉ được vài phần trăm."}, {"id": "remap2", "group": "tune", "name": "Map công suất stage 2", "price": 22, "requires": ["intake", "catback"], "fx": {"tq": 0.06, "pw": 0.09, "rev": 400, "fun": 4}, "fxBy": {"turbo": {"tq": 0.35, "pw": 0.3, "rev": 0}, "diesel": {"tq": 0.3, "pw": 0.25, "rev": 0}}, "note": "Cần lọc gió và pô cat-back đi kèm."}, {"id": "ecu", "group": "tune", "name": "ECU độc lập", "price": 45, "only": {"type": ["na"]}, "fx": {"tq": 0.03, "pw": 0.07, "rev": 500, "fun": 3}, "note": "Bắt buộc nếu muốn lắp turbo kit cho máy hút khí tự nhiên."}, {"id": "turbokit", "group": "forced", "name": "Turbo kit", "price": 110, "only": {"type": ["na"]}, "requires": ["ecu", "intake"], "fx": {"boost": 0.45, "kg": 18, "fun": 8}, "note": "Lên turbo cho máy hút khí tự nhiên: mạnh từ ~3.000 vòng/phút, nặng thêm 18 kg."}, {"id": "shortshifter", "group": "shifter", "name": "Short shifter", "price": 4, "only": {"trans": ["mt"]}, "fx": {"shift": 0.7, "fun": 4}, "note": "Hành trình cần số ngắn, sang số nhanh hơn ~30%."}, {"id": "pedalchip", "group": "pedal", "name": "Chip chân ga", "price": 3.5, "fx": {"tau": 0.45, "fun": 6}, "note": "0 mã lực. Chân ga nhạy hơn: xe phản ứng ngay khi đạp, rõ nhất sau mỗi lần sang số và khi đề pa xe số tự động."}, {"id": "springs", "group": "susp", "name": "Lò xo hạ gầm", "price": 7, "fx": {"lower": 35, "hcg": -0.03, "cda": -0.01, "fun": 3}, "note": "Hạ 35 mm, trọng tâm thấp hơn."}, {"id": "coilover", "group": "susp", "name": "Phuộc coilover", "price": 28, "fx": {"lower": 50, "hcg": -0.04, "cda": -0.015, "fun": 5}, "note": "Chỉnh được độ cao; demo đặt hạ 50 mm."}, {"id": "strutbar", "group": "brace", "name": "Thanh giằng", "price": 2.5, "fx": {"kg": 2, "fun": 2}, "note": "Thân xe cứng hơn khi vào cua. Không ảnh hưởng chạy thẳng."}, {"id": "rollcage", "group": "cage", "name": "Khung bảo vệ", "price": 30, "fx": {"kg": 40, "fun": 1}, "note": "Nặng thêm 40 kg. Bắt buộc khi chạy 1/4 dặm dưới 11,5 s."}, {"id": "tyre_eco", "group": "tyre", "name": "Vỏ tiết kiệm", "price": 5, "priceByRim": true, "fx": {"mu": 0.92, "crr": 0.009, "fun": -2}}, {"id": "tyre_stock", "group": "tyre", "name": "Vỏ zin", "price": 0, "priceByRim": true, "fx": {"mu": 1.0, "crr": 0.011}}, {"id": "tyre_sport", "group": "tyre", "name": "Vỏ thể thao", "price": 10, "priceByRim": true, "fx": {"mu": 1.1, "crr": 0.012, "fun": 3}}, {"id": "tyre_semi", "group": "tyre", "name": "Vỏ bán slick", "price": 16, "priceByRim": true, "fx": {"mu": 1.25, "crr": 0.013, "fun": 5}}, {"id": "tyre_drag", "group": "tyre", "name": "Vỏ drag radial", "price": 20, "priceByRim": true, "fx": {"mu": 1.45, "crr": 0.014, "fun": 2}, "note": "Bám cực tốt khi đề pa, khó chạy đường thường."}], "wheels": {"stock": {"wheelKg": 0, "price": 0}, "mesh": {"wheelKg": -2.0, "price": 18}, "dish": {"wheelKg": 1.5, "price": 22}, "steel": {"wheelKg": 3.0, "price": 4}, "black6": {"wheelKg": -1.0, "price": 12}}, "body": {"bumper_F": {"lip": {"cda": 0.005, "price": 6, "fun": 1}, "sport": {"cda": 0.01, "price": 15, "fun": 2}}, "bumper_R": {"diffuser": {"cda": 0.0, "price": 9, "fun": 1}}, "skirt": {"skirt": {"cda": -0.005, "price": 8, "fun": 1}}, "spoiler": {"roof_ext": {"cda": 0.01, "price": 5, "fun": 1}, "gt_wing": {"cda": 0.04, "price": 14, "fun": 2}}}}}</script>
+<script>// Garage build model: turns (car, picked mods, tier, exterior) into a sim vehicle, the 7-axis scores,
+// real figures, price range and inspection flags. Pure functions; browser (window.GarageModel) + node.
+(function (root) {
+  "use strict";
+  const S = root.PerfSim || (typeof require !== "undefined" ? require("./sim.js") : null);
+  const clamp = v => Math.max(1, Math.min(10, v));
+  // 1-10 scales from the benchmark app's 17-car dataset, so scores stay comparable with it
+  const sTop = v => (v - 170) / (250 - 170) * 9 + 1;
+  const sAccel = v => (11.5 - v) / (11.5 - 6.2) * 9 + 1;
+  const sRatio = v => (v - 87.5) / (185.1 - 87.5) * 9 + 1;
+  // diminishing returns: each extra chassis mod adds less than the one before
+  const W = [1, 0.7, 0.5, 0.35, 0.25];
+  const dim = arr => arr.slice().sort((a, b) => b - a).reduce((s, v, i) => s + v * (W[i] ?? 0.2), 0);
+
+  const modOf = (cat, key) => cat.mods.find(m => m.key === key);
+  const tierOf = (m, tier) => m.tiers[tier] || m.tiers.eco;
+  const allowed = (m, car) => !m.only ||
+    ((!m.only.type || m.only.type.includes(car.engine.type)) && (!m.only.trans || m.only.trans.includes(car.trans)));
+
+  function resolve(car, keys, tier, ext, cat) {
+    ext = ext || {};
+    const simParts = [], dk = [], chassis = { h: [], b: [], d: [], e: [] };
+    let lo = 0, hi = 0, fun = 0;
+    const scoreAdd = sc => { for (const k in sc || {}) (k === "e" ? chassis.e.push(sc[k]) : chassis[k].push(sc[k])); };
+    for (const key of keys) {
+      const m = modOf(cat, key);
+      if (!m || !allowed(m, car)) continue;
+      const t = tierOf(m, tier);
+      const phys = Object.assign({}, m.phys || {}, t.phys || {});
+      const physBy = Object.assign({}, m.physBy || {}, t.physBy || {});
+      phys.fun = m.fun || 0;
+      simParts.push({ id: key, group: m.excl === "tyre" ? "tyre" : m.excl || m.group, price: (t.price[0] + t.price[1]) / 2, fx: phys, fxBy: physBy });
+      scoreAdd(t.score || m.score);
+      lo += t.price[0]; hi += t.price[1];
+      const level = t.dk || m.dk, note = t.dkNote ?? m.dkNote;
+      if (level !== "pass") dk.push({ key, label: m.label, level, note });
+    }
+    // exterior parts feed aero, wheel mass, scores and price too
+    for (const [slot, v] of [["bumper_F", ext.bumper_F], ["bumper_R", ext.bumper_R], ["skirt", ext.skirt], ["spoiler", ext.spoiler]]) {
+      const e = cat.body[slot] && cat.body[slot][v];
+      if (!e) continue;
+      simParts.push({ id: `body_${slot}_${v}`, group: "body", price: (e.price[0] + e.price[1]) / 2, fx: { cda: e.cda, fun: e.fun } });
+      lo += e.price[0]; hi += e.price[1];
+    }
+    const w = ext.wheel && cat.wheels[ext.wheel];
+    if (w && ext.wheel !== "stock") {
+      simParts.push({ id: `wheel_${ext.wheel}`, group: "wheel", price: (w.price[0] + w.price[1]) / 2, fx: { wheelKg: w.wheelKg, fun: 1 } });
+      scoreAdd(w.score); lo += w.price[0]; hi += w.price[1];
+    }
+    const catalog = { parts: [...simParts, ...cat.parts] };
+    const vehicle = S.build(car, simParts.map(p => p.id), catalog);
+    const raw = figures(vehicle);
+    const [h0, b0, d0, e0] = car.chassis;
+    // bolt-on ceilings: handling / braking gain at most +3, drift +2, comfort stays within 1 .. stock+3
+    const eSum = chassis.e.reduce((a, b) => a + b, 0);
+    const scores = [
+      clamp(sTop(raw.vmax)), clamp(sAccel(raw.t100)), clamp(sRatio(raw.hpPerT)),
+      Math.min(10, h0 + 3, h0 + dim(chassis.h)),
+      Math.min(10, b0 + 3, b0 + dim(chassis.b)),
+      Math.max(1, Math.min(10, d0 + 2, d0 + chassis.d.reduce((a, b) => a + b, 0))),
+      Math.max(1, Math.min(10, e0 + 3, e0 + eSum)),
+    ].map(v => Math.round(v * 10) / 10);
+    return { vehicle, raw, scores, price: [lo, hi], dk, fun: vehicle.fun };
+  }
+
+  function figures(v) {
+    const run = S.drag(v), dy = S.dyno(v, 100);
+    const pk = dy.reduce((a, b) => (b.hp > a.hp ? b : a)), tq = dy.reduce((a, b) => (b.nm > a.nm ? b : a));
+    const kerb = v.mass - 75;
+    return {
+      hp: pk.hp, hpRpm: pk.rpm, whp: pk.whp, nm: tq.nm, nmRpm: tq.rpm, kg: kerb,
+      hpPerT: pk.hp / kerb * 1000, t100: run.slip.t100, t402: run.slip.t402, v402: run.slip.v402,
+      t60: run.slip.t60, vmax: S.topSpeed(v), run,
+    };
+  }
+
+  const api = { resolve, allowed, modOf, tierOf };
+  if (typeof module !== "undefined") module.exports = api; else root.GarageModel = api;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+<script id="perfdata" type="application/json">{"cars": {"mazda2_2013": {"chassis": [5, 4, 3, 5], "name": "Mazda 2 1.5 MT", "engine": {"type": "na", "kw": 76.8, "nm": 137, "rpmT": 4000, "rpmP": 6000, "redline": 6500, "idle": 800}, "trans": "mt", "gears": [3.416, 1.842, 1.29, 0.972, 0.775], "final": 3.85, "eff": 0.92, "drive": "fwd", "frontShare": 0.62, "hcg": 0.52, "wheelbase": 2.49, "mass": 1110, "tyreR": 0.292, "rimIn": 15, "wheelKg": 16, "cda": 0.66, "shiftTime": 0.35, "throttleTau": 0.2, "launchRpm": 3500, "fun": 55, "target0100": 10.4, "targetVmax": 188, "sources": ["Mazda USA 2014 Mazda2 spec sheet (gears, final)", "autoboom.co.il / Top Gear (103 hp, 137 Nm, 1035 kg, 10.4 s)"], "tbd": ["cda", "hcg"]}, "civic_fd_2008": {"chassis": [6, 6, 3, 6], "name": "Honda Civic FD 1.8 MT", "engine": {"type": "na", "kw": 103, "nm": 174, "rpmT": 4300, "rpmP": 6300, "redline": 6800, "idle": 750}, "trans": "mt", "gears": [3.142, 1.869, 1.235, 0.948, 0.727], "final": 4.294, "eff": 0.92, "drive": "fwd", "frontShare": 0.61, "hcg": 0.53, "wheelbase": 2.7, "mass": 1315, "tyreR": 0.317, "rimIn": 15, "wheelKg": 17, "cda": 0.73, "shiftTime": 0.32, "throttleTau": 0.18, "launchRpm": 3800, "fun": 60, "target0100": 8.9, "targetVmax": 200, "sources": ["Goo-net / cars-data.com (140 PS R18A, 8.9 s claim for the 1.8 MT, hatch)"], "tbd": ["nm", "gears", "final", "cda", "hcg", "mass (VN 1.8 MT ~1240 kerb)"]}, "cx5_2020": {"chassis": [3, 5, 2, 9], "name": "Mazda CX-5 2.0 AT", "engine": {"type": "na", "kw": 121, "nm": 213, "rpmT": 4000, "rpmP": 6000, "redline": 6500, "idle": 700}, "trans": "at", "gears": [3.552, 2.022, 1.452, 1.0, 0.708, 0.599], "final": 4.624, "eff": 0.85, "drive": "fwd", "frontShare": 0.59, "hcg": 0.62, "wheelbase": 2.7, "mass": 1625, "tyreR": 0.365, "rimIn": 19, "wheelKg": 24, "cda": 0.86, "shiftTime": 0.25, "throttleTau": 0.22, "stallRpm": 2400, "fun": 35, "target0100": 10.4, "targetVmax": 195, "sources": ["paultan.org (Malaysia 2.0 2WD: 162 hp, 213 Nm, 10.4 s)", "bonbanh (VN kerb 1550 kg)"], "tbd": ["gears", "final", "cda", "hcg"]}, "mini_f55_2018": {"chassis": [9, 8, 3, 4], "name": "MINI Cooper S 5 cửa MT", "engine": {"type": "turbo", "kw": 141, "nm": 300, "rpmT0": 1350, "rpmT1": 4600, "rpmP": 5500, "redline": 6500, "idle": 750}, "trans": "mt", "gears": [3.923, 2.038, 1.32, 0.981, 0.818, 0.683], "final": 3.588, "eff": 0.92, "drive": "fwd", "frontShare": 0.62, "hcg": 0.5, "wheelbase": 2.567, "mass": 1295, "tyreR": 0.308, "rimIn": 17, "wheelKg": 19, "cda": 0.72, "shiftTime": 0.3, "throttleTau": 0.16, "launchRpm": 3200, "fun": 72, "target0100": 6.9, "targetVmax": 235, "sources": ["autotijd.be (192 PS manual, 6.9 s)", "auto-data.net (1220 kg)", "BMW Group 03/2014 sheet (1st 3.923, 6th 0.756)"], "tbd": ["gears 2-6", "final", "cda", "hcg"], "tuned": ["nm 280 -> 300 (auto-data / ultimatespecs list 300)", "2nd gear 2.038 so 2nd reaches ~100 km/h like the real car"]}, "ranger_raptor_2019": {"chassis": [3, 4, 3, 6], "name": "Ford Ranger Raptor 2.0 Bi-Turbo 10AT", "engine": {"type": "diesel", "kw": 157, "nm": 500, "rpmT0": 1750, "rpmT1": 2000, "rpmP": 3750, "redline": 4500, "idle": 750}, "trans": "at", "gears": [4.696, 2.985, 2.146, 1.769, 1.52, 1.275, 1.0, 0.854, 0.689, 0.636], "final": 3.73, "eff": 0.82, "drive": "rwd", "frontShare": 0.57, "hcg": 0.8, "wheelbase": 3.22, "mass": 2407, "tyreR": 0.415, "rimIn": 17, "wheelKg": 34, "cda": 1.74, "shiftTime": 0.2, "throttleTau": 0.3, "stallRpm": 2000, "fun": 58, "engineInertia": 1.6, "target0100": 10.5, "targetVmax": 170, "sources": ["Wikiwand Ranger T6 (213 PS, 500 Nm, 10R80)", "Carsales (10.5 s claim)", "4x4 Australia (2332 kg kerb)"], "tbd": ["final", "cda", "hcg"]}}, "parts": {"_note": "Merged catalog: mod list, tiers, brands, price ranges (triệu VND, market estimates, excluding labour), inspection flags and explanations come from the earlier 'Chili Paprika Garage' benchmark app; 'phys' adds the drag/dyno sim effects. score = chassis score deltas on the 1-10 scale (h handling, b phanh, d drift/grip, e độ êm). phys keys: tq/pw fractional torque gain low-mid / top end, boost = bolt-on turbo gain after spool, rev = extra redline rpm, kg, shift/tau multipliers, cda fraction, hcg (m), lower (mm), mu/crr for tyres. physBy.<na|turbo|diesel> overrides per engine type. A tier's own score/phys/dk replaces the mod's. fun = 'lái vui' points.", "axes": ["Tốc độ tối đa", "Tăng tốc", "Độ bốc", "Handling", "Phanh", "Drift/grip", "Độ êm"], "dk": {"pass": "Qua đăng kiểm", "warn": "Tùy trạm", "risk": "Nên gỡ khi đăng kiểm"}, "presets": {"daily": {"label": "Sương sương vui vẻ", "keys": ["coilover", "strutbar", "perftire", "axleback", "pedalbox"]}, "deo": {"label": "Dân chơi", "keys": ["coilover", "strutbar", "swaybar", "perftire", "brakes", "intake", "catback", "shortshift"]}, "track": {"label": "Dân bị xe chơi", "keys": ["coilover", "strutbar", "swaybar", "semislick", "brakes", "intake", "catback", "remap", "lightweight", "shortshift", "pedalbox"]}, "comfy": {"label": "Êm ái", "keys": ["comfortshock", "comforttire", "soundproof", "bushings"]}}, "mods": [{"key": "coilover", "group": "spec", "excl": "susp", "label": "Phuộc coilover", "fun": 5, "info": "Bộ phuộc và lò xo liền khối, chỉnh được độ cao gầm và độ cứng giảm chấn. Hạ trọng tâm, giảm nghiêng thân khi vào cua. Đổi lại đi đường xấu sẽ xóc hơn zin. Bản premium giảm chấn tốt hơn nên đỡ xóc hơn bản phổ thông, đây là chỗ đáng tiền thật của đồ xịn. Trong xưởng: mở thanh chỉnh độ cao 0–60 mm.", "score": {"h": 2, "e": -2, "d": 1}, "phys": {"lower": 50, "hcg": -0.04, "cda": -0.015}, "dk": "pass", "dkNote": "qua nếu hạ không quá ~55mm", "tiers": {"eco": {"brand": "BC Racing V1", "price": [28, 32]}, "pro": {"brand": "Tein Flex Z / KW V1", "price": [45, 80], "score": {"h": 2, "e": -1, "d": 1}}}}, {"key": "springs", "group": "spec", "excl": "susp", "label": "Lò xo hạ gầm", "fun": 3, "info": "Thay lò xo zin bằng lò xo ngắn và cứng hơn, giữ phuộc zin. Hạ gầm cố định khoảng 35 mm, xe bớt nghiêng khi vào cua. Rẻ hơn coilover nhiều nhưng phuộc zin phải gánh lò xo cứng hơn nên sẽ nhanh xuống.", "score": {"h": 1, "e": -1}, "phys": {"lower": 35, "hcg": -0.03, "cda": -0.01}, "dk": "pass", "dkNote": "qua nếu hạ không quá ~55mm", "tiers": {"eco": {"brand": "Lò xo hạ phổ thông", "price": [4, 7]}, "pro": {"brand": "Tein S.Tech / Eibach Pro-Kit", "price": [10, 16]}}}, {"key": "strutbar", "group": "spec", "label": "Thanh giằng trước (strut bar)", "fun": 2, "info": "Thanh thép hoặc nhôm nối hai tháp phuộc trước, giữ đầu xe không bị vặn khi vào cua mạnh. Tay lái phản hồi chính xác hơn, gần như không ảnh hưởng độ êm.", "score": {"h": 1}, "phys": {"kg": 2}, "dk": "pass", "tiers": {"eco": {"brand": "Ultra Racing", "price": [2, 4]}, "pro": {"brand": "Cusco", "price": [6, 9]}}}, {"key": "swaybar", "group": "spec", "label": "Sway bar / torsion beam bar sau", "fun": 2, "info": "Thanh chống lật cứng hơn zin, hoặc thanh gia cố dầm xoắn sau với xe dùng torsion beam. Giảm nghiêng thân, đuôi xe theo đầu xe nhanh hơn khi đánh lái.", "score": {"h": 1}, "phys": {"kg": 3}, "dk": "pass", "tiers": {"eco": {"brand": "Ultra Racing", "price": [3, 5]}, "pro": {"brand": "Cusco / Whiteline", "price": [8, 14]}}}, {"key": "perftire", "group": "spec", "excl": "tyre", "label": "Lốp hiệu năng", "fun": 3, "info": "Lốp hiệu năng dùng cao su mềm, gai lốp tối ưu cho độ bám. Vào cua bám hơn, quãng phanh ngắn hơn lốp thường. Đổi lại ồn hơn, cứng hơn và mòn nhanh hơn. Là món nâng cấp handling đáng tiền nhất so với số tiền bỏ ra.", "score": {"h": 1, "b": 1, "e": -1}, "phys": {"mu": 1.1, "crr": 0.012}, "dk": "pass", "dkNote": "size lốp phải đúng giấy tờ", "tiers": {"eco": {"brand": "Bridgestone Potenza Adrenalin / Hankook Ventus", "price": [8, 12]}, "pro": {"brand": "Michelin Pilot Sport 5 / Potenza Sport", "price": [14, 22], "phys": {"mu": 1.14, "crr": 0.012}}}}, {"key": "semislick", "group": "spec", "excl": "tyre", "label": "Lốp bán slick", "fun": 5, "info": "Lốp đường phố gần như lốp đua: gai rất ít, cao su rất mềm. Bám cực tốt khi khô và đã nóng lốp, đề pa và phanh khác hẳn. Đổi lại trời mưa rất trơn, ồn, cứng và mòn nhanh, đi hằng ngày không đáng.", "score": {"h": 2, "b": 2, "e": -2, "d": 1}, "phys": {"mu": 1.25, "crr": 0.013}, "dk": "pass", "dkNote": "size lốp phải đúng giấy tờ", "tiers": {"eco": {"brand": "Federal 595RS-RR / Nankang AR-1", "price": [14, 20]}, "pro": {"brand": "Yokohama A052 / Bridgestone RE-71RS", "price": [22, 32], "phys": {"mu": 1.3, "crr": 0.013}}}}, {"key": "dragradial", "group": "spec", "excl": "tyre", "label": "Lốp drag radial", "fun": 2, "info": "Lốp chuyên chạy thẳng: hông lốp mềm, mặt lốp bám cực tốt khi đề pa. Vào cua và trời mưa thì kém, đi hằng ngày rất mệt. Chỉ đáng lắp nếu mục tiêu là thời gian 1/4 dặm.", "score": {"e": -1, "d": -1}, "phys": {"mu": 1.45, "crr": 0.014}, "dk": "warn", "dkNote": "gai mỏng, một số trạm không cho qua", "tiers": {"eco": {"brand": "Nitto NT555R", "price": [16, 22]}, "pro": {"brand": "Mickey Thompson ET Street R", "price": [25, 35], "phys": {"mu": 1.5, "crr": 0.014}}}}, {"key": "brakes", "group": "spec", "label": "Nâng cấp phanh", "fun": 1, "info": "Má phanh hiệu năng chịu nhiệt tốt hơn, ít bị mất phanh khi phanh gấp liên tục. Bản premium thay cả heo phanh nhiều piston và đĩa lớn hơn, lực phanh mạnh và đều hơn.", "score": {"b": 1}, "phys": {}, "dk": "pass", "tiers": {"eco": {"brand": "Má EBC / Project Mu + đĩa xẻ rãnh", "price": [6, 10]}, "pro": {"brand": "Big brake kit Brembo / Endless", "price": [45, 80], "score": {"b": 2}, "phys": {"kg": 4}, "dk": "warn", "dkNote": "đổi heo phanh có thể bị hỏi tại trạm"}}}, {"key": "intake", "group": "spec", "label": "Lọc gió hiệu năng", "fun": 2, "info": "Lọc gió thông thoáng giúp máy hít gió dễ hơn. Tăng công suất nhẹ, tiếng hút gió rõ hơn khi đạp ga. Nên đi cùng pô để máy thoáng cả đầu vào lẫn đầu ra.", "phys": {"pw": 0.015}, "physBy": {"turbo": {"tq": 0.015, "pw": 0.02}, "diesel": {"tq": 0.01, "pw": 0.01}}, "dk": "pass", "tiers": {"eco": {"brand": "Simota / K&N lọc gió thay thế", "price": [2, 4]}, "pro": {"brand": "HKS / K&N cổ hút + bầu lọc", "price": [8, 15], "phys": {"pw": 0.025}, "physBy": {"turbo": {"tq": 0.025, "pw": 0.03}, "diesel": {"tq": 0.015, "pw": 0.015}}}}}, {"key": "axleback", "group": "spec", "excl": "exhaust", "label": "Pô bầu (axle-back)", "fun": 3, "info": "Chỉ thay bầu pô cuối. Chủ yếu đổi tiếng pô, thoáng thêm chút ở đầu ra, công suất tăng rất ít, thường chỉ 1–2 hp. Rẻ và dễ làm, hợp với khách muốn xe có tiếng.", "phys": {"pw": 0.01, "kg": -3}, "dk": "pass", "dkNote": "tiếng pô phải trong giới hạn tiếng ồn", "tiers": {"eco": {"brand": "Pô bầu phổ thông", "price": [4, 8]}, "pro": {"brand": "HKS / Fujitsubo / RacingBeat", "price": [12, 20], "phys": {"pw": 0.015, "kg": -5}}}}, {"key": "catback", "group": "spec", "excl": "exhaust", "label": "Pô cat-back", "fun": 4, "info": "Thay toàn bộ đường ống từ sau bầu xúc tác ra tới đuôi pô, ống lớn và ít gấp khúc hơn zin. Máy thoáng đầu ra rõ hơn pô bầu, công suất và độ bốc tăng thêm chút, tiếng pô đầy và trầm hơn. Giữ nguyên bầu xúc tác nên vẫn đạt khí thải.", "phys": {"pw": 0.03, "kg": -8}, "physBy": {"turbo": {"tq": 0.03, "pw": 0.04}, "diesel": {"tq": 0.02, "pw": 0.02}}, "dk": "pass", "dkNote": "tiếng pô phải trong giới hạn tiếng ồn, không tháo bầu xúc tác", "tiers": {"eco": {"brand": "Cat-back phổ thông", "price": [12, 18]}, "pro": {"brand": "HKS / Tomei / RacingBeat", "price": [25, 40], "phys": {"pw": 0.045, "kg": -12}, "physBy": {"turbo": {"tq": 0.04, "pw": 0.055}, "diesel": {"tq": 0.03, "pw": 0.03}}}}}, {"key": "remap", "group": "spec", "excl": "tune", "label": "ECU remap", "fun": 3, "info": "Nạp lại chương trình cho hộp điều khiển động cơ: chỉnh góc đánh lửa, tỷ lệ xăng gió, áp suất turbo. Máy turbo tăng công suất rõ, máy hút khí tự nhiên tăng ít hơn nhiều. Nên đổ xăng RON95 trở lên.", "phys": {"tq": 0.03, "pw": 0.04, "rev": 200}, "physBy": {"turbo": {"tq": 0.2, "pw": 0.18, "rev": 0}, "diesel": {"tq": 0.18, "pw": 0.15, "rev": 0}}, "dk": "pass", "dkNote": "trạm không kiểm ECU, nhưng mất bảo hành hãng", "tiers": {"eco": {"brand": "Tuner nội địa", "price": [8, 12]}, "pro": {"brand": "EcuTek / Hondata / Cobb", "price": [20, 35], "phys": {"tq": 0.05, "pw": 0.07, "rev": 400}, "physBy": {"turbo": {"tq": 0.28, "pw": 0.25, "rev": 0}, "diesel": {"tq": 0.25, "pw": 0.2, "rev": 0}}}}}, {"key": "turbokit", "group": "spec", "excl": "tune", "label": "Turbo kit + ECU rời", "fun": 8, "only": {"type": ["na"]}, "requires": ["intake"], "info": "Lên turbo cho máy hút khí tự nhiên, kèm ECU rời để điều khiển. Mạnh lên rõ từ khoảng 3.000 vòng/phút, nặng thêm gần 20 kg. Là món đắt và rủi ro nhất: cần làm lại hệ thống làm mát, và gần như chắc chắn không qua đăng kiểm.", "phys": {"boost": 0.4, "kg": 18, "rev": 300}, "dk": "risk", "dkNote": "thay đổi kết cấu động cơ", "tiers": {"eco": {"brand": "Kit turbo Trung Quốc + Speeduino", "price": [70, 110]}, "pro": {"brand": "Kit HKS / Garrett + Haltech", "price": [180, 260], "phys": {"boost": 0.55, "kg": 20, "rev": 500}}}}, {"key": "lightweight", "group": "spec", "label": "Giảm cân", "fun": 2, "info": "Thay ắc quy lithium nhẹ hơn ắc quy chì khoảng 8–10 kg. Bản premium thêm nắp capo carbon, nhẹ hơn capo thép vài ký và giảm tải trên đầu xe. Nói thật: với xe nhỏ, mức giảm này cảm nhận được nhưng không lớn, mâm nhẹ thường đáng tiền hơn.", "phys": {"kg": -9}, "dk": "pass", "tiers": {"eco": {"brand": "Ắc quy lithium", "price": [6, 10]}, "pro": {"brand": "Ắc quy lithium + capo carbon", "price": [25, 40], "phys": {"kg": -17}, "dk": "warn", "dkNote": "capo carbon để trần khác màu sơn trên giấy, nên sơn trùng màu hoặc khai báo đổi màu"}}}, {"key": "rollcage", "group": "spec", "label": "Khung bảo vệ (roll cage)", "fun": 1, "info": "Khung ống thép trong khoang lái, bảo vệ khi lật xe và làm thân xe cứng hơn. Nặng thêm 30–40 kg nên chạy thẳng còn chậm đi. Ở giải drag, xe chạy 1/4 dặm dưới 11,5 s bắt buộc phải có khung.", "score": {"h": 1, "e": -1}, "phys": {"kg": 40}, "dk": "warn", "dkNote": "khung bắt bulong tháo được thì qua, khung hàn vào sườn thì không", "tiers": {"eco": {"brand": "Khung 4 điểm bắt bulong", "price": [25, 35], "phys": {"kg": 30}}, "pro": {"brand": "Khung 6 điểm Cusco / Safety Devices", "price": [60, 90], "phys": {"kg": 40}, "score": {"h": 1, "e": -1}}}}, {"key": "comfortshock", "group": "comfort", "excl": "susp", "label": "Phuộc êm (giữ gầm zin)", "fun": 1, "info": "Phuộc giảm chấn loại êm, giữ nguyên chiều cao gầm zin. Hấp thụ ổ gà, gờ giảm tốc tốt hơn phuộc zin đã cũ, thân xe ít dập dềnh khi chạy đường dài tốc độ cao. Với xe đã chạy trên 60.000 km, thay món này cảm nhận rõ nhất.", "score": {"e": 2, "h": 1}, "phys": {}, "dk": "pass", "tiers": {"eco": {"brand": "KYB Excel-G", "price": [8, 14]}, "pro": {"brand": "Bilstein B6 / Koni Special", "price": [20, 35], "score": {"e": 3, "h": 1}}}}, {"key": "comforttire", "group": "comfort", "excl": "tyre", "label": "Lốp êm, giảm ồn", "fun": 0, "info": "Lốp dòng êm, gai và hông lốp thiết kế để giảm ồn và hấp thụ rung. Đi đường cao tốc đỡ ồn hẳn, đổi lại bám cua kém lốp hiệu năng một chút.", "score": {"e": 1}, "phys": {"mu": 0.98, "crr": 0.01}, "dk": "pass", "dkNote": "qua nếu size lốp đúng giấy tờ", "tiers": {"eco": {"brand": "Bridgestone Turanza / Michelin Energy", "price": [8, 12]}, "pro": {"brand": "Michelin Primacy / Continental UC7", "price": [12, 18]}}}, {"key": "soundproof", "group": "comfort", "label": "Cách âm toàn xe", "fun": -1, "info": "Dán vật liệu cách âm ở sàn, cửa, hốc bánh và cốp. Giảm tiếng lốp, tiếng gió và tiếng đường vào khoang lái, đi xa đỡ mệt. Đổi lại xe nặng thêm 10–20 kg nên độ bốc giảm chút đỉnh.", "score": {"e": 1}, "phys": {"kg": 15}, "dk": "pass", "tiers": {"eco": {"brand": "Vật liệu cách âm phổ thông", "price": [5, 10]}, "pro": {"brand": "STP / Dynamat", "price": [15, 25]}}}, {"key": "bushings", "group": "comfort", "label": "Làm mới cao su gầm, gối đỡ máy", "fun": 1, "info": "Thay cao su càng, gối đỡ máy, cao su cân bằng đã chai cứng theo năm tháng. Xe cũ hết lộc cộc, bớt rung vô-lăng và rung sàn. Món này là \"trả xe về như mới\" hơn là độ, nhưng xe trên 8–10 năm thì rất đáng làm.", "score": {"e": 1, "h": 1}, "phys": {}, "dk": "pass", "tiers": {"eco": {"brand": "Hàng thay thế OEM-grade", "price": [4, 8]}, "pro": {"brand": "Chính hãng Mazda / Honda / Ford / MINI", "price": [8, 15]}}}, {"key": "pedalbox", "group": "feel", "label": "Pedal box (chip chân ga)", "fun": 6, "info": "Hộp gắn giữa chân ga và ECU, khuếch đại tín hiệu chân ga. Xe phản ứng nhanh hơn ở đoạn đạp đầu, cảm giác bốc hơn nhưng không tăng công suất thật. Trên dyno không đổi gì; khi drag chỉ nhanh hơn chút xíu lúc đề pa và sau mỗi lần sang số.", "phys": {"tau": 0.45}, "dk": "pass", "tiers": {"eco": {"brand": "Windbooster", "price": [3, 5]}, "pro": {"brand": "DTE PedalBox", "price": [6, 9]}}}, {"key": "shortshift", "group": "feel", "label": "Short shifter", "fun": 4, "only": {"trans": ["mt"]}, "info": "Rút ngắn hành trình cần số, sang số nhanh và dứt khoát hơn. Chỉ dùng cho xe số sàn.", "phys": {"shift": 0.7}, "dk": "pass", "tiers": {"eco": {"brand": "Ultra Racing", "price": [2, 4]}, "pro": {"brand": "Cusco / Kartboy", "price": [6, 10], "phys": {"shift": 0.62}}}}], "parts": [{"id": "tyre_stock", "group": "tyre", "price": 0, "fx": {"mu": 1.0, "crr": 0.011}}], "wheels": {"stock": {"wheelKg": 0, "price": [0, 0], "score": {}}, "mesh": {"wheelKg": -2.0, "price": [14, 22], "score": {"h": 1}, "brand": "Mâm lưới đúc nhẹ"}, "dish": {"wheelKg": 1.5, "price": [18, 26], "score": {"e": -1}, "brand": "Mâm lòng sâu, lốp mỏng"}, "steel": {"wheelKg": 3.0, "price": [3, 5], "score": {}, "brand": "Mâm sắt"}, "black6": {"wheelKg": -1.0, "price": [10, 15], "score": {"h": 1}, "brand": "Mâm 6 chấu đúc nhẹ"}}, "body": {"bumper_F": {"lip": {"cda": 0.005, "price": [4, 8], "fun": 1}, "sport": {"cda": 0.01, "price": [10, 18], "fun": 2}}, "bumper_R": {"diffuser": {"cda": 0.0, "price": [6, 12], "fun": 1}}, "skirt": {"skirt": {"cda": -0.005, "price": [6, 10], "fun": 1}}, "spoiler": {"roof_ext": {"cda": 0.01, "price": [3, 7], "fun": 1}, "gt_wing": {"cda": 0.04, "price": [10, 18], "fun": 2}}}}}</script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -393,9 +561,9 @@ const SLOTS = [
 ];
 const RIMS = [["stock","Zin"],["mesh","Lưới"],["dish","Lòng sâu"],["steel","Mâm sắt"],["black6","6 chấu"]];
 const PRESETS = {
-  stock:  { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none", lower:0 },
-  street: { bumper_F:"lip", bumper_R:"stock", skirt:"skirt", wheel:"mesh", spoiler:"roof_ext", lower:35 },
-  sport:  { bumper_F:"sport", bumper_R:"diffuser", skirt:"skirt", wheel:"dish", spoiler:"gt_wing", lower:50 },
+  stock:  { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none" },
+  street: { bumper_F:"lip", bumper_R:"stock", skirt:"skirt", wheel:"mesh", spoiler:"roof_ext" },
+  sport:  { bumper_F:"sport", bumper_R:"diffuser", skirt:"skirt", wheel:"dish", spoiler:"gt_wing" },
 };
 const CARS = {
   mazda2_2013:   { name: "MAZDA 2", title: "MAZDA 2 DE · 2013", sub: "1.5 MT · 3885×1695×1475 · WB 2490",
@@ -409,7 +577,7 @@ const CARS = {
   ranger_raptor_2019: { name: "RAPTOR", title: "FORD RANGER RAPTOR · 2019", sub: "2.0 Bi-Turbo 10AT · 5398×2028×1873 · WB 3220",
                    plate: "60C-219.19", paint: "Trắng", rim: "Mâm 17″ · lốp 285/70", clearance: 283, cam: 1.22 },
 };
-const state = { car: "mazda2_2013", ...PRESETS.stock, paint: "Xanh Mazda", lights: false };
+const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", lights: false };
 const $ = id => document.getElementById(id);
 
 // ---- renderer, camera ---------------------------------------------------------
@@ -785,7 +953,7 @@ async function part(file, kind = "car") {
 
 async function selectCar(key) {
   state.car = key;
-  Object.assign(state, PRESETS.stock, { paint: CARS[key].paint });
+  Object.assign(state, PRESETS.stock, { lower: 0, paint: CARS[key].paint });
   body.clear(); wheelGroup.clear(); stock = {}; sockets = {}; swapped = {};
   if (!carCache[key]) {
     const car = await load(key);
@@ -966,123 +1134,228 @@ renderer.setAnimationLoop(() => {
 init().catch(e => { $("loading").textContent = "Không load được xưởng: " + e.message; console.error(e); });
 </script>
 <script type="module">
-// Performance tab: part picking, live stats, dyno + quarter-mile runs. Runs after the 3D module;
-// talks to it through window.__garage (state, apply, setLower). Sim = window.PerfSim, data = #perfdata.
-const G = window.__garage, S = window.PerfSim;
+// Performance + comparison tabs. Runs after the 3D module and talks to it through window.__garage.
+// Model: window.GarageModel (perf/model.js) on top of window.PerfSim (perf/sim.js); data in #perfdata.
+const G = window.__garage, S = window.PerfSim, M = window.GarageModel;
 const DATA = JSON.parse(document.getElementById("perfdata").textContent);
 const CARS = DATA.cars, CAT = DATA.parts;
 const $ = id => document.getElementById(id);
-const COL = { stock: "#5b8fd6", tuned: "#cf7a1f" };   // validated pair (dark surface); stock also dashed
+const COL = { stock: "#3987e5", tuned: "#d95926" };          // validated categorical slots 1-2 (dark)
+const OTHER = ["#199e70", "#c98500", "#d55181"];              // slots 3-5, fixed per pick, never repainted
+const NAMES = { mazda2_2013: "Mazda 2", civic_fd_2008: "Civic FD", cx5_2020: "CX-5", mini_f55_2018: "MINI S", ranger_raptor_2019: "Raptor" };
+const FLAG = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5v13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4.2 2.2h8.6l-2 3.1 2 3.2H4.2z" fill="currentColor"/></svg>';
 
-// one option list per group; "" = none / stock
-const ROWS = [
-  ["intake", "Hút khí", [["", "Zin"], ["intake", "Lọc gió"]]],
-  ["exhaust", "Pô", [["", "Zin"], ["axleback", "Axle-back"], ["catback", "Cat-back"]]],
-  ["tune", "ECU / map", [["", "Zin"], ["remap1", "Stage 1"], ["remap2", "Stage 2"], ["ecu", "ECU rời"]]],
-  ["forced", "Tăng áp", [["", "Không"], ["turbokit", "Turbo kit"]]],
-  ["shifter", "Cần số", [["", "Zin"], ["shortshifter", "Short shifter"]]],
-  ["pedal", "Chân ga", [["", "Zin"], ["pedalchip", "Chip"]]],
-  ["susp", "Gầm", [["", "Zin"], ["springs", "Lò xo hạ"], ["coilover", "Coilover"]]],
-  ["brace", "Thanh giằng", [["", "Không"], ["strutbar", "Lắp"]]],
-  ["cage", "Khung", [["", "Không"], ["rollcage", "Roll cage"]]],
-  ["tyre", "Vỏ xe", [["tyre_eco", "Tiết kiệm"], ["tyre_stock", "Zin"], ["tyre_sport", "Thể thao"], ["tyre_semi", "Bán slick"], ["tyre_drag", "Drag"]]],
-];
-const EMPTY = () => ({ intake: "", exhaust: "", tune: "", forced: "", shifter: "", pedal: "", susp: "", brace: "", cage: "", tyre: "tyre_stock" });
-let perf = EMPTY();
-const part = id => CAT.parts.find(p => p.id === id);
+let sel = new Set(), tier = "eco", preset = null;
+const openInfo = new Set();
+const others = new Map();                       // carKey -> colour slot
 const car = () => CARS[G.state.car];
-
-function allowed(id) {
-  const p = part(id); if (!p || !p.only) return true;
-  const c = car();
-  if (p.only.type && !p.only.type.includes(c.engine.type)) return false;
-  if (p.only.trans && !p.only.trans.includes(c.trans)) return false;
-  return true;
-}
-const groupOf = id => part(id)?.group;
-
-// picking a part pulls in what it requires; dropping a requirement drops what needed it
-function pick(group, id) {
-  const added = [];
-  perf[group] = id;
-  const want = id ? (part(id).requires || []) : [];
-  for (const r of want) if (perf[groupOf(r)] !== r) { perf[groupOf(r)] = r; added.push(part(r).name); }
-  for (const [g, v] of Object.entries(perf)) {
-    if (!v) continue;
-    const req = part(v).requires || [];
-    if (req.some(r => perf[groupOf(r)] !== r)) perf[g] = "";
-  }
-  syncSuspension();
-  render();
-  const p = id && part(id);
-  $("perfNote").textContent = p ? (added.length ? `Đã lắp kèm: ${added.join(", ")}. ` : "") + (p.note || "") : "";
-}
-
-// suspension drives ride height: springs = fixed 35 mm, coilover = slider 0-60, stock = 0
-function syncSuspension() {
-  const slider = $("lower"), s = perf.susp;
-  const mm = s === "springs" ? 35 : s === "coilover" ? (G.state.lower || 50) : 0;
-  slider.disabled = s !== "coilover";
-  $("lowerHint").textContent = s === "coilover" ? "Coilover: chỉnh độ cao 0–60 mm." :
-    s === "springs" ? "Lò xo hạ: cố định 35 mm." : "Cần lò xo hạ hoặc coilover (tab Hiệu năng).";
-  G.setLower(mm);
-}
-
-// exterior picks feed the sim too: aero (cda), wheel mass, price, fun
-function picked() {
-  const ids = Object.values(perf).filter(Boolean);
-  const extra = [], st = G.state, b = CAT.body;
-  const addBody = (slot, v) => { const e = b[slot] && b[slot][v]; if (e) extra.push({ id: `body_${slot}_${v}`, group: "body", price: e.price, fx: { cda: e.cda, fun: e.fun } }); };
-  addBody("bumper_F", st.bumper_F); addBody("bumper_R", st.bumper_R); addBody("skirt", st.skirt); addBody("spoiler", st.spoiler);
-  const w = CAT.wheels[st.wheel];
-  if (w && st.wheel !== "stock") extra.push({ id: `wheel_${st.wheel}`, group: "wheel", price: w.price, fx: { wheelKg: w.wheelKg, fun: 1 } });
-  return { ids: [...ids, ...extra.map(e => e.id)], catalog: { ...CAT, parts: [...CAT.parts, ...extra] } };
-}
-function vehicles() {
-  const c = car(), p = picked();
-  return { stock: S.build(c, [], CAT), tuned: S.build(c, p.ids, p.catalog) };
-}
+const mod = k => M.modOf(CAT, k);
+const ext = () => ({ bumper_F: G.state.bumper_F, bumper_R: G.state.bumper_R, skirt: G.state.skirt, spoiler: G.state.spoiler, wheel: G.state.wheel });
+const stockCache = {};
+const stockOf = key => (stockCache[key] ||= M.resolve(CARS[key], [], "eco", {}, CAT));
+const current = () => M.resolve(car(), [...sel], tier, ext(), CAT);
+function vehicles() { return { stock: stockOf(G.state.car).vehicle, tuned: current().vehicle }; }
 const peak = (v, k) => S.dyno(v).reduce((a, b) => (b[k] > a[k] ? b : a));
 const f1 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const f2 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fr = ([a, b]) => (a === b ? `${a} tr` : `${a}–${b} tr`);
 
-function render() {
-  const rows = $("perfRows"); rows.innerHTML = "";
-  for (const [g, label, opts] of ROWS) {
-    const n = document.createElement("span"); n.className = "name"; n.textContent = label;
-    const box = document.createElement("div"); box.className = opts.length > 4 ? "seg wrap" : "seg"; box.setAttribute("role", "group"); box.setAttribute("aria-label", label);
-    for (const [id, txt] of opts) {
-      const b = document.createElement("button"); b.type = "button"; b.textContent = txt;
-      const p = id && part(id);
-      b.disabled = !!id && !allowed(id);
-      b.title = b.disabled ? (p.only.trans ? "Chỉ cho xe số sàn" : "Chỉ cho máy hút khí tự nhiên") :
-        p ? `${p.name} · ${f1(p.price * (p.priceByRim ? car().rimIn / 15 : 1))} triệu` : "";
-      b.setAttribute("aria-pressed", perf[g] === id);
-      b.addEventListener("click", () => pick(g, id));
-      box.append(b);
+// ---- picking ---------------------------------------------------------------------------
+function toggle(key, on) {
+  const m = mod(key);
+  if (on) {
+    if (m.excl) for (const k of [...sel]) if (k !== key && mod(k).excl === m.excl) sel.delete(k);
+    sel.add(key);
+    for (const r of m.requires || []) { if (!sel.has(r)) { const rm = mod(r); if (rm.excl) for (const k of [...sel]) if (mod(k).excl === rm.excl) sel.delete(k); sel.add(r); } }
+  } else sel.delete(key);
+  for (const k of [...sel]) if ((mod(k).requires || []).some(r => !sel.has(r))) sel.delete(k);   // drop orphans
+  preset = null; refresh();
+}
+function applyPreset(k) {
+  preset = k; sel = new Set(CAT.presets[k].keys.filter(key => M.allowed(mod(key), car())));
+  refresh();
+}
+function syncSuspension() {
+  const slider = $("lower"), co = sel.has("coilover"), sp = sel.has("springs");
+  const mm = co ? (G.state.lower || 50) : sp ? 35 : 0;
+  slider.disabled = !co;
+  $("lowerHint").textContent = co ? "Coilover: chỉnh độ cao 0–60 mm." : sp ? "Lò xo hạ: cố định 35 mm." : "Cần lò xo hạ hoặc coilover (tab Hiệu năng).";
+  if (G.state.lower !== mm) G.setLower(mm);
+}
+
+// ---- performance tab ---------------------------------------------------------------------
+$("flagLegend").innerHTML = Object.entries(CAT.dk).map(([l, t]) => `<span><span class="dk-${l}">${FLAG}</span>${t}</span>`).join("");
+const presetEl = $("presetChips");
+for (const [k, p] of Object.entries(CAT.presets)) {
+  const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = p.label; b.dataset.perfpreset = k;
+  b.addEventListener("click", () => applyPreset(k)); presetEl.append(b);
+}
+{ const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = "Bỏ hết";
+  b.addEventListener("click", () => { sel.clear(); preset = null; refresh(); }); presetEl.append(b); }
+document.querySelectorAll("#tiers button").forEach(b => b.addEventListener("click", () => { tier = b.dataset.tier; refresh(); }));
+
+function renderMods() {
+  const c = car();
+  for (const g of ["spec", "comfort", "feel"]) {
+    const el = $(`mods-${g}`); el.innerHTML = "";
+    for (const m of CAT.mods.filter(x => x.group === g)) {
+      const ok = M.allowed(m, c), t = M.tierOf(m, tier);
+      if (!ok) sel.delete(m.key);
+      const level = t.dk || m.dk, note = t.dkNote ?? m.dkNote;
+      const why = m.only && m.only.trans ? "Xe số tự động, không áp dụng" : "Chỉ cho máy hút khí tự nhiên";
+      const req = (m.requires || []).map(r => mod(r).label);
+      const item = document.createElement("div"); item.className = "mod";
+      item.innerHTML = `<div class="mod-line"><label class="mod-row${ok ? "" : " off"}">
+          <input type="checkbox" ${sel.has(m.key) ? "checked" : ""} ${ok ? "" : "disabled"}>
+          <span class="mod-main"><span>${m.label}</span><span class="mod-sub">${ok ? `${t.brand} · ${fr(t.price)}${req.length ? ` · kèm ${req.join(", ")}` : ""}` : why}</span></span>
+          <span class="flag dk-${level}" title="${CAT.dk[level]}${note ? `: ${note}` : ""}">${FLAG}${level === "risk" ? "<span>Nên gỡ</span>" : ""}</span></label>
+        <button type="button" class="qbtn" aria-expanded="${openInfo.has(m.key)}" aria-label="${m.label} là gì">?</button></div>
+        <div class="mod-info"${openInfo.has(m.key) ? "" : " hidden"}>${m.info}${note ? `<br><span class="dk-${level}">${CAT.dk[level]}: ${note}.</span>` : ""}</div>`;
+      item.querySelector("input").addEventListener("change", e => toggle(m.key, e.target.checked));
+      item.querySelector(".qbtn").addEventListener("click", e => {
+        openInfo.has(m.key) ? openInfo.delete(m.key) : openInfo.add(m.key);
+        e.currentTarget.setAttribute("aria-expanded", openInfo.has(m.key));
+        item.querySelector(".mod-info").hidden = !openInfo.has(m.key);
+      });
+      el.append(item);
     }
-    rows.append(n, box);
   }
-  stats();
 }
 
 function stats() {
-  const { stock, tuned } = vehicles();
-  const a = S.drag(stock).slip, b = S.drag(tuned).slip;
-  const pa = peak(stock, "whp").whp, pb = peak(tuned, "whp").whp;
+  const a = stockOf(G.state.car), b = current();
+  const ra = a.raw, rb = b.raw;
   const tile = (k, v, d, better) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span><span class="d ${better === undefined ? "" : better ? "up" : "down"}">${d}</span></div>`;
-  const dt = (x, y) => (Math.abs(y - x) < 0.005 ? "như zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} s so với zin`);
+  const dt = (x, y, u) => (Math.abs(y - x) < 0.005 ? "như zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} ${u} so với zin`);
+  const same = (x, y) => Math.abs(x - y) < 0.005;
   $("stats").innerHTML =
-    tile("Công suất bánh", `${Math.round(pb)} whp`, pb - pa > 0.5 ? `+${Math.round(pb - pa)} whp so với zin` : "như zin", pb - pa > 0.5 ? true : undefined) +
-    tile("0–100 km/h", `${f2(b.t100)} s`, dt(a.t100, b.t100), Math.abs(b.t100 - a.t100) < 0.005 ? undefined : b.t100 < a.t100) +
-    tile("1/4 dặm", `${f2(b.t402)} s`, `${Math.round(b.v402)} km/h về đích`) +
-    tile("Khối lượng", `${Math.round(tuned.mass)} kg`, Math.round(tuned.mass - stock.mass) ? `${tuned.mass > stock.mass ? "+" : "−"}${Math.abs(Math.round(tuned.mass - stock.mass))} kg` : "như zin",
-      Math.round(tuned.mass - stock.mass) ? tuned.mass < stock.mass : undefined);
-  $("funFill").style.width = `${tuned.fun}%`;
-  $("funVal").textContent = `${tuned.fun}/100`;
-  $("perfCost").textContent = `${f1(tuned.price)} triệu`;
+    tile("Công suất bánh", `${Math.round(b.vehicle && peak(b.vehicle, "whp").whp)} whp`, rb.hp - ra.hp > 0.5 ? `+${Math.round(rb.hp - ra.hp)} hp so với zin` : "như zin", rb.hp - ra.hp > 0.5 ? true : undefined) +
+    tile("0–100 km/h", `${f2(rb.t100)} s`, dt(ra.t100, rb.t100, "s"), same(ra.t100, rb.t100) ? undefined : rb.t100 < ra.t100) +
+    tile("1/4 dặm", `${f2(rb.t402)} s`, `${Math.round(rb.v402)} km/h về đích`) +
+    tile("Khối lượng", `${Math.round(rb.kg)} kg`, Math.round(rb.kg - ra.kg) ? `${rb.kg > ra.kg ? "+" : "−"}${Math.abs(Math.round(rb.kg - ra.kg))} kg` : "như zin",
+      Math.round(rb.kg - ra.kg) ? rb.kg < ra.kg : undefined);
+  $("funFill").style.width = `${b.fun}%`; $("funVal").textContent = `${b.fun}/100`;
+  $("priceTotal").textContent = fr(b.price);
+  const items = [...sel].map(k => [mod(k).label, M.tierOf(mod(k), tier).price]);
+  const e = ext(), exteriorBits = [];
+  for (const [slot, v] of [["bumper_F", e.bumper_F], ["bumper_R", e.bumper_R], ["skirt", e.skirt], ["spoiler", e.spoiler]])
+    if (CAT.body[slot] && CAT.body[slot][v]) exteriorBits.push(CAT.body[slot][v].price);
+  if (e.wheel !== "stock") exteriorBits.push(CAT.wheels[e.wheel].price);
+  const exSum = exteriorBits.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]);
+  $("priceBreak").innerHTML = items.length || exSum[1] ? items.map(([l, p]) => `${l}: ${fr(p)}`).join("<br>") + (exSum[1] ? `${items.length ? "<br>" : ""}Ngoại thất: ${fr(exSum)}` : "") : "Chưa chọn món nào.";
+  $("dkList").innerHTML = b.dk.length ? b.dk.map(d => `<span class="dk-${d.level}">${FLAG}</span> ${d.label}: ${CAT.dk[d.level].toLowerCase()}${d.note ? `, ${d.note}` : ""}`).join("<br>")
+    : (items.length ? '<span class="dk-pass">' + FLAG + "</span> Cả bản độ qua đăng kiểm." : "");
 }
 
+function refresh() {
+  document.querySelectorAll("#tiers button").forEach(b => b.setAttribute("aria-pressed", b.dataset.tier === tier));
+  document.querySelectorAll("#presetChips [data-perfpreset]").forEach(b => b.setAttribute("aria-pressed", b.dataset.perfpreset === preset));
+  renderMods(); syncSuspension(); stats(); renderCompare();
+}
+
+// ---- comparison tab ------------------------------------------------------------------------
+let cmpMode = "bar";
+const AX = CAT.axes;
+const RAWAX = [r => `${Math.round(r.vmax)} km/h`, r => `0–100 ${f2(r.t100)} s`, r => `${Math.round(r.hpPerT)} hp/tấn`];
+function cmpSeries() {
+  const a = stockOf(G.state.car), b = current();
+  const list = [{ name: `${NAMES[G.state.car]} zin`, col: COL.stock, r: a }, { name: `${NAMES[G.state.car]} bản độ`, col: COL.tuned, r: b }];
+  for (const [k, slot] of others) list.push({ name: `${NAMES[k]} zin`, col: OTHER[slot], r: stockOf(k), other: true });
+  return list;
+}
+function renderCarChips() {
+  const el = $("cmpCars"); el.innerHTML = "";
+  for (const k of Object.keys(CARS)) {
+    if (k === G.state.car) continue;
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = NAMES[k];
+    const on = others.has(k);
+    b.setAttribute("aria-pressed", on);
+    if (on) b.style.borderColor = OTHER[others.get(k)];
+    b.disabled = !on && others.size >= 3;
+    b.addEventListener("click", () => {
+      if (others.has(k)) others.delete(k);
+      else { const used = new Set(others.values()); others.set(k, [0, 1, 2].find(i => !used.has(i))); }
+      renderCompare();
+    });
+    el.append(b);
+  }
+}
+document.querySelectorAll("#cmpMode button").forEach(b => b.addEventListener("click", () => {
+  cmpMode = b.dataset.m;
+  document.querySelectorAll("#cmpMode button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderCompare();
+}));
+
+function renderCompare() {
+  if ($("tab-cmp").hidden) return;
+  renderCarChips();
+  const L = cmpSeries();
+  $("cmpLegend").innerHTML = L.map(s => `<span><i style="border-color:${s.col};border-top-width:8px"></i>${s.name}</span>`).join("");
+  const box = $("cmpChart"); box.innerHTML = "";
+  if (cmpMode === "bar") {
+    const wrap = document.createElement("div"); wrap.className = "cbars";
+    AX.forEach((ax, i) => {
+      const a = L[0].r.scores[i], b = L[1].r.scores[i], d = Math.round((b - a) * 10) / 10;
+      const rawTxt = i < 3 ? `${RAWAX[i](L[0].r.raw)} → ${RAWAX[i](L[1].r.raw).replace("0–100 ", "")}` : (d ? `${d > 0 ? "+" : ""}${f1(d)} điểm` : "như zin");
+      const blk = document.createElement("div"); blk.className = "cax";
+      blk.innerHTML = `<div class="cax-h"><span>${ax}</span><span>${rawTxt}</span></div>` + L.map(s => {
+        const v = s.r.scores[i];
+        const tip = `${s.name} · ${ax}: ${f1(v)}/10${i < 3 ? ` (${RAWAX[i](s.r.raw)})` : ""}`;
+        return `<div class="crow" title="${tip}"><div class="ctrack"><div class="cfill" style="width:${v * 10}%;background:${s.col}"></div></div><span class="cval">${f1(v)}</span></div>`;
+      }).join("");
+      wrap.append(blk);
+    });
+    box.append(wrap);
+  } else {
+    // radar: own-car before/after, then one small radar per compared car (only two shapes per chart)
+    const grid = document.createElement("div"); grid.className = "radars"; box.append(grid);
+    const fig = (cls, cap, pairs) => {
+      const f = document.createElement("figure"); if (cls) f.className = cls;
+      const cv = document.createElement("canvas"); f.append(cv);
+      const c = document.createElement("figcaption"); c.textContent = cap; f.append(c);
+      grid.append(f); requestAnimationFrame(() => radar(cv, pairs, cls === "big"));
+    };
+    fig("big", "Trước / sau khi độ", [L[0], L[1]]);
+    for (const s of L.slice(2)) fig("", `Bản độ vs ${s.name}`, [L[1], s]);
+  }
+  // tables
+  const head = `<tr><th></th>${L.map(s => `<th style="border-bottom:2px solid ${s.col}">${s.name.replace(" bản độ", " độ")}</th>`).join("")}</tr>`;
+  const rows = [
+    ["Công suất", r => `${Math.round(r.hp)} hp`, r => r.hp, 1], ["Mô-men", r => `${Math.round(r.nm)} Nm`, r => r.nm, 1],
+    ["Khối lượng", r => `${Math.round(r.kg)} kg`, r => r.kg, -1], ["hp/tấn", r => Math.round(r.hpPerT), r => r.hpPerT, 1],
+    ["0–100 km/h", r => `${f2(r.t100)} s`, r => r.t100, -1], ["1/4 dặm", r => `${f2(r.t402)} s`, r => r.t402, -1],
+    ["Tốc độ tối đa", r => `${Math.round(r.vmax)} km/h`, r => r.vmax, 1],
+  ];
+  const cls = (a, b, dir) => (Math.abs(a - b) < 1e-3 ? "" : (b - a) * dir > 0 ? "up" : "down");
+  $("cmpRaw").innerHTML = head + rows.map(([n, fmt, val, dir]) => `<tr><td>${n}</td>${L.map((s, j) =>
+    `<td class="${j === 1 ? cls(val(L[0].r.raw), val(s.r.raw), dir) : ""}">${fmt(s.r.raw)}</td>`).join("")}</tr>`).join("");
+  $("cmpScore").innerHTML = head + [...AX.map((ax, i) => [ax, s => s.r.scores[i]]), ["Lái vui", s => s.r.fun / 10]].map(([n, val]) =>
+    `<tr><td>${n}</td>${L.map((s, j) => `<td class="${j === 1 ? cls(val(L[0]), val(s), 1) : ""}">${f1(val(s))}</td>`).join("")}</tr>`).join("");
+}
+
+function radar(cv, pairs, big) {
+  const r0 = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio, 2);
+  cv.width = r0.width * dpr; cv.height = r0.height * dpr;
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const W = r0.width, cx = W / 2, cy = W / 2 + (big ? 4 : 2), R = W / 2 - (big ? 68 : 14);
+  const n = AX.length, ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
+  const P = (i, v) => [cx + Math.cos(ang(i)) * R * v / 10, cy + Math.sin(ang(i)) * R * v / 10];
+  g.strokeStyle = "rgba(138,144,155,.18)"; g.lineWidth = 1;
+  for (let k = 2; k <= 10; k += 2) { g.beginPath(); for (let i = 0; i <= n; i++) { const [x, y] = P(i % n, k); i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+  for (let i = 0; i < n; i++) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(...P(i, 10)); g.stroke(); }
+  if (big) {
+    g.fillStyle = "#8a909b"; g.font = "11px 'Be Vietnam Pro', system-ui, sans-serif"; g.textBaseline = "middle";
+    AX.forEach((ax, i) => { const [x, y] = P(i, 11.6); g.textAlign = Math.abs(x - cx) < 4 ? "center" : x < cx ? "right" : "left"; g.fillText(ax, x, y); });
+  }
+  const pts = [];
+  pairs.forEach((s, j) => {
+    g.beginPath(); s.r.scores.forEach((v, i) => { const [x, y] = P(i, v); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath();
+    g.fillStyle = s.col + "29"; g.fill(); g.strokeStyle = s.col; g.lineWidth = 2; g.setLineDash(j === 0 && !s.other && pairs[1] && !pairs[1].other ? [5, 4] : []); g.stroke(); g.setLineDash([]);
+    s.r.scores.forEach((v, i) => { const [x, y] = P(i, v); pts.push({ x, y, s, i, v });
+      g.fillStyle = "#16181d"; g.beginPath(); g.arc(x, y, big ? 4.5 : 3.5, 0, 7); g.fill(); g.fillStyle = s.col; g.beginPath(); g.arc(x, y, big ? 3.5 : 2.5, 0, 7); g.fill(); });
+  });
+  cv.title = pairs.map(s => `${s.name}: ${s.r.scores.map((v, i) => `${AX[i]} ${f1(v)}`).join(", ")}`).join("\n");
+}
 // ---- results overlay ------------------------------------------------------------------
 const cv = $("resCanvas"), tip = $("resTip");
 let anim = 0, mode = "whp", lastDyno = null;
@@ -1181,7 +1454,7 @@ function runDrag() {
   $("resTable").innerHTML = `<tr><th>Mốc</th><th>Zin</th><th>Bản độ</th><th>Chênh</th></tr>` +
     rows.map(([n, k]) => `<tr><td>${n}</td><td>${f2(A.slip[k])} s</td><td>${f2(B.slip[k])} s</td><td>${diff(A.slip[k], B.slip[k])}</td></tr>`).join("") +
     `<tr><td>Tốc độ về đích</td><td>${Math.round(A.slip.v402)} km/h</td><td>${Math.round(B.slip.v402)} km/h</td><td></td></tr>`;
-  const illegal = B.slip.t402 < 11.5 && perf.cage !== "rollcage";
+  const illegal = B.slip.t402 < 11.5 && !sel.has("rollcage");
   $("resNote").textContent = illegal ? "Không hợp lệ ở giải: chạy dưới 11,5 s bắt buộc có khung bảo vệ." :
     `Mô phỏng ${car().trans === "mt" ? "đề pa giữ vòng tua rồi nhả côn" : "đạp ga từ vòng tua không tải"}; không tính thời gian phản xạ của tài xế.`;
   // christmas tree, then both cars run in real time
@@ -1225,27 +1498,18 @@ $("runDyno").addEventListener("click", runDyno);
 $("runDrag").addEventListener("click", runDrag);
 document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
-  $("tab-ext").hidden = b.dataset.tab !== "ext"; $("tab-perf").hidden = b.dataset.tab !== "perf";
-  stats();
+  for (const t of ["ext", "perf", "cmp"]) $(`tab-${t}`).hidden = b.dataset.tab !== t;
+  stats(); renderCompare();
 }));
-// presets and car switches reset the performance build to match
-const PRESET_PERF = {
-  stock: {},
-  street: { intake: "intake", exhaust: "axleback", pedal: "pedalchip", susp: "springs", tyre: "tyre_sport" },
-  sport: { intake: "intake", exhaust: "catback", tune: "remap2", shifter: "shortshifter", pedal: "pedalchip",
-           susp: "coilover", brace: "strutbar", tyre: "tyre_semi" },
-};
-document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => setTimeout(() => {
-  perf = Object.assign(EMPTY(), PRESET_PERF[b.dataset.preset]);
-  for (const [g, v] of Object.entries(perf)) if (v && !allowed(v)) perf[g] = g === "tyre" ? "tyre_stock" : "";
-  if (b.dataset.preset === "sport") G.state.lower = 50;
-  syncSuspension(); render();
-}, 0)));
+// exterior presets only touch body kit / wheels; ride height stays with the suspension pick
 document.querySelectorAll("[data-car]").forEach(b => b.addEventListener("click", () => setTimeout(() => {
-  perf = EMPTY(); syncSuspension(); render(); $("results").hidden = true;
+  sel.clear(); preset = null; others.delete(G.state.car); $("results").hidden = true; refresh();
 }, 0)));
-// exterior changes (bumpers, wheels, spoiler) change aero / mass: refresh stats on any panel click
-document.querySelector("aside").addEventListener("click", () => setTimeout(stats, 0));
-$("lower").addEventListener("input", () => { if (perf.susp === "coilover") stats(); });
-syncSuspension(); render();
+document.querySelector("aside").addEventListener("click", e => {
+  if (e.target.closest("#tab-perf, #tab-cmp")) return;
+  setTimeout(() => { syncSuspension(); stats(); renderCompare(); }, 0);
+});
+$("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
+addEventListener("resize", () => { if (cmpMode === "radar") renderCompare(); });
+refresh();
 </script>
