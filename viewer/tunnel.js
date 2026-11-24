@@ -12,7 +12,7 @@ const f1 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 1, maximumFra
 const f2 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const f3 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 
-let room = null, blades = null, tunnelEnv = null, loading = null;
+let fanW = 0, room = null, blades = null, tunnelEnv = null, loading = null;
 const lights = new THREE.Group(), dark = new THREE.Group(), flow = new THREE.Group();
 let wind = 100, darkMode = false, smokeOn = true, aero = null;
 const saved = {};
@@ -62,9 +62,9 @@ function envFor(mode) {
 async function setRoom(mode) {
   if (mode === G.getRoom()) return;
   if (mode === "tunnel") {
-    $("rooms").querySelector('[data-room="tunnel"]').textContent = "ĐANG TẢI…";
+    $("rooms").querySelector('[data-room="tunnel"] .rl').textContent = "ĐANG TẢI…";
     loading ||= ensureRoom(); await loading;
-    $("rooms").querySelector('[data-room="tunnel"]').textContent = "PHÒNG GIÓ";
+    $("rooms").querySelector('[data-room="tunnel"] .rl').textContent = "HẦM GIÓ";
   }
   const t = mode === "tunnel";
   for (const o of G.GARAGE_OBJS) o.visible = !t;
@@ -117,6 +117,14 @@ const ray = new THREE.Raycaster();
 const carMeshes = () => { const out = []; G.carRoot.traverse(o => { if (o.isMesh && o.visible && isShown(o)) out.push(o); }); return out; };
 function isShown(o) { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; }
 
+// three r160 crashes interpolating normals on degenerate (zero-area) triangles; the sampling only needs
+// hit points, so raycast with the normal attribute set aside
+function cast(meshes) {
+  const kept = meshes.map(m => { const n = m.geometry.attributes.normal; if (n) m.geometry.deleteAttribute("normal"); return n; });
+  try { return ray.intersectObjects(meshes, false)[0]; }
+  finally { meshes.forEach((m, i) => kept[i] && m.geometry.setAttribute("normal", kept[i])); }
+}
+
 function profile(x, meshes) {
   const top = new Float32Array(NZ), bot = new Float32Array(NZ).fill(99);
   const o = new THREE.Vector3(), down = new THREE.Vector3(0, -1, 0), up = new THREE.Vector3(0, 1, 0);
@@ -125,11 +133,11 @@ function profile(x, meshes) {
   for (let i = 0; i < NZ; i++) {
     const z = Z0 + i * DZ;
     o.set(x, 4, z); G.carRoot.localToWorld(o); ray.set(o, down.clone().applyQuaternion(rot)); ray.far = 5;
-    const h = ray.intersectObjects(meshes, false)[0];
+    const h = cast(meshes);
     if (h) {
       top[i] = G.carRoot.worldToLocal(h.point.clone()).y;
       o.set(x, 0.01, z); G.carRoot.localToWorld(o); ray.set(o, up.clone().applyQuaternion(rot)); ray.far = 3;
-      const u = ray.intersectObjects(meshes, false)[0];
+      const u = cast(meshes);
       if (u) bot[i] = G.carRoot.worldToLocal(u.point.clone()).y;
     }
   }
@@ -142,7 +150,7 @@ function frontalArea(meshes) {
   let hits = 0;
   for (let x = -1.2; x <= 1.2; x += step) for (let y = 0.02; y <= 2.1; y += step) {
     o.set(x, y, -8); G.carRoot.localToWorld(o); ray.set(o, dir.clone().applyQuaternion(rot)); ray.far = 16;
-    if (ray.intersectObjects(meshes, false).length) hits++;
+    if (cast(meshes)) hits++;
   }
   return hits * step * step;
 }
@@ -299,12 +307,12 @@ function render() {
   $("windVal").textContent = `${wind} km/h`;
   if (!aero) return;
   const t = aero.tuned, s = aero.stock, ft = forces(t), fs = forces(s);
-  const tile = (k, v, d) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span><span class="d">${d}</span></div>`;
+  const tile = (ic, k, v, d) => `<div class="stat"><span class="k">${IC(ic)}${k}</span><span class="v">${v}</span><span class="d">${d}</span></div>`;
   $("aeroStats").innerHTML =
-    tile("Hệ số cản Cd", "~" + f3(t.cd), "ước lượng, suy từ Cd·A") +
-    tile("Diện tích mặt trước", `~${f2(t.area)} m²`, "đo trên model 3D") +
-    tile("Lực cản gió", `~${Math.round(ft.drag)} N`, `Cd·A ${f3(t.cda)} m²`) +
-    tile("Công suất để thắng gió", `~${f1(ft.pkw * 1.341)} hp`, `${f1(ft.pkw)} kW ở ${wind} km/h`);
+    tile("wind", "Cd", "~" + f3(t.cd), "suy từ Cd·A") +
+    tile("square", "Mặt trước", `~${f2(t.area)} m²`, "đo trên model") +
+    tile("weight", "Lực cản", `~${Math.round(ft.drag)} N`, `Cd·A ${f3(t.cda)} m²`) +
+    tile("bolt", "Công suất thắng gió", `~${f1(ft.pkw * 1.341)} hp`, `ở ${wind} km/h`);
   const row = (n, a, b, fmt, better) => {
     const c = Math.abs(a - b) < 1e-6 ? "" : better(a, b) ? "up" : "down";
     return `<tr><td>${n}</td><td>${fmt(a)}</td><td class="${c}">${fmt(b)}</td></tr>`;
@@ -345,7 +353,8 @@ G.HOOKS.change.push(rebuild);
 document.querySelector("aside").addEventListener("click", e => { if (e.target.closest("#tab-perf")) rebuild(); });
 G.HOOKS.frame.push((dt, t) => {
   if (G.getRoom() !== "tunnel") return;
-  if (blades) blades.userData.pivot.rotation.z -= dt * wind / 100 * 9;
+  // fan spins up / down with some inertia instead of jumping to the slider speed
+  if (blades) { fanW += (wind / 100 * 8 - fanW) * Math.min(1, dt * 1.2); blades.userData.pivot.rotation.z -= dt * fanW; }
   lineMat.uniforms.uT.value = t; lineMat.visible = wind > 0;
   stepSmoke(dt, t);
   smokeMat.uniforms.uScale.value = G.renderer.domElement.height * 0.5 / Math.tan(THREE.MathUtils.degToRad(G.camera.fov / 2));

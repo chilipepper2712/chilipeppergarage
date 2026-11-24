@@ -48,7 +48,7 @@ function syncSuspension() {
   const slider = $("lower"), co = sel.has("coilover"), sp = sel.has("springs");
   const mm = co ? (G.state.lower || 50) : sp ? 35 : 0;
   slider.disabled = !co;
-  $("lowerHint").textContent = co ? "Coilover: chỉnh độ cao 0–60 mm." : sp ? "Lò xo hạ: cố định 35 mm." : "Cần lò xo hạ hoặc coilover (tab Hiệu năng).";
+  $("lowerHint").innerHTML = IC("spring") + " " + (co ? "Coilover: 0–60 mm" : sp ? "Lò xo hạ: 35 mm" : "Cần coilover / lò xo hạ");
   if (G.state.lower !== mm) G.setLower(mm);
 }
 
@@ -76,7 +76,7 @@ function renderMods() {
           <input type="checkbox" ${sel.has(m.key) ? "checked" : ""} ${ok ? "" : "disabled"}>
           <span class="mod-main"><span>${m.label}</span><span class="mod-sub">${ok ? `${t.brand} · ${fr(t.price)}${req.length ? ` · kèm ${req.join(", ")}` : ""}` : why}</span></span>
           <span class="flag dk-${level}" title="${CAT.dk[level]}${note ? `: ${note}` : ""}">${FLAG}${level === "risk" ? "<span>Nên gỡ</span>" : ""}</span></label>
-        <button type="button" class="qbtn" aria-expanded="${openInfo.has(m.key)}" aria-label="${m.label} là gì">?</button></div>
+        <button type="button" class="qbtn" aria-expanded="${openInfo.has(m.key)}" aria-label="${m.label} là gì">${IC("q")}</button></div>
         <div class="mod-info"${openInfo.has(m.key) ? "" : " hidden"}>${m.info}${note ? `<br><span class="dk-${level}">${CAT.dk[level]}: ${note}.</span>` : ""}</div>`;
       item.querySelector("input").addEventListener("change", e => toggle(m.key, e.target.checked));
       item.querySelector(".qbtn").addEventListener("click", e => {
@@ -92,16 +92,16 @@ function renderMods() {
 function stats() {
   const a = stockOf(G.state.car), b = current();
   const ra = a.raw, rb = b.raw;
-  const tile = (k, v, d, better) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span><span class="d ${better === undefined ? "" : better ? "up" : "down"}">${d}</span></div>`;
-  const dt = (x, y, u) => (Math.abs(y - x) < 0.005 ? "như zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} ${u} so với zin`);
+  const tile = (ic, k, v, d, better) => `<div class="stat"><span class="k">${IC(ic)}${k}</span><span class="v">${v}</span><span class="d ${better === undefined ? "" : better ? "up" : "down"}">${d}</span></div>`;
+  const dt = (x, y, u) => (Math.abs(y - x) < 0.005 ? "= zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} ${u}`);
   const same = (x, y) => Math.abs(x - y) < 0.005;
   const k = G.state.car, modded = JSON.stringify(rb.t100) !== JSON.stringify(ra.t100) || sel.size > 0;
   const T = (est) => (est ? "~" : "");
   $("stats").innerHTML =
-    tile("Công suất bánh", `~${Math.round(b.vehicle && peak(b.vehicle, "whp").whp)} whp`, rb.hp - ra.hp > 0.5 ? `+${Math.round(rb.hp - ra.hp)} hp so với zin` : "như zin", rb.hp - ra.hp > 0.5 ? true : undefined) +
-    tile("0–100 km/h", `${T(modded || EST(k, "t0100"))}${f2(DB.cars[k].t0100 * rb.t100 / ra.t100)} s`, dt(ra.t100, rb.t100, "s"), same(ra.t100, rb.t100) ? undefined : rb.t100 < ra.t100) +
-    tile("1/4 dặm", `~${f2(rb.t402)} s`, `${Math.round(rb.v402)} km/h về đích`) +
-    tile("Khối lượng", `${T(EST(k, "kerb") || Math.round(rb.kg - ra.kg) !== 0)}${Math.round(rb.kg)} kg`, Math.round(rb.kg - ra.kg) ? `${rb.kg > ra.kg ? "+" : "−"}${Math.abs(Math.round(rb.kg - ra.kg))} kg` : "như zin",
+    tile("bolt", "Công suất bánh", `~${Math.round(b.vehicle && peak(b.vehicle, "whp").whp)} whp`, rb.hp - ra.hp > 0.5 ? `+${Math.round(rb.hp - ra.hp)} hp` : "= zin", rb.hp - ra.hp > 0.5 ? true : undefined) +
+    tile("timer", "0–100 km/h", `${T(modded || EST(k, "t0100"))}${f2(DB.cars[k].t0100 * rb.t100 / ra.t100)} s`, dt(ra.t100, rb.t100, "s"), same(ra.t100, rb.t100) ? undefined : rb.t100 < ra.t100) +
+    tile("flag", "1/4 dặm", `~${f2(rb.t402)} s`, `về đích ${Math.round(rb.v402)} km/h`) +
+    tile("weight", "Khối lượng", `${T(EST(k, "kerb") || Math.round(rb.kg - ra.kg) !== 0)}${Math.round(rb.kg)} kg`, Math.round(rb.kg - ra.kg) ? `${rb.kg > ra.kg ? "+" : "−"}${Math.abs(Math.round(rb.kg - ra.kg))} kg` : "= zin",
       Math.round(rb.kg - ra.kg) ? rb.kg < ra.kg : undefined);
   $("funFill").style.width = `${b.fun}%`; $("funVal").textContent = `${b.fun}/100`;
   $("priceTotal").textContent = fr(b.price);

@@ -23,29 +23,66 @@
 html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px;
-  display: grid; grid-template-columns: minmax(0, 1fr) clamp(380px, 30vw, 460px); overflow: hidden;
+  display: flex; flex-direction: column; overflow: hidden;
+  --panelH: clamp(300px, 40vh, 480px);
 }
-#bay { position: relative; min-width: 0; height: 100%; background: #000; }
+body.collapsed { --panelH: 46px; }
+#bay { position: relative; min-width: 0; flex: 1 1 auto; min-height: 0; background: #000; }
 #bay canvas { width: 100%; height: 100%; display: block; }
 #bay.pixel canvas { image-rendering: pixelated; }
 .hud {
-  position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: 14px;
+  position: relative;
   display: flex; flex-direction: column; gap: 4px; pointer-events: none;
   background: rgba(8, 9, 11, .72); padding: 10px 14px; border-left: 3px solid var(--accent);
 }
 .hud h1 { font-family: var(--font-display); font-size: 20px; font-weight: 400; letter-spacing: .04em; margin: 0; }
 .hud .sub { font-family: var(--font-data); font-size: 11px; color: var(--muted); }
 .plate {
-  position: absolute; right: 14px; bottom: 14px; font-family: var(--font-data); font-size: 12px;
+  position: absolute; right: 14px; top: 14px; font-family: var(--font-data); font-size: 12px;
   background: #e6e6de; color: #111; padding: 4px 10px; border: 2px solid #111; letter-spacing: .08em;
 }
 #loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); color: var(--muted); text-align: center; padding: 24px; }
 
+/* bottom panel: tab bar + a pane split into columns; each column scrolls on its own */
 aside {
-  background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto;
-  padding-block: 16px 22px; padding-left: 16px; padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: flex; flex-direction: column; gap: 16px;
+  flex: 0 0 var(--panelH); height: var(--panelH); background: var(--panel); border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; min-height: 0; transition: flex-basis .2s, height .2s;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
+.tabbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid var(--line); min-height: 45px; }
+.tabbar .grow { flex: 1; }
+.tabbar .tool { display: flex; align-items: center; gap: 8px; }
+.tabbar .tool .label { margin: 0; }
+.ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -3px; }
+.ic.lg { width: 20px; height: 20px; }
+.icotog { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.icotog.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.icotog label { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 9px 4px 7px; border: 1px solid var(--line); border-radius: 3px; font-size: 11px; color: var(--muted); cursor: pointer; text-align: center; }
+.icotog label:hover { color: var(--fg); border-color: var(--muted); }
+.icotog input { position: absolute; opacity: 0; pointer-events: none; }
+.icotog label:has(input:checked) { color: var(--accent); border-color: var(--accent); background: rgba(242,163,58,.07); }
+.icotog label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+#collapseBtn .ic { transition: transform .15s; }
+body.collapsed #collapseBtn .ic { transform: rotate(180deg); }
+.iconbtn { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 3px; cursor: pointer; font: 12px var(--font-data); padding: 5px 9px; }
+.iconbtn:hover { color: var(--fg); border-color: var(--muted); }
+.tabpane { flex: 1; min-height: 0; display: grid; gap: 0 18px; padding-block: 12px; }
+.tabpane[hidden] { display: none !important; }
+body.collapsed .tabpane { display: none !important; }
+.cols4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cols3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cols2 { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.col { min-width: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 6px; }
+.col + .col { border-left: 1px solid var(--line); padding-left: 16px; }
+/* car picker popover + room switch + sources, floating over the 3D view */
+.hudwrap { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: 14px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; z-index: 5; }
+.pickbtn { display: inline-flex; align-items: center; gap: 6px; pointer-events: auto; font: 400 12px var(--font-display); letter-spacing: .05em; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 3px; padding: 8px 12px; cursor: pointer; }
+#carPop { background: rgba(14, 15, 18, .96); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; width: min(520px, calc(100vw - 32px)); }
+#roomBox { position: absolute; right: max(14px, env(safe-area-inset-right, 0px)); bottom: 14px; display: flex; flex-direction: column; gap: 6px; z-index: 5; }
+#roomBox .seg { grid-auto-flow: row; }
+#roomBox .seg button { padding: 9px 16px; }
+#footBox { position: absolute; left: max(14px, env(safe-area-inset-left, 0px)); bottom: 14px; z-index: 5; max-width: min(560px, 60%); }
+#footBox[open] { background: rgba(14, 15, 18, .96); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; max-height: 60%; overflow-y: auto; }
 section { display: flex; flex-direction: column; gap: 8px; }
 .label { font-family: var(--font-display); font-size: 11px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; font-weight: 400; }
 h2.label { margin: 0; }
@@ -86,13 +123,13 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .spec dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 .note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
 .hint { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.45; }
-.tabs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-bottom: 1px solid var(--line); }
-.tabs button { background: none; border: 0; color: var(--muted); font: 400 12px var(--font-display); letter-spacing: .06em; text-transform: uppercase; padding: 10px 4px; cursor: pointer; border-bottom: 2px solid transparent; }
+.tabs { display: flex; align-self: stretch; }
+.tabs button { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; color: var(--muted); font: 400 12px var(--font-display); letter-spacing: .06em; text-transform: uppercase; padding: 14px 16px 11px; cursor: pointer; border-bottom: 2px solid transparent; }
 .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
-.tabpane { display: flex; flex-direction: column; gap: 16px; }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .stat { background: var(--raise); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.stat .k { font-size: 11px; color: var(--muted); }
+.stat .k { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.stat .k .ic { width: 13px; height: 13px; }
 .stat .v { font: 500 16px var(--font-data); font-variant-numeric: tabular-nums; }
 .stat .d { font: 400 11px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
 .stat .d.up { color: #8fd18f; } .stat .d.down { color: #e98a7a; }
@@ -103,9 +140,9 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .seg.wrap button { border-top: 1px solid var(--line); margin-top: -1px; }
 .seg button:disabled { color: #50545c; cursor: not-allowed; background: var(--raise); }
 .runrow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-button.run { font: 400 12px var(--font-display); letter-spacing: .05em; padding: 11px 6px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 3px; cursor: pointer; }
+button.run { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font: 400 12px var(--font-display); letter-spacing: .05em; padding: 11px 6px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 3px; cursor: pointer; }
 button.run:hover { filter: brightness(1.08); }
-#results { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); right: 12px; bottom: 54px; max-width: 680px; margin: 0 auto;
+#results { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); right: 12px; top: 14px; max-width: 760px; margin: 0 auto; max-height: calc(100% - 28px); overflow-y: auto; z-index: 6;
   background: rgba(14, 15, 18, .94); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
 .res-head { display: flex; align-items: center; gap: 10px; }
 .res-head h2 { margin: 0; flex: 1; }
@@ -185,11 +222,13 @@ table.slip td { text-align: right; padding: 3px 6px; }
 #narrow p { margin: 0; color: var(--muted); line-height: 1.55; }
 @media (max-width: 1023px) { #narrow:not([hidden]) { display: grid; } }
 @media (max-width: 760px) {
-  body { grid-template-columns: minmax(0, 1fr); grid-template-rows: 52vh auto; overflow: auto; height: auto; }
-  #bay { height: 52vh; }
-  aside { border-left: 0; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  .cols4, .cols3, .cols2 { grid-template-columns: minmax(0, 1fr); }
+  .col + .col { border-left: 0; padding-left: 0; }
+  .tabpane { overflow-y: auto; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+#rooms button { display: inline-flex; align-items: center; gap: 7px; }
+.flag-legend .ic, .qbtn .ic { width: 14px; height: 14px; }
 </style>
 
 <div id="narrow"><div>
@@ -199,12 +238,24 @@ table.slip td { text-align: right; padding: 3px 6px; }
 </div></div>
 <div id="bay" class="pixel">
   <div id="loading">ĐANG LOAD XƯỞNG…</div>
-  <div class="hud">
-    <h1 id="carTitle">MAZDA 2 DE · 2013</h1>
-    <div class="sub" id="carSub">1.5 MT · 3885×1695×1475 · WB 2490</div>
-    <div class="sub" id="carNote"></div>
+  <div class="hudwrap">
+    <div class="hud">
+      <h1 id="carTitle">MAZDA 2 DE · 2013</h1>
+      <div class="sub" id="carSub">1.5 MT · 3885×1695×1475 · WB 2490</div>
+      <div class="sub" id="carNote"></div>
+    </div>
+    <button type="button" class="pickbtn" id="pickBtn" aria-expanded="false"><i data-ic="car"></i>Chọn xe<i data-ic="chev"></i></button>
+    <div id="carPop" hidden><div class="carpick" id="cars"></div></div>
   </div>
   <div class="plate" id="plate">51F-213.13</div>
+  <div id="roomBox">
+    <div class="seg big" id="rooms"><button type="button" data-room="garage" aria-pressed="true" title="Xưởng"><i data-ic="wrench"></i>XƯỞNG</button><button type="button" data-room="tunnel" aria-pressed="false" title="Hầm gió"><i data-ic="fan"></i><span class="rl">HẦM GIÓ</span></button></div>
+  </div>
+  <details class="more foot" id="footBox">
+    <summary><i data-ic="info"></i>Nguồn &amp; lưu ý</summary>
+    <dl class="spec" id="spec"></dl>
+    <footer class="srcline" id="srcline"></footer>
+  </details>
   <div id="results" hidden>
     <div class="res-head"><h2 class="label" id="resTitle">Dyno</h2>
       <div class="seg" id="dynoMode"><button type="button" data-m="whp" aria-pressed="true">Công suất bánh</button><button type="button" data-m="nm" aria-pressed="false">Mô-men</button></div>
@@ -217,125 +268,152 @@ table.slip td { text-align: right; padding: 3px 6px; }
 </div>
 
 <aside>
-  <section>
-    <h2 class="label">Xe trong xưởng</h2>
-    <div class="carpick" id="cars"></div>
-  </section>
-  <section>
-    <h2 class="label">Không gian</h2>
-    <div class="seg big" id="rooms"><button type="button" data-room="garage" aria-pressed="true">XƯỞNG</button><button type="button" data-room="tunnel" aria-pressed="false">PHÒNG GIÓ</button></div>
-  </section>
-  <section>
-    <h2 class="label">Gói độ</h2>
-    <div class="chips" id="presetChips"></div>
-  </section>
-  <div class="tabs" role="tablist">
-    <button type="button" role="tab" data-tab="ext" aria-selected="true">Ngoại thất</button>
-    <button type="button" role="tab" data-tab="perf" aria-selected="false">Hiệu năng</button>
-    <button type="button" role="tab" data-tab="cmp" aria-selected="false">So sánh</button>
-    <button type="button" role="tab" data-tab="aero" aria-selected="false" hidden>Khí động</button>
-  </div>
-  <div id="tab-ext" class="tabpane">
-  <section>
-    <h2 class="label">Body kit</h2>
-    <div class="rows" id="slots"></div>
-  </section>
-  <section>
-    <h2 class="label" id="rimLabel">Mâm 15″ · lốp 185/55</h2>
-    <div class="rims" id="rims"></div>
-  </section>
-  <section>
-    <div class="line"><h2 class="label">Hạ gầm</h2><span class="val" id="lowerVal">0 mm</span></div>
-    <input id="lower" type="range" min="0" max="60" step="5" value="0" aria-label="Hạ gầm, mm">
-    <p class="hint" id="lowerHint">Cần lò xo hạ hoặc coilover (tab Hiệu năng).</p>
-  </section>
-  <section>
-    <div class="line"><h2 class="label">Màu sơn</h2><span class="val" id="paintName"></span></div>
-    <div class="swatches" id="swatches"></div>
-  </section>
-  <section>
-    <h2 class="label">Hiển thị</h2>
-    <div class="toggles">
-      <label><input id="tPixel" type="checkbox" checked> Pixel PS1</label>
-      <label><input id="tDither" type="checkbox" checked> Màu 15-bit</label>
-      <label><input id="tLights" type="checkbox"> Bật đèn xe</label>
-      <label><input id="tSpin" type="checkbox"> Tự xoay</label>
+  <div class="tabbar">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="ext" aria-selected="true"><i data-ic="car"></i>Ngoại thất</button>
+      <button type="button" role="tab" data-tab="perf" aria-selected="false"><i data-ic="gauge"></i>Hiệu năng</button>
+      <button type="button" role="tab" data-tab="cmp" aria-selected="false"><i data-ic="bars"></i>So sánh</button>
+      <button type="button" role="tab" data-tab="aero" aria-selected="false" hidden><i data-ic="wind"></i>Khí động</button>
     </div>
-  </section>
+    <span class="grow"></span>
+    <div class="tool"><h2 class="label">Gói độ</h2><div class="chips" id="presetChips"></div></div>
+    <div class="tool"><div class="seg small" id="tiers"><button type="button" data-tier="eco">Phổ thông</button><button type="button" data-tier="pro">Premium</button></div></div>
+    <button type="button" class="iconbtn" id="collapseBtn" aria-expanded="true" aria-label="Thu gọn bảng"><i data-ic="chev"></i></button>
   </div>
-  <div id="tab-perf" class="tabpane" hidden>
-    <section>
+
+  <div id="tab-ext" class="tabpane cols4">
+    <div class="col">
+      <section><h2 class="label">Body kit</h2><div class="rows" id="slots"></div></section>
+    </div>
+    <div class="col">
+      <section><h2 class="label" id="rimLabel">Mâm 15″ · lốp 185/55</h2><div class="rims" id="rims"></div></section>
+    </div>
+    <div class="col">
+      <section>
+        <div class="line"><h2 class="label">Màu sơn</h2><span class="val" id="paintName"></span></div>
+        <div class="swatches" id="swatches"></div>
+      </section>
+      <section>
+        <div class="line"><h2 class="label">Hạ gầm</h2><span class="val" id="lowerVal">0 mm</span></div>
+        <input id="lower" type="range" min="0" max="60" step="5" value="0" aria-label="Hạ gầm, mm">
+        <p class="hint" id="lowerHint"><i data-ic="spring"></i> Cần coilover / lò xo hạ</p>
+      </section>
+    </div>
+    <div class="col">
+      <section>
+        <h2 class="label">Hiển thị</h2>
+        <div class="icotog">
+          <label title="Pixel kiểu PS1"><input id="tPixel" type="checkbox" checked><i data-ic="grid" class="lg"></i>PS1</label>
+          <label title="Màu 15-bit"><input id="tDither" type="checkbox" checked><i data-ic="palette" class="lg"></i>15-bit</label>
+          <label title="Bật đèn xe"><input id="tLights" type="checkbox"><i data-ic="beam" class="lg"></i>Đèn</label>
+          <label title="Tự xoay"><input id="tSpin" type="checkbox"><i data-ic="rotate" class="lg"></i>Xoay</label>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="tab-perf" class="tabpane cols4" hidden>
+    <div class="col">
       <div class="stats" id="stats"></div>
       <div class="funbar"><span class="label">Lái vui</span><div class="bar"><i id="funFill"></i></div><span class="val" id="funVal"></span></div>
-    </section>
-    <section>
-      <h2 class="label">After market range</h2>
-      <div class="seg" id="tiers"><button type="button" data-tier="eco">Phổ thông</button><button type="button" data-tier="pro">Premium</button></div>
-    </section>
-    <div class="flag-legend" id="flagLegend"></div>
-    <section><h2 class="label">Độ thay đổi số liệu</h2><div class="mods" id="mods-spec"></div></section>
-    <section><h2 class="label">Độ êm ái</h2><div class="mods" id="mods-comfort"></div></section>
-    <section><h2 class="label">Độ thay cảm giác (không đổi số liệu)</h2><div class="mods" id="mods-feel"></div></section>
-    <section class="price">
-      <span class="label">Tạm tính, gồm cả đồ ngoại thất</span>
-      <b id="priceTotal">0 tr</b>
-      <div class="price-break" id="priceBreak"></div>
-      <div class="dk-list" id="dkList"></div>
-    </section>
-    <section class="runrow">
-      <button type="button" class="run" id="runDyno">Chạy dyno</button>
-      <button type="button" class="run" id="runDrag">Chạy drag 1/4 dặm</button>
-    </section>
-    <details class="more"><summary>Cách tính</summary><p class="note">Danh mục, mức giá, thương hiệu và cờ đăng kiểm lấy từ bảng benchmark Chili Paprika; giá là ước lượng thị trường, chưa gồm công. Công suất, tăng tốc, tốc độ tối đa chạy qua bộ mô phỏng (xe zin lệch 0–5% so với số hãng). Handling, Phanh, Drift/grip, Độ êm là thang điểm ước lượng của tiệm, không phải số đo.</p></details>
+      <section class="runrow">
+        <button type="button" class="run" id="runDyno"><i data-ic="gauge"></i>Dyno</button>
+        <button type="button" class="run" id="runDrag"><i data-ic="flag"></i>Drag 1/4</button>
+      </section>
+      <details class="more"><summary>Cách tính</summary><p class="note">Danh mục, mức giá, thương hiệu và cờ đăng kiểm lấy từ bảng benchmark Chili Paprika; giá là ước lượng thị trường, chưa gồm công. Số zin theo nguồn công bố; phần thay đổi khi độ chạy qua bộ mô phỏng. Handling, Phanh, Drift/grip, Độ êm là thang điểm ước lượng của tiệm, không phải số đo.</p></details>
+    </div>
+    <div class="col">
+      <div class="flag-legend" id="flagLegend"></div>
+      <section><h2 class="label">Độ thay đổi số liệu</h2><div class="mods" id="mods-spec"></div></section>
+    </div>
+    <div class="col">
+      <section><h2 class="label">Độ êm ái</h2><div class="mods" id="mods-comfort"></div></section>
+      <section><h2 class="label" title="Không đổi số liệu">Độ cảm giác</h2><div class="mods" id="mods-feel"></div></section>
+    </div>
+    <div class="col">
+      <section class="price">
+        <span class="label"><i data-ic="tag"></i> Tạm tính</span>
+        <b id="priceTotal">0 tr</b>
+        <div class="price-break" id="priceBreak"></div>
+        <div class="dk-list" id="dkList"></div>
+      </section>
+    </div>
   </div>
-  <div id="tab-cmp" class="tabpane" hidden>
-    <section>
-      <div class="line"><h2 class="label">Trước / sau khi độ</h2>
-        <div class="seg small" id="cmpMode"><button type="button" data-m="bar" aria-pressed="true">Cột</button><button type="button" data-m="radar" aria-pressed="false">Radar</button></div></div>
-      <p class="hint">So bản đang độ với bản zin của chính xe này. Thêm tối đa 3 xe khác (bản zin) để đối chiếu.</p>
-      <div class="chips" id="cmpCars"></div>
-    </section>
-    <div class="legend" id="cmpLegend"></div>
-    <div id="cmpChart"></div>
-    <section>
-      <h2 class="label">Thông số thực</h2>
-      <div class="tablewrap"><table class="slip" id="cmpRaw"></table></div>
-    </section>
-    <section>
-      <h2 class="label">Thang điểm ~ (ước lượng)</h2>
-      <div class="tablewrap"><table class="slip" id="cmpScore"></table></div>
-    </section>
+
+  <div id="tab-cmp" class="tabpane cols2" hidden>
+    <div class="col">
+      <section>
+        <div class="line"><h2 class="label" title="Bản đang độ so với bản zin; thêm tối đa 3 xe zin khác">Trước / sau khi độ · +3 xe</h2>
+          <div class="seg small" id="cmpMode"><button type="button" data-m="bar" aria-pressed="true">Cột</button><button type="button" data-m="radar" aria-pressed="false">Radar</button></div></div>
+                <div class="chips" id="cmpCars"></div>
+      </section>
+      <div class="legend" id="cmpLegend"></div>
+      <div id="cmpChart"></div>
+    </div>
+    <div class="col">
+      <section><h2 class="label">Thông số thực</h2><div class="tablewrap"><table class="slip" id="cmpRaw"></table></div></section>
+      <section><h2 class="label">Thang điểm ~ (ước lượng)</h2><div class="tablewrap"><table class="slip" id="cmpScore"></table></div></section>
+    </div>
   </div>
-  <div id="tab-aero" class="tabpane" hidden>
-    <section>
-      <div class="line"><h2 class="label">Tốc độ gió</h2><span class="val" id="windVal">100 km/h</span></div>
-      <input id="wind" type="range" min="0" max="200" step="10" value="100" aria-label="Tốc độ gió, km/h">
-      <div class="toggles">
-        <label><input id="tDark" type="checkbox"> Tắt đèn phòng</label>
-        <label><input id="tSmoke" type="checkbox" checked> Khói</label>
-      </div>
-    </section>
-    <section><div class="stats" id="aeroStats"></div></section>
-    <section>
-      <h2 class="label">Zin và bản độ ở tốc độ đang chọn</h2>
-      <div class="tablewrap"><table class="slip" id="aeroTable"></table></div>
-    </section>
-    <section>
-      <h2 class="label">Đọc luồng khói</h2>
-      <ul class="facts" id="aeroFacts"></ul>
-    </section>
-    <details class="more"><summary>Cách tính</summary><p class="note">Mang tính tham khảo. Cd·A suy từ tốc độ tối đa hãng công bố (bộ mô phỏng đã chỉnh cho khớp); diện tích mặt trước đo trên model 3D; Cd = Cd·A chia diện tích. Lực nâng/ép là ước lượng theo kiểu thân xe cộng phần thay đổi của từng món độ. Luồng khói là hình minh họa được nắn theo bóng xe, không phải mô phỏng chất lưu.</p></details>
+
+  <div id="tab-aero" class="tabpane cols3" hidden>
+    <div class="col">
+      <section>
+        <div class="line"><h2 class="label">Tốc độ gió</h2><span class="val" id="windVal">100 km/h</span></div>
+        <input id="wind" type="range" min="0" max="200" step="10" value="100" aria-label="Tốc độ gió, km/h">
+        <div class="icotog two">
+          <label title="Tắt đèn phòng"><input id="tDark" type="checkbox"><i data-ic="moon" class="lg"></i>Tắt đèn</label>
+          <label title="Khói"><input id="tSmoke" type="checkbox" checked><i data-ic="cloud" class="lg"></i>Khói</label>
+        </div>
+      </section>
+      <div class="stats" id="aeroStats"></div>
+    </div>
+    <div class="col">
+      <section><h2 class="label">Zin / độ</h2><div class="tablewrap"><table class="slip" id="aeroTable"></table></div></section>
+    </div>
+    <div class="col">
+      <section><h2 class="label">Đọc luồng khói</h2><ul class="facts" id="aeroFacts"></ul></section>
+      <details class="more"><summary>Cách tính</summary><p class="note">Mang tính tham khảo. Cd·A suy từ tốc độ tối đa hãng công bố (bộ mô phỏng đã chỉnh cho khớp); diện tích mặt trước đo trên model 3D; Cd = Cd·A chia diện tích. Lực nâng/ép là ước lượng theo kiểu thân xe cộng phần thay đổi của từng món độ. Luồng khói là hình minh họa được nắn theo bóng xe, không phải mô phỏng chất lưu.</p></details>
+    </div>
   </div>
-  <details class="more foot">
-    <summary>Nguồn · Lưu ý · Miễn trừ trách nhiệm</summary>
-    <dl class="spec" id="spec"></dl>
-    <footer class="srcline" id="srcline"></footer>
-  </details>
-  
 </aside>
 
 <!--BUNDLE-->
 <!--PERF-->
+<script>
+// outline icon set, 24px grid; <i data-ic="name"> becomes an inline svg. window.IC(name) for script-built markup.
+(function () {
+  const P = {
+    car: '<path d="M3 16.5V13l2-5.2A2 2 0 0 1 6.9 6.5h10.2a2 2 0 0 1 1.9 1.3L21 13v3.5"/><path d="M3 13h18"/><path d="M3 16.5h2.2M8.8 16.5h6.4M18.8 16.5H21"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/>',
+    gauge: '<path d="M4.6 18a9 9 0 1 1 14.8 0"/><path d="m12 14 4-5"/><circle cx="12" cy="14" r="1.2"/>',
+    bars: '<path d="M5 20V11M12 20V4M19 20v-6"/>',
+    wind: '<path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h6"/>',
+    wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/>',
+    fan: '<path d="M10.8 16.4a6.1 6.1 0 0 1-8.6-7l5.4 1.4a6.1 6.1 0 0 1 7-8.6l-1.4 5.4a6.1 6.1 0 0 1 8.6 7l-5.4-1.4a6.1 6.1 0 0 1-7 8.6z"/><path d="M12 12h.01"/>',
+    chev: '<path d="m6 9 6 6 6-6"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4.5M12 8h.01"/>',
+    grid: '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/>',
+    palette: '<path d="M12 3a9 9 0 0 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15.5" cy="7.5" r="1"/>',
+    beam: '<path d="M10 7H7a5 5 0 0 0 0 10h3z"/><path d="M14 8.5 21 7M14 12h7M14 15.5l7 1.5"/>',
+    rotate: '<path d="M20.5 12A8.5 8.5 0 1 1 18 6"/><path d="M19 2.5V7h-4.5"/>',
+    moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+    cloud: '<path d="M7 18.5a4 4 0 0 1-.6-8A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 .5 9.5z"/>',
+    flag: '<path d="M5 21V4M5 4h12l-2.5 4.5L17 13H5"/>',
+    bolt: '<path d="M13 2.5 5 14h6l-1 7.5L18 10h-6z"/>',
+    timer: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/>',
+    weight: '<path d="M6.5 8.5h11l2.5 12H4z"/><circle cx="12" cy="5.5" r="2.2"/>',
+    tag: '<path d="M3.5 11.6V3.5h8.1l9 9-8.1 8.1z"/><circle cx="8" cy="8" r="1.3"/>',
+    spring: '<path d="M12 2.5v2.5M12 19v2.5"/><path d="m7 5 10 2.3-10 2.3 10 2.3-10 2.3 10 2.3L12 19"/>',
+    square: '<rect x="4.5" y="6.5" width="15" height="11" rx="1"/>',
+    q: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/>',
+  };
+  const IC = (n, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ""}</svg>`;
+  window.IC = IC;
+  const fill = root => root.querySelectorAll("i[data-ic]").forEach(i => { i.outerHTML = IC(i.dataset.ic, i.className); });
+  window.ICfill = fill;
+  fill(document);
+})();
+</script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -412,6 +490,12 @@ const CARS = Object.fromEntries(Object.entries(GDB.cars).map(([k, c]) => {
 const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", lights: false };
 const $ = id => document.getElementById(id);
 $("narrowGo").addEventListener("click", () => { $("narrow").hidden = true; });
+$("pickBtn").addEventListener("click", () => { const p = $("carPop"); p.hidden = !p.hidden; $("pickBtn").setAttribute("aria-expanded", !p.hidden); });
+$("collapseBtn").addEventListener("click", () => {
+  const c = document.body.classList.toggle("collapsed");
+  $("collapseBtn").setAttribute("aria-expanded", !c);
+  $("collapseBtn").setAttribute("aria-label", c ? "Mở bảng" : "Thu gọn bảng");
+});
 
 // ---- renderer, camera ---------------------------------------------------------
 const bay = $("bay");
@@ -915,7 +999,7 @@ for (const [bk, bt] of Object.entries(GDB.bodyTypes)) {
   const row = document.createElement("div"); row.className = "chips";
   for (const [k, c] of list) {
     const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = c.name; b.dataset.car = k;
-    b.addEventListener("click", () => { if (state.car !== k) selectCar(k); });
+    b.addEventListener("click", () => { $("carPop").hidden = true; $("pickBtn").setAttribute("aria-expanded", false); if (state.car !== k) selectCar(k); });
     row.append(b);
   }
   carsEl.append(lab, row);
