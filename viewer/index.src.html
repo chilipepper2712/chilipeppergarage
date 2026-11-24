@@ -118,6 +118,10 @@ button.run:hover { filter: brightness(1.08); }
 #resCanvas { width: 100%; height: 220px; display: block; }
 .facts { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.5; color: var(--fg); }
 .facts b { font-weight: 600; color: var(--accent); }
+.carpick { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 6px 10px; align-items: center; }
+.carpick > span { font-size: 12px; color: var(--muted); }
+.srcline { border-top: 1px solid var(--line); padding-top: 10px; font-size: 11px; line-height: 1.55; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+.srcline b { color: var(--fg); font-weight: 500; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font: 500 12px var(--font-body); padding: 6px 11px; background: var(--raise); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
 .chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); background: #3a2a12; }
@@ -187,6 +191,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
   <div class="hud">
     <h1 id="carTitle">MAZDA 2 DE · 2013</h1>
     <div class="sub" id="carSub">1.5 MT · 3885×1695×1475 · WB 2490</div>
+    <div class="sub" id="carNote"></div>
   </div>
   <div class="plate" id="plate">51F-213.13</div>
   <div id="results" hidden>
@@ -203,7 +208,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
 <aside>
   <section>
     <h2 class="label">Xe trong xưởng</h2>
-    <div class="seg big" id="cars"></div>
+    <div class="carpick" id="cars"></div>
   </section>
   <section>
     <h2 class="label">Không gian</h2>
@@ -286,7 +291,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <div class="tablewrap"><table class="slip" id="cmpRaw"></table></div>
     </section>
     <section>
-      <h2 class="label">Thang điểm</h2>
+      <h2 class="label">Thang điểm ~ (ước lượng)</h2>
       <div class="tablewrap"><table class="slip" id="cmpScore"></table></div>
     </section>
   </div>
@@ -311,7 +316,8 @@ table.slip td { text-align: right; padding: 3px 6px; }
     <p class="note">Mang tính tham khảo. Cd·A suy từ tốc độ tối đa hãng công bố (bộ mô phỏng đã chỉnh cho khớp); diện tích mặt trước đo trên model 3D; Cd = Cd·A chia diện tích. Lực nâng/ép là ước lượng theo kiểu thân xe cộng phần thay đổi của từng món độ. Luồng khói là hình minh họa được nắn theo bóng xe, không phải mô phỏng chất lưu.</p>
   </div>
   <dl class="spec" id="spec"></dl>
-  <p class="note">Hình khối PS1, ánh sáng realtime: đèn treo, nắng qua cửa sổ có đổ bóng, bloom và color grade. Tỉ lệ từng xe đo trên blueprint riêng. Vệt bánh trước/sau đang là số tạm.</p>
+  <footer class="srcline" id="srcline"></footer>
+  
 </aside>
 
 <!--BUNDLE-->
@@ -371,18 +377,24 @@ const SLOTS = [
 const RIMS = [["stock","Zin"],["mesh","Lưới"],["dish","Lòng sâu"],["steel","Mâm sắt"],["black6","6 chấu"]];
 // exterior reset used when switching cars; the build presets live in perf/parts.json (one list for the garage)
 const PRESETS = { stock: { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none" } };
-const CARS = {
-  mazda2_2013:   { name: "MAZDA 2", title: "MAZDA 2 DE · 2013", sub: "1.5 MT · 3885×1695×1475 · WB 2490",
-                   plate: "51F-213.13", paint: "Xanh Mazda", rim: "Mâm 15″ · lốp 185/55", clearance: 140 },
-  civic_fd_2008: { name: "CIVIC FD", title: "HONDA CIVIC FD · 2008", sub: "1.8 MT · 4540×1750×1450 · WB 2700",
-                   plate: "30A-868.08", paint: "Trắng", rim: "Mâm 15″ · lốp 195/65", clearance: 170 },
-  cx5_2020:      { name: "CX-5", title: "MAZDA CX-5 · 2020", sub: "2.0 AT · 4550×1840×1680 · WB 2700",
-                   plate: "51K-020.20", paint: "Đỏ Soul", rim: "Mâm 19″ · lốp 225/55", clearance: 200, cam: 1.06 },
-  mini_f55_2018: { name: "MINI", title: "MINI COOPER S 5 CỬA · 2018", sub: "2.0 Turbo MT · 4013×1727×1424 · WB 2567",
-                   plate: "51H-555.55", paint: "Xanh rêu", rim: "Mâm 17″ · lốp 205/45", clearance: 130 },
-  ranger_raptor_2019: { name: "RAPTOR", title: "FORD RANGER RAPTOR · 2019", sub: "2.0 Bi-Turbo 10AT · 5398×2028×1873 · WB 3220",
-                   plate: "60C-219.19", paint: "Trắng", rim: "Mâm 17″ · lốp 285/70", clearance: 283, cam: 1.22 },
-};
+// cars come from data/garage-db.json; cars without their own model borrow their body type's model,
+// stretched to their real length / width / height
+const GDB = JSON.parse(document.getElementById("perfdata").textContent).db;
+const tyreD = t => t[2] * 25.4 + 2 * t[0] * t[1] / 100;
+const CARS = Object.fromEntries(Object.entries(GDB.cars).map(([k, c]) => {
+  const bt = GDB.bodyTypes[c.body], model = c.model || bt.model || bt.fallback, md = GDB.models[model], own = !!c.model;
+  const est = f => (c.est || []).some(e => e === f || e.startsWith(f + "."));
+  return [k, {
+    name: c.short, body: c.body, model, own, est,
+    title: c.name.toUpperCase(),
+    sub: `${c.years} · ${c.dims.slice(0, 3).join("×")} · WB ${c.dims[3]}`,
+    note: own ? "" : (bt.model ? `Hình minh họa kiểu ${bt.label.toLowerCase()}, kéo theo kích thước thật` : `Hình minh họa tạm (chờ model ${bt.label})`),
+    plate: c.plate, paint: c.paint, rim: `Mâm ${c.tyre[2]}″ · lốp ${c.tyre[0]}/${c.tyre[1]}`, clearance: c.clearance,
+    scale: own ? [1, 1, 1] : [c.dims[1] / md.dims[1], c.dims[2] / md.dims[2], c.dims[0] / md.dims[0]],
+    tyreScale: tyreD(c.tyre) / tyreD(md.tyre),
+    cam: Math.max(1, c.dims[0] / 4500, c.dims[2] / 1600),
+  }];
+}));
 const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", lights: false };
 const $ = id => document.getElementById(id);
 $("narrowGo").addEventListener("click", () => { $("narrow").hidden = true; });
@@ -761,7 +773,7 @@ const cache = {}, carCache = {};
 const carMats = pred => { const out = new Set(); carRoot.traverse(o => { if (o.isMesh && pred(o.material)) out.add(o.material); }); return out; };
 
 async function part(file, kind = "car") {
-  const k = `${state.car}/parts/${file}`;
+  const k = `${CARS[state.car].model}/parts/${file}`;
   if (!cache[k]) { const s = await load(k); prepMaterials(s, kind); cache[k] = s; }
   return cache[k];
 }
@@ -770,25 +782,28 @@ async function selectCar(key) {
   state.car = key;
   Object.assign(state, PRESETS.stock, { lower: 0, paint: CARS[key].paint });
   body.clear(); wheelGroup.clear(); stock = {}; sockets = {}; swapped = {};
-  if (!carCache[key]) {
-    const car = await load(key);
+  const mk = CARS[key].model;
+  if (!carCache[mk]) {
+    const car = await load(mk);
     car.updateMatrixWorld(true);
     const sk = {};
     car.traverse(o => { if (o.name.startsWith("SOCKET_wheel_")) sk[o.name.slice(13)] = o.getWorldPosition(new THREE.Vector3()); });
     const meshes = []; car.traverse(o => { if (o.isMesh && !/^wheel_(FL|FR|RL|RR)$/.test(o.name)) meshes.push(o); });
     const g = new THREE.Group(); for (const o of meshes) { o.removeFromParent(); g.add(o); }
     prepMaterials(g, "car");
-    carCache[key] = { meshes, sockets: sk };
+    carCache[mk] = { meshes, sockets: sk };
   }
-  for (const o of carCache[key].meshes) { o.visible = true; body.add(o); stock[o.name] = o; }
-  sockets = carCache[key].sockets;
+  for (const o of carCache[mk].meshes) { o.visible = true; body.add(o); stock[o.name] = o; }
+  sockets = carCache[mk].sockets;
   const c = CARS[key];
+  body.scale.set(...c.scale);
   // frame the car: same viewing direction, distance scaled to the car's size
   const off = camera.position.clone().sub(controls.target);
   off.setLength(7.56 * (c.cam || 1));
   camera.position.copy(controls.target).add(off);
   controls.maxDistance = 8 * (c.cam || 1);
   $("carTitle").textContent = c.title; $("carSub").textContent = c.sub; $("plate").textContent = c.plate;
+  $("carNote").textContent = c.note; $("carNote").hidden = !c.note;
   $("rimLabel").textContent = c.rim;
   refreshRims();
   await apply();
@@ -827,8 +842,12 @@ async function apply() {
   if (state.spoiler !== "none") { const s = (await part(`spoiler_${state.spoiler}`)).clone(true); body.add(s); swapped.spoiler = s; }
   wheelGroup.clear();
   const proto = await part(`wheel_${state.wheel}`, "wheel");
+  const cs = CARS[state.car];
   for (const p of Object.values(sockets)) {
-    const w = proto.clone(true); w.position.copy(p);
+    const w = proto.clone(true);
+    // borrowed model: wheel centres follow the stretched body, tyres take the real tyre size
+    w.position.set(p.x * cs.scale[0], p.y * cs.tyreScale, p.z * cs.scale[2]);
+    w.scale.setScalar(cs.tyreScale);
     if (p.x < 0) w.rotation.y = Math.PI;
     wheelGroup.add(w);
   }
@@ -871,14 +890,21 @@ function refreshRims() {
   for (const b of rimsEl.querySelectorAll(".rim")) {
     const c = b.querySelector("canvas"), img = new Image();
     img.onload = () => { const g = c.getContext("2d"); g.clearRect(0, 0, 76, 76); g.imageSmoothingEnabled = false; g.drawImage(img, 2, 2, 76, 76, 0, 0, 76, 76); };
-    img.src = BUNDLE[`${state.car}/parts/wheel_${b.dataset.val}`].images[0];
+    img.src = BUNDLE[`${CARS[state.car].model}/parts/wheel_${b.dataset.val}`].images[0];
   }
 }
 const carsEl = $("cars");
-for (const [k, c] of Object.entries(CARS)) {
-  const b = document.createElement("button"); b.type = "button"; b.textContent = c.name; b.dataset.car = k;
-  b.addEventListener("click", () => { if (state.car !== k) selectCar(k); });
-  carsEl.append(b);
+for (const [bk, bt] of Object.entries(GDB.bodyTypes)) {
+  const list = Object.entries(CARS).filter(([, c]) => c.body === bk);
+  if (!list.length) continue;
+  const lab = document.createElement("span"); lab.textContent = bt.label;
+  const row = document.createElement("div"); row.className = "chips";
+  for (const [k, c] of list) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = c.name; b.dataset.car = k;
+    b.addEventListener("click", () => { if (state.car !== k) selectCar(k); });
+    row.append(b);
+  }
+  carsEl.append(lab, row);
 }
 const sws = $("swatches");
 for (const [name, p] of Object.entries(PAINTS)) {
@@ -909,11 +935,17 @@ function updateSpec() {
   let verts = 0; const tex = new Set();
   carRoot.traverse(o => { if (o.isMesh && isShown(o)) { verts += o.geometry.attributes.position.count; if (o.material.map) tex.add(o.material.map); } });
   const rows = [
-    ["Khoảng sáng gầm", `${CARS[state.car].clearance - state.lower} mm`],
+    ["Khoảng sáng gầm", `${CARS[state.car].est("clearance") || state.lower ? "~" : ""}${CARS[state.car].clearance - state.lower} mm`],
     ["Đỉnh xe đang hiển thị", verts.toLocaleString("vi-VN")],
     ["Texture xe", `${tex.size} tấm · 64 px/m`],
   ];
   $("spec").innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("");
+}
+
+{
+  const ids = new Set(); for (const c of Object.values(GDB.cars)) for (const id of Object.values(c.src || {})) ids.add(id);
+  $("srcline").innerHTML = `<span><b>Nguồn:</b> ${[...ids].map(id => GDB.sources[id].name).join(", ")}. Giá đồ độ: tổng hợp thị trường. Cập nhật ${GDB.updated.split("-").reverse().join("/")}.</span>`
+    + `<span>Dấu <b>~</b> là số ước lượng hoặc suy từ mô phỏng.</span><span>${GDB.disclaimer}</span>`;
 }
 
 // ---- loop ---------------------------------------------------------------------------------

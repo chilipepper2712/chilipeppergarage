@@ -1,9 +1,9 @@
 # Chili Pepper Garage
 
-Demo game garage xe đời thường ở Việt Nam: low-poly, texture pixel, ánh sáng hiện đại, lớp filter PS1.
+App độ xe tham khảo cho xe đời thường ở Việt Nam: low-poly, texture pixel, ánh sáng hiện đại, lớp filter PS1.
 Sửa xe, độ ngoại thất và hiệu năng, chạy dyno và drag 1/4 dặm.
 
-**Xe:** Mazda 2 DE 2013 · Honda Civic FD 2008 · Mazda CX-5 2020 · MINI Cooper S 5 cửa 2018 · Ford Ranger Raptor 2019
+**Xe:** Vios, Accent, City, Mazda 3, Civic FD (sedan) · Mazda 2 (hatchback) · MINI Cooper S (hatchback thể thao) · CX-5 (SUV) · Xpander (MPV) · Ranger XLS (bán tải). Xe không có model riêng dùng model đại diện của kiểu xe, kéo theo kích thước thật.
 
 ## Xem ngay
 Mở `viewer/index.html` trong trình duyệt. File tự chứa toàn bộ model và texture, chỉ tải three.js từ CDN.
@@ -14,7 +14,8 @@ Mở `viewer/index.html` trong trình duyệt. File tự chứa toàn bộ model
 | `cars/` | Profile từng xe: kích thước, đường bao đo trên blueprint, hốc grill/đèn, decal, biến thể đồ độ |
 | `pipeline/` | Bộ dựng xe bằng Blender (bpy): loft, khoét hốc, UV1 atlas 64 px/m, UV2 wrap chung, vẽ texture pixel, tách panel, socket, mâm, cánh gió, kiểm tra chồng blueprint |
 | `env/` | Bộ dựng garage (tường gạch, gác lửng, đèn công trình, neon) và phòng thử gió tự chế (`tunnel_env.py`) |
-| `perf/` | Mô phỏng dyno/drag/tốc độ tối đa (`sim.js`), model bản độ → 7 trục điểm, giá, đăng kiểm (`model.js`), thông số gốc từng xe (`cars.json`), danh mục đồ độ gộp từ bảng benchmark Chili Paprika (`parts.json`), script hiệu chỉnh |
+| `data/` | `garage-db.json`: 10 xe, mỗi thông số có nguồn (`src`) hoặc đánh dấu ước lượng (`est`), danh sách nguồn, kiểu xe → model đại diện, disclaimer |
+| `perf/` | Mô phỏng dyno/drag/tốc độ tối đa (`sim.js`), model bản độ → 7 trục điểm, giá, đăng kiểm (`model.js`), chuyển database thành đầu vào mô phỏng (`db.js`), danh mục đồ độ gộp từ bảng benchmark Chili Paprika (`parts.json`), script hiệu chỉnh |
 | `viewer/` | Garage 3D trên web (three.js). Sửa `index.src.html`, `perf-ui.js`, `tunnel.js` (phòng gió), rồi build ra `index.html` |
 | `out/` | Model đã build: `.glb`, `.fbx`, texture, món độ trong `parts/` |
 | `blueprints/` | `calib.json` căn tỉ lệ từng bản vẽ (ảnh blueprint không commit) |
@@ -28,7 +29,7 @@ python pipeline/build_car.py mazda2_2013 sport      # một biến thể đồ �
 python env/garage_env.py                            # garage
 python env/tunnel_env.py                            # phòng thử gió
 python3 viewer/build_bundle.py                      # nhúng toàn bộ vào viewer/index.html
-node perf/calibrate.js                              # 0–100 xe zin so với số hãng
+node perf/calibrate.js --write                      # khớp Cd·A theo tốc độ tối đa, tính hệ số thời gian theo 0–100 có nguồn
 ```
 
 ## Quy ước

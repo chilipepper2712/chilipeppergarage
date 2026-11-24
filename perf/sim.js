@@ -79,6 +79,7 @@
     const c = v.car, r = c.tyreR, L = c.wheelbase, dt = 0.002;
     const g = c.gears, fd = c.final, n = g.length;
     const m = v.mass, wf = c.frontShare, cl = lift(v);
+    const cvt = c.trans === "cvt", cvtTarget = c.engine.rpmP * 0.9;   // real CVTs run a little under peak power
     // model constants, calibrated once on the Mazda 2 (the only car with every spec verified)
     const K_WHEEL = 0.6, K_DRIVELINE = 12, K_ENGINE_I = 0.085;
     const rotMass = 4 * v.wheelKg * K_WHEEL + K_DRIVELINE;    // wheels + driveline, as equivalent mass
@@ -89,7 +90,10 @@
     const launch = c.trans === "mt" ? c.launchRpm : c.stallRpm;
     while (t < 40 && x < 402.336) {
       th += (1 - th) * dt / v.tau;
-      const wheelRpm = vel / r * 60 / (2 * Math.PI), ratio = g[gear] * fd;
+      const wheelRpm = vel / r * 60 / (2 * Math.PI);
+      // CVT: gears = [lowest, highest] ratio; the box holds the engine near peak power
+      const gr = cvt ? Math.min(g[0], Math.max(g[1], cvtTarget / Math.max(1e-6, wheelRpm * fd))) : g[gear];
+      const ratio = gr * fd;
       let rpm = wheelRpm * ratio, drive = 0;
       if (shiftLeft > 0) {
         shiftLeft -= dt;
@@ -97,9 +101,9 @@
         if (shiftLeft <= 0 && c.trans === "mt") th = 0.45;      // manual: driver lifts, re-applies
       } else drive = 1;
       let mult = 1, slipping = false;
-      if (rpm < launch && (gear === 0 || c.trans === "at")) {
+      if (rpm < launch && (gear === 0 || c.trans !== "mt")) {
         slipping = c.trans === "mt";
-        if (c.trans === "at") mult = 1 + 0.9 * (1 - rpm / launch);   // torque converter multiplication
+        if (c.trans !== "mt") mult = 1 + 0.9 * (1 - rpm / launch);   // torque converter multiplication
         rpm = launch;                                                 // clutch slip / converter stall
       }
       const engT = v.curve(Math.min(rpm, v.redline + 200)) * th * drive * mult;
@@ -116,7 +120,7 @@
       const mEff = m + rotMass + (slipping ? 0 : K_ENGINE_I * ratio * ratio / (r * r) * (c.engineInertia || 1));
       a = Math.max(0, (F - Fr) / mEff);
       vel += a * dt; x += vel * dt; t += dt;
-      if (shiftLeft <= 0 && gear < n - 1 && rpm >= v.redline - 150) { gear++; shiftLeft = v.shift; }
+      if (!cvt && shiftLeft <= 0 && gear < n - 1 && rpm >= v.redline - 150) { gear++; shiftLeft = v.shift; }
       if (slip.t60 === null && x >= 18.288) slip.t60 = t;
       if (slip.t100 === null && vel >= 100 / 3.6) slip.t100 = t;
       if (slip.t201 === null && x >= 201.168) slip.t201 = t;
@@ -124,6 +128,12 @@
     }
     slip.t402 = t; slip.v402 = vel * 3.6;
     trace.push({ t, x, kmh: vel * 3.6, gear: gear + 1 });
+    // per-car time factor (published stock 0-100 / simulated stock 0-100, see perf/calibrate.js)
+    const k = c.kT || 1;
+    if (k !== 1) {
+      for (const f of ["t60", "t100", "t201", "t402"]) if (slip[f] !== null) slip[f] *= k;
+      for (const p of trace) p.t *= k;
+    }
     return { slip, trace };
   }
 
@@ -134,7 +144,8 @@
     for (let kmh = 60; kmh <= 320; kmh += 0.5) {
       const vel = kmh / 3.6, drag = v.crr * v.mass * G + 0.5 * RHO * v.cda * vel * vel;
       let ok = false;
-      for (const gr of c.gears) {
+      const ratios = c.trans === "cvt" ? Array.from({ length: 40 }, (_, i) => c.gears[0] + (c.gears[1] - c.gears[0]) * i / 39) : c.gears;
+      for (const gr of ratios) {
         const rpm = vel / r * 60 / (2 * Math.PI) * gr * c.final;
         if (rpm > v.redline || rpm < 1500) continue;
         if (v.curve(rpm) * gr * c.final * c.eff / r >= drag) { ok = true; break; }

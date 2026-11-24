@@ -2,11 +2,13 @@
 // Model: window.GarageModel (perf/model.js) on top of window.PerfSim (perf/sim.js); data in #perfdata.
 const G = window.__garage, S = window.PerfSim, M = window.GarageModel;
 const DATA = JSON.parse(document.getElementById("perfdata").textContent);
-const CARS = DATA.cars, CAT = DATA.parts;
+const DB = DATA.db, CAT = DATA.parts;
+const CARS = Object.fromEntries(Object.keys(DB.cars).map(k => [k, window.GarageDB.toSim(DB, k)]));
+const EST = (k, f) => !window.GarageDB.sourced(DB, k, f);
 const $ = id => document.getElementById(id);
 const COL = { stock: "#3987e5", tuned: "#d95926" };          // validated categorical slots 1-2 (dark)
 const OTHER = ["#199e70", "#c98500", "#d55181"];              // slots 3-5, fixed per pick, never repainted
-const NAMES = { mazda2_2013: "Mazda 2", civic_fd_2008: "Civic FD", cx5_2020: "CX-5", mini_f55_2018: "MINI S", ranger_raptor_2019: "Raptor" };
+const NAMES = Object.fromEntries(Object.entries(DB.cars).map(([k, c]) => [k, c.short]));
 const FLAG = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5v13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4.2 2.2h8.6l-2 3.1 2 3.2H4.2z" fill="currentColor"/></svg>';
 
 let sel = new Set(), tier = "eco", preset = "zin";
@@ -93,11 +95,13 @@ function stats() {
   const tile = (k, v, d, better) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span><span class="d ${better === undefined ? "" : better ? "up" : "down"}">${d}</span></div>`;
   const dt = (x, y, u) => (Math.abs(y - x) < 0.005 ? "như zin" : `${y < x ? "−" : "+"}${f2(Math.abs(y - x))} ${u} so với zin`);
   const same = (x, y) => Math.abs(x - y) < 0.005;
+  const k = G.state.car, modded = JSON.stringify(rb.t100) !== JSON.stringify(ra.t100) || sel.size > 0;
+  const T = (est) => (est ? "~" : "");
   $("stats").innerHTML =
-    tile("Công suất bánh", `${Math.round(b.vehicle && peak(b.vehicle, "whp").whp)} whp`, rb.hp - ra.hp > 0.5 ? `+${Math.round(rb.hp - ra.hp)} hp so với zin` : "như zin", rb.hp - ra.hp > 0.5 ? true : undefined) +
-    tile("0–100 km/h", `${f2(rb.t100)} s`, dt(ra.t100, rb.t100, "s"), same(ra.t100, rb.t100) ? undefined : rb.t100 < ra.t100) +
-    tile("1/4 dặm", `${f2(rb.t402)} s`, `${Math.round(rb.v402)} km/h về đích`) +
-    tile("Khối lượng", `${Math.round(rb.kg)} kg`, Math.round(rb.kg - ra.kg) ? `${rb.kg > ra.kg ? "+" : "−"}${Math.abs(Math.round(rb.kg - ra.kg))} kg` : "như zin",
+    tile("Công suất bánh", `~${Math.round(b.vehicle && peak(b.vehicle, "whp").whp)} whp`, rb.hp - ra.hp > 0.5 ? `+${Math.round(rb.hp - ra.hp)} hp so với zin` : "như zin", rb.hp - ra.hp > 0.5 ? true : undefined) +
+    tile("0–100 km/h", `${T(modded || EST(k, "t0100"))}${f2(DB.cars[k].t0100 * rb.t100 / ra.t100)} s`, dt(ra.t100, rb.t100, "s"), same(ra.t100, rb.t100) ? undefined : rb.t100 < ra.t100) +
+    tile("1/4 dặm", `~${f2(rb.t402)} s`, `${Math.round(rb.v402)} km/h về đích`) +
+    tile("Khối lượng", `${T(EST(k, "kerb") || Math.round(rb.kg - ra.kg) !== 0)}${Math.round(rb.kg)} kg`, Math.round(rb.kg - ra.kg) ? `${rb.kg > ra.kg ? "+" : "−"}${Math.abs(Math.round(rb.kg - ra.kg))} kg` : "như zin",
       Math.round(rb.kg - ra.kg) ? rb.kg < ra.kg : undefined);
   $("funFill").style.width = `${b.fun}%`; $("funVal").textContent = `${b.fun}/100`;
   $("priceTotal").textContent = fr(b.price);
@@ -124,8 +128,8 @@ const AX = CAT.axes;
 const RAWAX = [r => `${Math.round(r.vmax)} km/h`, r => `0–100 ${f2(r.t100)} s`, r => `${Math.round(r.hpPerT)} hp/tấn`];
 function cmpSeries() {
   const a = stockOf(G.state.car), b = current();
-  const list = [{ name: `${NAMES[G.state.car]} zin`, col: COL.stock, r: a }, { name: `${NAMES[G.state.car]} bản độ`, col: COL.tuned, r: b }];
-  for (const [k, slot] of others) list.push({ name: `${NAMES[k]} zin`, col: OTHER[slot], r: stockOf(k), other: true });
+  const list = [{ key: G.state.car, name: `${NAMES[G.state.car]} zin`, col: COL.stock, r: a }, { key: G.state.car, tuned: true, name: `${NAMES[G.state.car]} bản độ`, col: COL.tuned, r: b }];
+  for (const [k, slot] of others) list.push({ key: k, name: `${NAMES[k]} zin`, col: OTHER[slot], r: stockOf(k), other: true });
   return list;
 }
 function renderCarChips() {
@@ -185,15 +189,28 @@ function renderCompare() {
   }
   // tables
   const head = `<tr><th></th>${L.map(s => `<th style="border-bottom:2px solid ${s.col}">${s.name.replace(" bản độ", " độ")}</th>`).join("")}</tr>`;
+  // stock columns show the published figure (or ~estimate); the build column scales it by the simulated change
+  const db = k => DB.cars[k];
+  const fig = s => {
+    const k = s.key, c = db(k), st = stockOf(k).raw, r = s.r.raw, tuned = s.tuned;
+    const hp = c.engine.hp * (tuned ? r.hp / st.hp : 1), nm = c.engine.nm * (tuned ? r.nm / st.nm : 1);
+    const kg = c.kerb + (tuned ? r.kg - st.kg : 0);
+    return { hp, nm, kg, hpt: hp / kg * 1000, t100: tuned ? c.t0100 * r.t100 / st.t100 : c.t0100, t402: r.t402, vmax: tuned ? c.vmax * r.vmax / st.vmax : c.vmax,
+      e: { hp: tuned && Math.abs(r.hp - st.hp) > 0.5 || EST(k, "engine"), nm: tuned && Math.abs(r.nm - st.nm) > 0.5 || EST(k, "engine.nm"),
+           kg: tuned && Math.abs(r.kg - st.kg) > 0.5 || EST(k, "kerb"), t100: tuned && Math.abs(r.t100 - st.t100) > 0.004 || EST(k, "t0100"),
+           t402: true, vmax: tuned && Math.abs(r.vmax - st.vmax) > 0.4 || EST(k, "vmax") } };
+  };
+  const F = L.map(fig);
+  F.forEach(f => { f.e.hpt = f.e.hp || f.e.kg; });
   const rows = [
-    ["Công suất", r => `${Math.round(r.hp)} hp`, r => r.hp, 1], ["Mô-men", r => `${Math.round(r.nm)} Nm`, r => r.nm, 1],
-    ["Khối lượng", r => `${Math.round(r.kg)} kg`, r => r.kg, -1], ["hp/tấn", r => Math.round(r.hpPerT), r => r.hpPerT, 1],
-    ["0–100 km/h", r => `${f2(r.t100)} s`, r => r.t100, -1], ["1/4 dặm", r => `${f2(r.t402)} s`, r => r.t402, -1],
-    ["Tốc độ tối đa", r => `${Math.round(r.vmax)} km/h`, r => r.vmax, 1],
+    ["Công suất", "hp", v => `${Math.round(v)} hp`, 1], ["Mô-men", "nm", v => `${Math.round(v)} Nm`, 1],
+    ["Khối lượng", "kg", v => `${Math.round(v)} kg`, -1], ["hp/tấn", "hpt", v => Math.round(v), 1],
+    ["0–100 km/h", "t100", v => `${f2(v)} s`, -1], ["1/4 dặm", "t402", v => `${f2(v)} s`, -1],
+    ["Tốc độ tối đa", "vmax", v => `${Math.round(v)} km/h`, 1],
   ];
   const cls = (a, b, dir) => (Math.abs(a - b) < 1e-3 ? "" : (b - a) * dir > 0 ? "up" : "down");
-  $("cmpRaw").innerHTML = head + rows.map(([n, fmt, val, dir]) => `<tr><td>${n}</td>${L.map((s, j) =>
-    `<td class="${j === 1 ? cls(val(L[0].r.raw), val(s.r.raw), dir) : ""}">${fmt(s.r.raw)}</td>`).join("")}</tr>`).join("");
+  $("cmpRaw").innerHTML = head + rows.map(([n, f, fmt, dir]) => `<tr><td>${n}</td>${F.map((x, j) =>
+    `<td class="${j === 1 ? cls(F[0][f], x[f], dir) : ""}">${x.e[f] ? "~" : ""}${fmt(x[f])}</td>`).join("")}</tr>`).join("");
   $("cmpScore").innerHTML = head + [...AX.map((ax, i) => [ax, s => s.r.scores[i]]), ["Lái vui", s => s.r.fun / 10]].map(([n, val]) =>
     `<tr><td>${n}</td>${L.map((s, j) => `<td class="${j === 1 ? cls(val(L[0]), val(s), 1) : ""}">${f1(val(s))}</td>`).join("")}</tr>`).join("");
 }
@@ -381,5 +398,5 @@ document.querySelector("aside").addEventListener("click", e => {
 $("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
 addEventListener("resize", () => { if (cmpMode === "radar") renderCompare(); });
 refresh();
-window.__perf = { current: () => current(), stock: () => stockOf(G.state.car),
+window.__perf = { cars: CARS, current: () => current(), stock: () => stockOf(G.state.car),
   variant: over => M.resolve(car(), [...sel], tier, { ...ext(), ...over }, CAT) };

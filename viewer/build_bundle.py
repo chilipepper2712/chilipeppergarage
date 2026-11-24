@@ -47,9 +47,9 @@ src = (ROOT / "viewer/index.src.html").read_text()
 assert "<!--BUNDLE-->" in src
 out = src.replace("<!--BUNDLE-->", f'<script id="bundle" type="application/json">{blob}</script>')
 # performance: simulator (classic script), its data, and the UI module (must run after the 3D module)
-perf = {"cars": json.loads((ROOT / "perf/cars.json").read_text())["cars"],
+perf = {"db": json.loads((ROOT / "data/garage-db.json").read_text()),
         "parts": json.loads((ROOT / "perf/parts.json").read_text())}
-out = out.replace("<!--PERF-->", "<script>" + (ROOT / "perf/sim.js").read_text() + "</script>\n<script>" + (ROOT / "perf/model.js").read_text() + "</script>\n"
+out = out.replace("<!--PERF-->", "<script>" + (ROOT / "perf/sim.js").read_text() + "</script>\n<script>" + (ROOT / "perf/db.js").read_text() + "</script>\n<script>" + (ROOT / "perf/model.js").read_text() + "</script>\n"
                   + '<script id="perfdata" type="application/json">' + json.dumps(perf, ensure_ascii=False).replace("</", "<\\/") + "</script>")
 assert out.rstrip().endswith("</script>")
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/perf-ui.js").read_text() + "</script>\n"

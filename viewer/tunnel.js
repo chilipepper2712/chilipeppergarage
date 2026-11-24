@@ -274,7 +274,7 @@ function cls(build, car, lowerMM) {
 }
 let areaCache = { key: "", A: 2 };
 function computeAero(meshes) {
-  const car = G.CARS[G.state.car], data = DATA.cars[G.state.car], st = G.state;
+  const car = G.CARS[G.state.car], data = window.__perf.cars[G.state.car], st = G.state;
   const key = [st.car, st.bumper_F, st.bumper_R, st.skirt, st.spoiler, st.wheel, st.lower].join("|");
   if (areaCache.key !== key) areaCache = { key, A: frontalArea(meshes) };
   const A = areaCache.A;
@@ -301,15 +301,15 @@ function render() {
   const t = aero.tuned, s = aero.stock, ft = forces(t), fs = forces(s);
   const tile = (k, v, d) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span><span class="d">${d}</span></div>`;
   $("aeroStats").innerHTML =
-    tile("Hệ số cản Cd", f3(t.cd), "ước lượng, suy từ Cd·A") +
-    tile("Diện tích mặt trước", `${f2(t.area)} m²`, "đo trên model 3D") +
-    tile("Lực cản gió", `${Math.round(ft.drag)} N`, `Cd·A ${f3(t.cda)} m²`) +
-    tile("Công suất để thắng gió", `${f1(ft.pkw * 1.341)} hp`, `${f1(ft.pkw)} kW ở ${wind} km/h`);
+    tile("Hệ số cản Cd", "~" + f3(t.cd), "ước lượng, suy từ Cd·A") +
+    tile("Diện tích mặt trước", `~${f2(t.area)} m²`, "đo trên model 3D") +
+    tile("Lực cản gió", `~${Math.round(ft.drag)} N`, `Cd·A ${f3(t.cda)} m²`) +
+    tile("Công suất để thắng gió", `~${f1(ft.pkw * 1.341)} hp`, `${f1(ft.pkw)} kW ở ${wind} km/h`);
   const row = (n, a, b, fmt, better) => {
     const c = Math.abs(a - b) < 1e-6 ? "" : better(a, b) ? "up" : "down";
     return `<tr><td>${n}</td><td>${fmt(a)}</td><td class="${c}">${fmt(b)}</td></tr>`;
   };
-  $("aeroTable").innerHTML = `<tr><th></th><th>Zin</th><th>Bản độ</th></tr>` +
+  $("aeroTable").innerHTML = `<tr><th>(~ ước lượng)</th><th>Zin</th><th>Bản độ</th></tr>` +
     row("Cd·A (m²)", s.cda, t.cda, f3, (a, b) => b < a) +
     row("Lực cản", fs.drag, ft.drag, v => `${Math.round(v)} N`, (a, b) => b < a) +
     row("Cầu trước", fs.lf, ft.lf, liftTxt, (a, b) => b < a) +

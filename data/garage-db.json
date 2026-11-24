@@ -1,0 +1,909 @@
+{
+ "_note": "Chili Pepper Garage database. Facts per car with a source id for each field (src) or an estimate flag (est). Simulation assumptions are derived in perf/db.js; fitted values (fit) come from perf/calibrate.js.",
+ "updated": "2026-11",
+ "disclaimer": "Thông tin trên ứng dụng chỉ mang tính tham khảo, được tổng hợp từ nguồn công khai và mô phỏng, không phản ánh chính xác 100% thực tế. Giá đồ độ là ước lượng thị trường tại thời điểm cập nhật, chưa gồm công. Chili Pepper Garage không chịu trách nhiệm cho quyết định mua bán hay độ xe dựa trên các số liệu này; hãy kiểm tra với hãng, đại lý và tiệm trước khi thực hiện.",
+ "sources": {
+  "bonbanh": {
+   "name": "bonbanh.com",
+   "url": "https://bonbanh.com"
+  },
+  "mazdavn": {
+   "name": "Mazda Motor Việt Nam",
+   "url": "https://mazdamotors.vn"
+  },
+  "mitsubishivn": {
+   "name": "Mitsubishi Motors Việt Nam",
+   "url": "https://www.mitsubishi-motors.com.vn"
+  },
+  "mazdausa": {
+   "name": "Mazda USA",
+   "url": "https://news.mazdausa.com"
+  },
+  "mazdaom": {
+   "name": "Mazda owner's manual",
+   "url": "https://owners-manual.mazda.com"
+  },
+  "bmwpress": {
+   "name": "BMW Group PressClub",
+   "url": "https://www.press.bmwgroup.com"
+  },
+  "autodata": {
+   "name": "auto-data.net",
+   "url": "https://www.auto-data.net"
+  },
+  "autotijd": {
+   "name": "autotijd.be",
+   "url": "https://autotijd.be"
+  },
+  "carsdata": {
+   "name": "cars-data.com",
+   "url": "https://cars-data.com"
+  },
+  "goonet": {
+   "name": "Goo-net",
+   "url": "https://www.goo-net-exchange.com"
+  },
+  "paultan": {
+   "name": "paultan.org",
+   "url": "https://paultan.org"
+  },
+  "wapcar": {
+   "name": "WapCar (đo thực tế)",
+   "url": "https://www.wapcar.my"
+  },
+  "headlightmag": {
+   "name": "HeadlightMag (đo thực tế)",
+   "url": "https://www.headlightmag.com"
+  },
+  "autoru": {
+   "name": "auto.ru",
+   "url": "https://auto.ru"
+  },
+  "autoboom": {
+   "name": "autoboom.co.il",
+   "url": "https://autoboom.co.il"
+  },
+  "topgear": {
+   "name": "Top Gear",
+   "url": "https://www.topgear.com"
+  },
+  "mytour": {
+   "name": "MyTour",
+   "url": "https://mytour.vn"
+  }
+ },
+ "bodyTypes": {
+  "sedan": {
+   "label": "Sedan",
+   "model": "civic_fd_2008",
+   "cl": [
+    0.09,
+    0.1
+   ],
+   "front": 0.61,
+   "hcg": 0.53
+  },
+  "hatch": {
+   "label": "Hatchback",
+   "model": "mazda2_2013",
+   "cl": [
+    0.1,
+    0.14
+   ],
+   "front": 0.61,
+   "hcg": 0.52
+  },
+  "hothatch": {
+   "label": "Hatchback thể thao",
+   "model": "mini_f55_2018",
+   "cl": [
+    0.08,
+    0.12
+   ],
+   "front": 0.62,
+   "hcg": 0.5
+  },
+  "suv": {
+   "label": "SUV / crossover",
+   "model": "cx5_2020",
+   "cl": [
+    0.12,
+    0.16
+   ],
+   "front": 0.59,
+   "hcg": 0.62
+  },
+  "mpv": {
+   "label": "MPV 7 chỗ",
+   "model": null,
+   "fallback": "cx5_2020",
+   "cl": [
+    0.12,
+    0.18
+   ],
+   "front": 0.58,
+   "hcg": 0.64
+  },
+  "pickup": {
+   "label": "Bán tải",
+   "model": "ranger_raptor_2019",
+   "cl": [
+    0.1,
+    0.2
+   ],
+   "front": 0.57,
+   "hcg": 0.75
+  }
+ },
+ "cars": {
+  "vios_2020": {
+   "name": "Toyota Vios 1.5 G CVT",
+   "short": "Vios",
+   "body": "sedan",
+   "years": "2018–2022",
+   "dims": [
+    4425,
+    1730,
+    1475,
+    2550
+   ],
+   "clearance": 133,
+   "kerb": 1105,
+   "tyre": [
+    185,
+    60,
+    15
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 107,
+    "rpmP": 6000,
+    "nm": 140,
+    "rpmT": 4200,
+    "redline": 6400
+   },
+   "trans": "cvt",
+   "gears": [
+    2.48,
+    0.396
+   ],
+   "final": 5.698,
+   "drive": "fwd",
+   "t0100": 13.4,
+   "vmax": 180,
+   "chassis": [
+    4,
+    4,
+    2,
+    6
+   ],
+   "fun": 30,
+   "paint": "Bạc",
+   "plate": "51G-150.20",
+   "src": {
+    "dims": "bonbanh",
+    "clearance": "bonbanh",
+    "kerb": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "bonbanh",
+    "trans": "bonbanh",
+    "t0100": "wapcar",
+    "vmax": "paultan"
+   },
+   "est": [
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "note": "Kích thước, khối lượng, lốp theo bản 1.5E CVT cùng thế hệ; 0–100 là số đo thực tế.",
+   "fit": {
+    "cda": 0.765,
+    "cd": 0.356,
+    "kT": 1.173
+   }
+  },
+  "accent_2020": {
+   "name": "Hyundai Accent 1.4 AT",
+   "short": "Accent",
+   "body": "sedan",
+   "years": "2018–2023",
+   "dims": [
+    4440,
+    1729,
+    1470,
+    2600
+   ],
+   "clearance": 150,
+   "kerb": 1145,
+   "tyre": [
+    185,
+    65,
+    15
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 100,
+    "rpmP": 6000,
+    "nm": 132,
+    "rpmT": 4000,
+    "redline": 6500
+   },
+   "trans": "at",
+   "gears": [
+    4.4,
+    2.726,
+    1.834,
+    1.392,
+    1,
+    0.774
+   ],
+   "final": 3.367,
+   "drive": "fwd",
+   "t0100": 12.9,
+   "vmax": 183,
+   "chassis": [
+    4,
+    4,
+    2,
+    6
+   ],
+   "fun": 32,
+   "paint": "Trắng",
+   "plate": "30H-140.20",
+   "src": {
+    "dims": "bonbanh",
+    "clearance": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "bonbanh",
+    "trans": "bonbanh",
+    "t0100": "autoru",
+    "vmax": "autoru"
+   },
+   "est": [
+    "kerb",
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "note": "Bonbanh ghi khối lượng 1110–1160 kg không tách theo bản; dùng giá trị giữa.",
+   "fit": {
+    "cda": 0.658,
+    "cd": 0.308,
+    "kT": 1.041
+   }
+  },
+  "city_2021": {
+   "name": "Honda City 1.5 RS",
+   "short": "City",
+   "body": "sedan",
+   "years": "2020–nay",
+   "dims": [
+    4553,
+    1748,
+    1467,
+    2600
+   ],
+   "clearance": 134,
+   "kerb": 1134,
+   "tyre": [
+    185,
+    55,
+    16
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 119,
+    "rpmP": 6600,
+    "nm": 145,
+    "rpmT": 4300,
+    "redline": 7000
+   },
+   "trans": "cvt",
+   "gears": [
+    2.526,
+    0.408
+   ],
+   "final": 5.164,
+   "drive": "fwd",
+   "t0100": 10.4,
+   "vmax": 195,
+   "chassis": [
+    5,
+    5,
+    2,
+    6
+   ],
+   "fun": 45,
+   "paint": "Đỏ Soul",
+   "plate": "29A-150.21",
+   "src": {
+    "dims": "mytour",
+    "clearance": "bonbanh",
+    "kerb": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "bonbanh",
+    "trans": "mytour",
+    "t0100": "paultan",
+    "vmax": "paultan"
+   },
+   "est": [
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "note": "0–100 theo spec Malaysia; một bài đo ở Ấn Độ ra 11,3 s.",
+   "fit": {
+    "cda": 0.658,
+    "cd": 0.305,
+    "kT": 0.956
+   }
+  },
+  "mazda3_2020": {
+   "name": "Mazda 3 1.5 Luxury sedan",
+   "short": "Mazda 3",
+   "body": "sedan",
+   "years": "2019–nay",
+   "dims": [
+    4660,
+    1795,
+    1440,
+    2725
+   ],
+   "clearance": 145,
+   "kerb": 1330,
+   "tyre": [
+    205,
+    60,
+    16
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 110,
+    "rpmP": 6000,
+    "nm": 146,
+    "rpmT": 3500,
+    "redline": 6500
+   },
+   "trans": "at",
+   "gears": [
+    3.552,
+    2.022,
+    1.452,
+    1,
+    0.708,
+    0.599
+   ],
+   "final": 4.325,
+   "drive": "fwd",
+   "t0100": 11.5,
+   "vmax": 183,
+   "chassis": [
+    6,
+    6,
+    3,
+    7
+   ],
+   "fun": 48,
+   "paint": "Đỏ Soul",
+   "plate": "51K-315.20",
+   "src": {
+    "dims": "mazdavn",
+    "clearance": "bonbanh",
+    "kerb": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "bonbanh",
+    "trans": "bonbanh",
+    "vmax": "mazdaom"
+   },
+   "est": [
+    "t0100",
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "note": "Chưa có số 0–100 công bố cho bản 1.5 số tự động; ước lượng từ bản 1.5 cũ (10,6–10,8 s) cộng khối lượng.",
+   "fit": {
+    "cda": 0.721,
+    "cd": 0.331,
+    "kT": 0.896
+   }
+  },
+  "civic_fd_2008": {
+   "name": "Honda Civic FD 1.8 MT",
+   "short": "Civic FD",
+   "body": "sedan",
+   "years": "2006–2011",
+   "model": "civic_fd_2008",
+   "dims": [
+    4540,
+    1750,
+    1450,
+    2700
+   ],
+   "clearance": 170,
+   "kerb": 1240,
+   "tyre": [
+    195,
+    65,
+    15
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 138,
+    "rpmP": 6300,
+    "nm": 174,
+    "rpmT": 4300,
+    "redline": 6800
+   },
+   "trans": "mt",
+   "gears": [
+    3.142,
+    1.869,
+    1.235,
+    0.948,
+    0.727
+   ],
+   "final": 4.294,
+   "drive": "fwd",
+   "t0100": 8.9,
+   "vmax": 200,
+   "chassis": [
+    6,
+    6,
+    3,
+    6
+   ],
+   "fun": 60,
+   "paint": "Trắng",
+   "plate": "30A-868.08",
+   "src": {
+    "dims": "bonbanh",
+    "clearance": "bonbanh",
+    "kerb": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "goonet",
+    "trans": "bonbanh",
+    "t0100": "carsdata",
+    "vmax": "carsdata"
+   },
+   "est": [
+    "engine.nm",
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "fit": {
+    "cda": 0.733,
+    "cd": 0.344,
+    "kT": 0.946
+   }
+  },
+  "mazda2_2013": {
+   "name": "Mazda 2 1.5 MT",
+   "short": "Mazda 2",
+   "body": "hatch",
+   "years": "2011–2014",
+   "model": "mazda2_2013",
+   "dims": [
+    3885,
+    1695,
+    1475,
+    2490
+   ],
+   "clearance": 140,
+   "kerb": 1035,
+   "tyre": [
+    185,
+    55,
+    15
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 103,
+    "rpmP": 6000,
+    "nm": 137,
+    "rpmT": 4000,
+    "redline": 6500
+   },
+   "trans": "mt",
+   "gears": [
+    3.416,
+    1.842,
+    1.29,
+    0.972,
+    0.775
+   ],
+   "final": 3.85,
+   "drive": "fwd",
+   "t0100": 10.4,
+   "vmax": 188,
+   "chassis": [
+    5,
+    4,
+    3,
+    5
+   ],
+   "fun": 55,
+   "paint": "Xanh Mazda",
+   "plate": "51F-213.13",
+   "src": {
+    "dims": "bonbanh",
+    "clearance": "bonbanh",
+    "kerb": "topgear",
+    "tyre": "bonbanh",
+    "engine": "autoboom",
+    "trans": "bonbanh",
+    "gears": "mazdausa",
+    "final": "mazdausa",
+    "t0100": "autoboom",
+    "vmax": "autoboom"
+   },
+   "est": [
+    "chassis",
+    "fun"
+   ],
+   "fit": {
+    "cda": 0.692,
+    "cd": 0.329,
+    "kT": 0.975
+   }
+  },
+  "mini_f55_2018": {
+   "name": "MINI Cooper S 5 cửa MT",
+   "short": "MINI S",
+   "body": "hothatch",
+   "years": "2018–2021",
+   "model": "mini_f55_2018",
+   "dims": [
+    4013,
+    1727,
+    1424,
+    2567
+   ],
+   "clearance": 130,
+   "kerb": 1220,
+   "tyre": [
+    205,
+    45,
+    17
+   ],
+   "engine": {
+    "type": "turbo",
+    "hp": 192,
+    "rpmP": 5500,
+    "nm": 300,
+    "rpmT0": 1350,
+    "rpmT1": 4600,
+    "redline": 6500
+   },
+   "trans": "mt",
+   "gears": [
+    3.923,
+    2.038,
+    1.32,
+    0.981,
+    0.818,
+    0.683
+   ],
+   "final": 3.588,
+   "drive": "fwd",
+   "t0100": 6.9,
+   "vmax": 235,
+   "chassis": [
+    9,
+    8,
+    3,
+    4
+   ],
+   "fun": 72,
+   "paint": "Xanh rêu",
+   "plate": "51H-555.55",
+   "src": {
+    "dims": "bmwpress",
+    "kerb": "autodata",
+    "engine": "autodata",
+    "trans": "autotijd",
+    "t0100": "autotijd",
+    "vmax": "autotijd"
+   },
+   "est": [
+    "clearance",
+    "tyre",
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "note": "Tỉ số số 1 và số 6 theo tài liệu BMW 2014; các số giữa và tỉ số cầu là ước lượng.",
+   "fit": {
+    "cda": 0.745,
+    "cd": 0.358,
+    "kT": 0.952
+   }
+  },
+  "cx5_2020": {
+   "name": "Mazda CX-5 2.0 Premium",
+   "short": "CX-5",
+   "body": "suv",
+   "years": "2017–2023",
+   "model": "cx5_2020",
+   "dims": [
+    4550,
+    1840,
+    1680,
+    2700
+   ],
+   "clearance": 200,
+   "kerb": 1550,
+   "tyre": [
+    225,
+    55,
+    19
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 162,
+    "rpmP": 6000,
+    "nm": 213,
+    "rpmT": 4000,
+    "redline": 6500
+   },
+   "trans": "at",
+   "gears": [
+    3.552,
+    2.022,
+    1.452,
+    1,
+    0.708,
+    0.599
+   ],
+   "final": 4.624,
+   "drive": "fwd",
+   "t0100": 10.4,
+   "vmax": 195,
+   "chassis": [
+    3,
+    5,
+    2,
+    9
+   ],
+   "fun": 35,
+   "paint": "Đỏ Soul",
+   "plate": "51K-020.20",
+   "src": {
+    "dims": "bonbanh",
+    "clearance": "bonbanh",
+    "kerb": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "paultan",
+    "trans": "paultan",
+    "t0100": "paultan"
+   },
+   "est": [
+    "vmax",
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "fit": {
+    "cda": 0.805,
+    "cd": 0.319,
+    "kT": 1.01
+   }
+  },
+  "xpander_2020": {
+   "name": "Mitsubishi Xpander 1.5 AT",
+   "short": "Xpander",
+   "body": "mpv",
+   "years": "2018–2022",
+   "dims": [
+    4475,
+    1750,
+    1730,
+    2775
+   ],
+   "clearance": 205,
+   "kerb": 1240,
+   "tyre": [
+    205,
+    55,
+    16
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 105,
+    "rpmP": 6000,
+    "nm": 141,
+    "rpmT": 4000,
+    "redline": 6200
+   },
+   "trans": "at",
+   "gears": [
+    2.875,
+    1.568,
+    1,
+    0.697
+   ],
+   "final": 4.27,
+   "drive": "fwd",
+   "t0100": 14.1,
+   "vmax": 170,
+   "chassis": [
+    3,
+    4,
+    2,
+    7
+   ],
+   "fun": 25,
+   "paint": "Trắng",
+   "plate": "51H-150.75",
+   "src": {
+    "dims": "mitsubishivn",
+    "clearance": "mitsubishivn",
+    "tyre": "mitsubishivn",
+    "engine": "mitsubishivn",
+    "trans": "paultan",
+    "t0100": "headlightmag",
+    "vmax": "headlightmag"
+   },
+   "est": [
+    "kerb",
+    "gears",
+    "final",
+    "chassis",
+    "fun"
+   ],
+   "note": "0–100 và tốc độ tối đa là số đo thực tế (14,1 s; 170 km/h ở số 4, 4.250 vòng/phút); tỉ số cầu suy ngược từ phép đo đó.",
+   "fit": {
+    "cda": 0.911,
+    "cd": 0.368,
+    "kT": 1.028
+   }
+  },
+  "ranger_xls_2020": {
+   "name": "Ford Ranger XLS 2.2 AT 4x2",
+   "short": "Ranger",
+   "body": "pickup",
+   "years": "2018–2022",
+   "dims": [
+    5362,
+    1860,
+    1830,
+    3220
+   ],
+   "clearance": 200,
+   "kerb": 1980,
+   "tyre": [
+    255,
+    70,
+    16
+   ],
+   "engine": {
+    "type": "diesel",
+    "hp": 160,
+    "rpmP": 3200,
+    "nm": 385,
+    "rpmT0": 1600,
+    "rpmT1": 2500,
+    "redline": 4000
+   },
+   "trans": "at",
+   "gears": [
+    4.171,
+    2.34,
+    1.521,
+    1.143,
+    0.867,
+    0.691
+   ],
+   "final": 3.55,
+   "drive": "rwd",
+   "t0100": 12,
+   "vmax": 175,
+   "chassis": [
+    2,
+    4,
+    2,
+    4
+   ],
+   "fun": 40,
+   "paint": "Trắng",
+   "plate": "60C-220.20",
+   "src": {
+    "dims": "bonbanh",
+    "engine": "bonbanh",
+    "trans": "bonbanh"
+   },
+   "est": [
+    "clearance",
+    "kerb",
+    "tyre",
+    "gears",
+    "final",
+    "t0100",
+    "vmax",
+    "chassis",
+    "fun"
+   ],
+   "note": "Kích thước theo thân xe cabin kép T6 (bonbanh, bản Wildtrak cùng thân). Chưa tìm được số 0–100, khối lượng, lốp đúng bản XLS AT 4x2.",
+   "fit": {
+    "cda": 1.2,
+    "cd": 0.448,
+    "kT": 0.991
+   }
+  }
+ },
+ "models": {
+  "mazda2_2013": {
+   "dims": [
+    3885,
+    1695,
+    1475
+   ],
+   "area": 2.101,
+   "tyre": [
+    185,
+    55,
+    15
+   ]
+  },
+  "civic_fd_2008": {
+   "dims": [
+    4540,
+    1750,
+    1450
+   ],
+   "area": 2.135,
+   "tyre": [
+    195,
+    65,
+    15
+   ]
+  },
+  "cx5_2020": {
+   "dims": [
+    4550,
+    1840,
+    1680
+   ],
+   "area": 2.524,
+   "tyre": [
+    225,
+    55,
+    19
+   ]
+  },
+  "mini_f55_2018": {
+   "dims": [
+    4013,
+    1727,
+    1424
+   ],
+   "area": 2.085,
+   "tyre": [
+    205,
+    45,
+    17
+   ]
+  },
+  "ranger_raptor_2019": {
+   "dims": [
+    5398,
+    2028,
+    1873
+   ],
+   "area": 2.991,
+   "tyre": [
+    285,
+    70,
+    17
+   ]
+  }
+ }
+}
