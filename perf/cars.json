@@ -1,5 +1,5 @@
 {
- "_note": "chassis = stock [handling, phanh, drift/grip, độ êm] on the 1-10 scale of the Chili Paprika benchmark (Mazda 2, CX-5, MINI copied from it; Civic FD and Raptor estimated by body type). Stock specs for the drag/dyno sim. mass = kerb + 75 kg driver. 'tbd' lists fields NOT verified from a source; 'tuned' lists unverified fields adjusted during calibration against the claimed 0-100 time. cda (unverified everywhere) is set so the simulated top speed lands within ~2% of the claimed one. cl = estimated [front, rear] lift coefficients (positive = lift) by body type, reference only.",
+ "_note": "chassis = stock [handling, phanh, drift/grip, độ êm] on the 1-10 scale of the Chili Paprika benchmark (Mazda 2, CX-5, MINI copied from it; Civic FD and Raptor estimated by body type). Stock specs for the drag/dyno sim. mass = kerb + 75 kg driver. 'tbd' lists fields NOT verified from a source; 'tuned' lists unverified fields adjusted during calibration against the claimed 0-100 time. cda (unverified everywhere) is set so the simulated top speed lands within ~2% of the claimed one. cl = estimated [front, rear] lift coefficients (positive = lift) by body type, reference only. area = frontal area (m², wheels and mirrors included) measured on the stock model by ray casting.",
  "cars": {
   "mazda2_2013": {
    "chassis": [
@@ -54,7 +54,8 @@
    "cl": [
     0.1,
     0.14
-   ]
+   ],
+   "area": 2.101
   },
   "civic_fd_2008": {
    "chassis": [
@@ -112,7 +113,8 @@
    "cl": [
     0.09,
     0.1
-   ]
+   ],
+   "area": 2.135
   },
   "cx5_2020": {
    "chassis": [
@@ -170,7 +172,8 @@
    "cl": [
     0.12,
     0.16
-   ]
+   ],
+   "area": 2.524
   },
   "mini_f55_2018": {
    "chassis": [
@@ -234,7 +237,8 @@
    "cl": [
     0.08,
     0.12
-   ]
+   ],
+   "area": 2.085
   },
   "ranger_raptor_2019": {
    "chassis": [
@@ -298,7 +302,8 @@
    "cl": [
     0.1,
     0.22
-   ]
+   ],
+   "area": 2.991
   }
  }
 }

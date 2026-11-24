@@ -14,7 +14,7 @@ const openInfo = new Set();
 const others = new Map();                       // carKey -> colour slot
 const car = () => CARS[G.state.car];
 const mod = k => M.modOf(CAT, k);
-const ext = () => ({ bumper_F: G.state.bumper_F, bumper_R: G.state.bumper_R, skirt: G.state.skirt, spoiler: G.state.spoiler, wheel: G.state.wheel });
+const ext = () => ({ bumper_F: G.state.bumper_F, bumper_R: G.state.bumper_R, skirt: G.state.skirt, spoiler: G.state.spoiler, wheel: G.state.wheel, lower: G.state.lower });
 const stockCache = {};
 const stockOf = key => (stockCache[key] ||= M.resolve(CARS[key], [], "eco", {}, CAT));
 const current = () => M.resolve(car(), [...sel], tier, ext(), CAT);
@@ -381,4 +381,5 @@ document.querySelector("aside").addEventListener("click", e => {
 $("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
 addEventListener("resize", () => { if (cmpMode === "radar") renderCompare(); });
 refresh();
-window.__perf = { current: () => current(), stock: () => stockOf(G.state.car) };
+window.__perf = { current: () => current(), stock: () => stockOf(G.state.car),
+  variant: over => M.resolve(car(), [...sel], tier, { ...ext(), ...over }, CAT) };

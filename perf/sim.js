@@ -52,12 +52,18 @@
       cda: car.cda * (1 + sum("cda")), hcg: car.hcg + sum("hcg"),
       shift: car.shiftTime * mul("shift"), tau: car.throttleTau * mul("tau"),
       lowerMM: Math.max(0, ...picked.map(p => fx(p, car).lower || 0)),
+      // lift coefficients [front, rear] before ride height; lift(v) applies the ride height
+      clBase: [(car.cl || [0, 0])[0] + sum("clf"), (car.cl || [0, 0])[1] + sum("clr")],
+      area: car.area || 2.2,
       fun: clamp(car.fun + sum("fun"), 0, 100),
       price: picked.reduce((a, p) => a + priceOf(p, car), 0),
     };
   }
   const fx = (p, car) => Object.assign({}, p.fx || {}, (p.fxBy && p.fxBy[car.engine.type]) || {});
   const priceOf = (p, car) => Math.round((p.price || 0) * (p.priceByRim ? car.rimIn / 15 : 1) * 10) / 10;
+
+  // positive = lift, negative = downforce; each 10 mm of lowering takes 0.01 off both axles
+  const lift = v => v.clBase.map(c => c - v.lowerMM / 1000);
 
   function dyno(v, step = 250) {
     const out = [];
@@ -72,7 +78,7 @@
   function drag(v, opts = {}) {
     const c = v.car, r = c.tyreR, L = c.wheelbase, dt = 0.002;
     const g = c.gears, fd = c.final, n = g.length;
-    const m = v.mass, wf = c.frontShare;
+    const m = v.mass, wf = c.frontShare, cl = lift(v);
     // model constants, calibrated once on the Mazda 2 (the only car with every spec verified)
     const K_WHEEL = 0.6, K_DRIVELINE = 12, K_ENGINE_I = 0.085;
     const rotMass = 4 * v.wheelKg * K_WHEEL + K_DRIVELINE;    // wheels + driveline, as equivalent mass
@@ -100,7 +106,10 @@
       let F = engT * ratio * c.eff / r;
       const shareStatic = c.drive === "fwd" ? wf : c.drive === "rwd" ? 1 - wf : 1;
       const transfer = (c.drive === "fwd" ? -1 : c.drive === "rwd" ? 1 : 0) * m * a * v.hcg / L;
-      const Fmax = v.mu * Math.max(0, m * G * shareStatic + transfer);
+      // aero load on the driven axle: lift unloads it, downforce adds grip (grows with speed²)
+      const q = 0.5 * RHO * vel * vel * v.area, [clf, clr] = cl;
+      const aeroN = -q * (c.drive === "fwd" ? clf : c.drive === "rwd" ? clr : clf + clr);
+      const Fmax = v.mu * Math.max(0, m * G * shareStatic + transfer + aeroN);
       if (F > Fmax) F = Fmax * 0.92;                          // wheelspin loses a little
       const Fr = v.crr * m * G + 0.5 * RHO * v.cda * vel * vel;
       // engine/flywheel inertia only loads the car once the clutch is locked
@@ -134,6 +143,6 @@
     }
     return Math.min(best, c.vmax || 999);
   }
-  const api = { build, dyno, drag, topSpeed, stockCurve, interp };
+  const api = { build, dyno, drag, topSpeed, lift, stockCurve, interp };
   if (typeof module !== "undefined") module.exports = api; else root.PerfSim = api;
 })(typeof window !== "undefined" ? window : globalThis);

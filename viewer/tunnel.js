@@ -3,7 +3,7 @@
 // the performance module through window.__perf. Visual, not a fluid solver (see the note in the panel).
 import * as THREE from "three";
 
-const G = window.__garage, P = { current: () => window.__perf.current(), stock: () => window.__perf.stock() };
+const G = window.__garage, P = { current: () => window.__perf.current(), stock: () => window.__perf.stock(), variant: o => window.__perf.variant(o) };
 const DATA = JSON.parse(document.getElementById("perfdata").textContent);
 const CAT = DATA.parts;
 const $ = id => document.getElementById(id);
@@ -280,11 +280,13 @@ function computeAero(meshes) {
   const A = areaCache.A;
   const tuned = P.current(), stock = P.stock();
   const ext = { bumper_F: st.bumper_F, bumper_R: st.bumper_R, skirt: st.skirt, spoiler: st.spoiler };
-  const mk = (r, build, lower, area) => ({ cda: r.vehicle.cda, area, cd: r.vehicle.cda / area, cl: cls(build, data, lower), vmax: r.raw.vmax });
+  const mk = (r, build, lower, area) => ({ cda: r.vehicle.cda, area, cd: r.vehicle.cda / area, cl: r.cl, vmax: r.raw.vmax, raw: r.raw });
   // stock frontal area: same car without wing/lip; the difference is small, reuse unless a wing is fitted
   const A0 = areaCache.stockA?.[st.car] || A;
   if (st.spoiler === "none" && st.bumper_F === "stock") { areaCache.stockA = { ...(areaCache.stockA || {}), [st.car]: A }; }
-  return { tuned: mk(tuned, ext, st.lower, A), stock: mk(stock, {}, 0, A0), car };
+  // the same build without any aero parts: what the wing / lip / diffuser actually buy in a drag run
+  const bare = P.variant({ bumper_F: "stock", bumper_R: "stock", skirt: "stock", spoiler: "none" });
+  return { tuned: mk(tuned, ext, st.lower, A), stock: mk(stock, {}, 0, A0), bare: mk(bare, {}, st.lower, A), car, drive: data.drive };
 }
 
 function forces(a) {
@@ -319,6 +321,16 @@ function render() {
     : `Đuôi xe vuốt dần nên dòng khí <b>bám theo thân</b> lâu hơn, vùng xoáy phía sau nhỏ.`);
   if (G.state.spoiler === "gt_wing") facts.push(`GT wing đổi hướng dòng khí lên trên để <b>ép đuôi xe xuống</b> (${liftTxt(ft.lr - forces({ ...t, cl: [t.cl[0], t.cl[1] + 0.2] }).lr)} ở tốc độ này), đổi lại tăng cản và giảm tốc độ tối đa.`);
   else if (G.state.spoiler === "roof_ext") facts.push(`Đuôi gió nối dài giúp dòng khí <b>rời mui gọn hơn</b>, giảm lực nâng ở đuôi một chút.`);
+  const hasAero = G.state.spoiler !== "none" || G.state.bumper_F !== "stock" || G.state.bumper_R !== "stock" || G.state.skirt !== "stock";
+  if (hasAero) {
+    const b = aero.bare.raw, r = t.raw, axle = aero.drive === "fwd" ? "cầu trước" : "cầu sau";
+    const dq = (r.t402 - b.t402), dv = r.vmax - b.vmax;
+    const q60 = 0.5 * RHO * (60 / 3.6) ** 2 * t.area, q160 = 0.5 * RHO * (160 / 3.6) ** 2 * t.area;
+    const ax = aero.drive === "fwd" ? 0 : 1, dn = c => Math.max(0, -c.cl[ax]);
+    facts.push(`Trong drag 1/4 dặm, đồ khí động gần như <b>không giúp bám</b>: xe chỉ thiếu bám lúc đề pa, khi tốc độ còn thấp. Lực ép ở ${axle} (cầu dẫn động) chỉ khoảng ${Math.round(dn(t) * q60)} N ở 60 km/h, lên ${Math.round(dn(t) * q160)} N ở 160 km/h.`);
+    facts.push(`So với cùng bản độ nhưng bỏ hết cánh, cản, ốp: 1/4 dặm <b>${dq >= 0 ? "chậm hơn" : "nhanh hơn"} ${f2(Math.abs(dq))} s</b>, tốc độ tối đa ${dv <= 0 ? "giảm" : "tăng"} ${Math.abs(Math.round(dv))} km/h. Cánh gió có giá trị khi vào cua tốc độ cao, không phải khi chạy thẳng.`);
+    if (aero.drive === "fwd" && G.state.spoiler === "gt_wing") facts.push(`Xe này <b>cầu trước</b>: GT wing ép đuôi xe, tức là ép bánh không kéo. Lực ép đó không chuyển thành độ bám khi tăng tốc.`);
+  }
   if (G.state.lower > 0) facts.push(`Hạ gầm ${G.state.lower} mm làm ít không khí lọt xuống gầm hơn, giảm lực nâng cả hai cầu.`);
   if (G.state.bumper_F !== "stock") facts.push(`Cản ${G.state.bumper_F === "lip" ? "có lip" : "sport"} chặn bớt khí chui xuống gầm ở đầu xe, tạo <b>lực ép cầu trước</b> nhẹ.`);
   $("aeroFacts").innerHTML = facts.map(f => `<li>${f}</li>`).join("");

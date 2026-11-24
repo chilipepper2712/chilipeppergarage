@@ -39,7 +39,7 @@
     for (const [slot, v] of [["bumper_F", ext.bumper_F], ["bumper_R", ext.bumper_R], ["skirt", ext.skirt], ["spoiler", ext.spoiler]]) {
       const e = cat.body[slot] && cat.body[slot][v];
       if (!e) continue;
-      simParts.push({ id: `body_${slot}_${v}`, group: "body", price: (e.price[0] + e.price[1]) / 2, fx: { cda: e.cda, fun: e.fun } });
+      simParts.push({ id: `body_${slot}_${v}`, group: "body", price: (e.price[0] + e.price[1]) / 2, fx: { cda: e.cda, fun: e.fun, clf: e.clf || 0, clr: e.clr || 0 } });
       lo += e.price[0]; hi += e.price[1];
     }
     const w = ext.wheel && cat.wheels[ext.wheel];
@@ -49,6 +49,7 @@
     }
     const catalog = { parts: [...simParts, ...cat.parts] };
     const vehicle = S.build(car, simParts.map(p => p.id), catalog);
+    if (ext.lower !== undefined && vehicle.lowerMM > 0) vehicle.lowerMM = ext.lower;   // coilover height slider
     const raw = figures(vehicle);
     const [h0, b0, d0, e0] = car.chassis;
     // bolt-on ceilings: handling / braking gain at most +3, drift +2, comfort stays within 1 .. stock+3
@@ -60,7 +61,7 @@
       Math.max(1, Math.min(10, d0 + 2, d0 + chassis.d.reduce((a, b) => a + b, 0))),
       Math.max(1, Math.min(10, e0 + 3, e0 + eSum)),
     ].map(v => Math.round(v * 10) / 10);
-    return { vehicle, raw, scores, price: [lo, hi], dk, fun: vehicle.fun };
+    return { vehicle, raw, scores, price: [lo, hi], dk, fun: vehicle.fun, cl: S.lift(vehicle) };
   }
 
   function figures(v) {
