@@ -363,7 +363,7 @@ $("runDyno").addEventListener("click", runDyno);
 $("runDrag").addEventListener("click", runDrag);
 document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
-  for (const t of ["ext", "perf", "cmp"]) $(`tab-${t}`).hidden = b.dataset.tab !== t;
+  for (const t of ["ext", "perf", "cmp", "aero"]) $(`tab-${t}`).hidden = b.dataset.tab !== t;
   stats(); renderCompare();
 }));
 // exterior presets only touch body kit / wheels; ride height stays with the suspension pick
@@ -381,3 +381,4 @@ document.querySelector("aside").addEventListener("click", e => {
 $("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
 addEventListener("resize", () => { if (cmpMode === "radar") renderCompare(); });
 refresh();
+window.__perf = { current: () => current(), stock: () => stockOf(G.state.car) };

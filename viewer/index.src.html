@@ -86,7 +86,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .spec dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 .note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
 .hint { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.45; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--line); }
+.tabs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-bottom: 1px solid var(--line); }
 .tabs button { background: none; border: 0; color: var(--muted); font: 400 12px var(--font-display); letter-spacing: .06em; text-transform: uppercase; padding: 10px 4px; cursor: pointer; border-bottom: 2px solid transparent; }
 .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
 .tabpane { display: flex; flex-direction: column; gap: 16px; }
@@ -116,6 +116,8 @@ button.run:hover { filter: brightness(1.08); }
 .legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
 .chartwrap { position: relative; }
 #resCanvas { width: 100%; height: 220px; display: block; }
+.facts { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.5; color: var(--fg); }
+.facts b { font-weight: 600; color: var(--accent); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font: 500 12px var(--font-body); padding: 6px 11px; background: var(--raise); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
 .chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); background: #3a2a12; }
@@ -204,6 +206,10 @@ table.slip td { text-align: right; padding: 3px 6px; }
     <div class="seg big" id="cars"></div>
   </section>
   <section>
+    <h2 class="label">Không gian</h2>
+    <div class="seg big" id="rooms"><button type="button" data-room="garage" aria-pressed="true">XƯỞNG</button><button type="button" data-room="tunnel" aria-pressed="false">PHÒNG GIÓ</button></div>
+  </section>
+  <section>
     <h2 class="label">Gói độ</h2>
     <div class="chips" id="presetChips"></div>
   </section>
@@ -211,6 +217,7 @@ table.slip td { text-align: right; padding: 3px 6px; }
     <button type="button" role="tab" data-tab="ext" aria-selected="true">Ngoại thất</button>
     <button type="button" role="tab" data-tab="perf" aria-selected="false">Hiệu năng</button>
     <button type="button" role="tab" data-tab="cmp" aria-selected="false">So sánh</button>
+    <button type="button" role="tab" data-tab="aero" aria-selected="false" hidden>Khí động</button>
   </div>
   <div id="tab-ext" class="tabpane">
   <section>
@@ -282,6 +289,26 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <h2 class="label">Thang điểm</h2>
       <div class="tablewrap"><table class="slip" id="cmpScore"></table></div>
     </section>
+  </div>
+  <div id="tab-aero" class="tabpane" hidden>
+    <section>
+      <div class="line"><h2 class="label">Tốc độ gió</h2><span class="val" id="windVal">100 km/h</span></div>
+      <input id="wind" type="range" min="0" max="200" step="10" value="100" aria-label="Tốc độ gió, km/h">
+      <div class="toggles">
+        <label><input id="tDark" type="checkbox"> Tắt đèn phòng</label>
+        <label><input id="tSmoke" type="checkbox" checked> Khói</label>
+      </div>
+    </section>
+    <section><div class="stats" id="aeroStats"></div></section>
+    <section>
+      <h2 class="label">Zin và bản độ ở tốc độ đang chọn</h2>
+      <div class="tablewrap"><table class="slip" id="aeroTable"></table></div>
+    </section>
+    <section>
+      <h2 class="label">Đọc luồng khói</h2>
+      <ul class="facts" id="aeroFacts"></ul>
+    </section>
+    <p class="note">Mang tính tham khảo. Cd·A suy từ tốc độ tối đa hãng công bố (bộ mô phỏng đã chỉnh cho khớp); diện tích mặt trước đo trên model 3D; Cd = Cd·A chia diện tích. Lực nâng/ép là ước lượng theo kiểu thân xe cộng phần thay đổi của từng món độ. Luồng khói là hình minh họa được nắn theo bóng xe, không phải mô phỏng chất lưu.</p>
   </div>
   <dl class="spec" id="spec"></dl>
   <p class="note">Hình khối PS1, ánh sáng realtime: đèn treo, nắng qua cửa sổ có đổ bóng, bloom và color grade. Tỉ lệ từng xe đo trên blueprint riêng. Vệt bánh trước/sau đang là số tạm.</p>
@@ -379,7 +406,8 @@ controls.target.set(0, 0.65, 0);
 controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.49;
 controls.minDistance = 2.6; controls.maxDistance = 8;
-window.__garage = { camera, controls, scene, state, CARS, PRESETS, apply: () => apply(), setLower: mm => { state.lower = mm; body.position.y = -mm / 1000; syncUI(); updateSpec(); } };   // shared with the perf module + view checks
+window.__garage = { camera, controls, scene, state, CARS, PRESETS, apply: () => apply(),
+  setLower: mm => { state.lower = mm; body.position.y = -mm / 1000; syncUI(); updateSpec(); HOOKS.change.forEach(f => f()); } };   // shared with the perf / tunnel modules + view checks
 
 // ---- lighting: balanced key / fill / ambient ------------------------------------
 // ambient: two fluorescent tube fixtures over the bay (soft, neutral) + a low sky fill;
@@ -529,6 +557,11 @@ function stepDust(dt, t) {
   for (const x of [-1.45, 1.45]) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 5.2), lineM); l.rotation.x = -Math.PI/2; l.position.set(x, 0.006, 0.3); l.receiveShadow = true; scene.add(l); }
 }
 
+// everything added so far (lights, fixtures, light shaft, dust, bay lines) belongs to the garage room
+const GARAGE_OBJS = scene.children.slice();
+const HOOKS = { frame: [], change: [] };
+let roomMode = "garage";
+
 // ---- post: bloom -> tonemap/sRGB -> grade, vignette, grain, optional 15-bit dither ----
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
@@ -554,6 +587,7 @@ const grade = new ShaderPass({
       gl_FragColor=vec4(c,1.); }`,
 });
 composer.addPass(grade);
+Object.assign(window.__garage, { renderer, bloom, grade, GARAGE_OBJS, HOOKS, getRoom: () => roomMode, setRoomMode: m => { roomMode = m; } });
 
 // ---- loading & materials ----------------------------------------------------------
 const loader = new GLTFLoader();
@@ -630,7 +664,7 @@ function pbrFromPalette(mat, flipY) {
   if (glow) { mat.emissiveMap = canvasTex(em, flipY, true); mat.emissive.set("#ffffff"); mat.emissiveIntensity = state.lights ? 2.2 : 0; mat.userData.glow = true; }
 }
 
-const SHELL = new Set(["floor", "brick", "plaster", "plaster_low", "roof", "EMIT_window"]);
+const SHELL = new Set(["floor", "brick", "plaster", "plaster_low", "roof", "EMIT_window", "osb", "foam", "epoxy"]);
 // See-through: any prop fragment sitting in the cone between camera and car is dropped with an
 // ordered (Bayer) dither, so shelves, benches and posts never hide the car. Shadows are unaffected.
 const CAR_FOCUS = { value: new THREE.Vector3(0, 0.7, 0) };
@@ -721,6 +755,7 @@ function recolor(mat, paint) {
 const carRoot = new THREE.Group(); scene.add(carRoot);
 const body = new THREE.Group(); carRoot.add(body);
 const wheelGroup = new THREE.Group(); carRoot.add(wheelGroup);
+Object.assign(window.__garage, { carRoot, body, wheelGroup, load: k => load(k), prepMaterials });
 let stock = {}, sockets = {}, swapped = {};
 const cache = {}, carCache = {};
 const carMats = pred => { const out = new Set(); carRoot.traverse(o => { if (o.isMesh && pred(o.material)) out.add(o.material); }); return out; };
@@ -762,12 +797,13 @@ async function selectCar(key) {
 async function init() {
   const room = await load("assets/env/garage.json");
   prepMaterials(room, "env");
-  scene.add(room);
+  scene.add(room); GARAGE_OBJS.push(room);
   // reflections: capture the lit garage once into a prefiltered env map (from car height)
   const pmrem = new THREE.PMREMGenerator(renderer);
   room.position.y = -0.8;
   scene.environment = pmrem.fromScene(scene, 0.03).texture;
   room.position.y = 0;
+  Object.assign(window.__garage, { pmrem, garageEnv: scene.environment });
   carRoot.rotation.y = Math.PI;                 // nose toward the open side of the bay
   await selectCar(state.car);
   $("loading").hidden = true;
@@ -797,6 +833,7 @@ async function apply() {
     wheelGroup.add(w);
   }
   body.position.y = -state.lower / 1000;
+  HOOKS.change.forEach(f => f());
   for (const m of carMats(m => m.userData.surface)) recolor(m, PAINTS[state.paint]);
   for (const m of carMats(m => m.userData.glow)) m.emissiveIntensity = state.lights ? 2.2 : 0;
   syncUI(); updateSpec();
@@ -894,10 +931,11 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const dt = clock.getDelta(), t = clock.elapsedTime;
-  if ($("tSpin").checked) carRoot.rotation.y += dt * 0.25;
-  stepDust(reduce ? 0 : Math.min(dt, 0.05), t);
+  if ($("tSpin").checked && roomMode === "garage") carRoot.rotation.y += dt * 0.25;
+  if (roomMode === "garage") stepDust(reduce ? 0 : Math.min(dt, 0.05), t);
+  HOOKS.frame.forEach(f => f(reduce ? 0 : Math.min(dt, 0.05), t));
   // neon: steady, with a rare stutter on the red sign like an ageing transformer
-  if (NEON.red) {
+  if (NEON.red && roomMode === "garage") {
     const stutter = !reduce && (Math.sin(t * 0.7) > 0.985) && Math.random() < 0.5;
     const k = stutter ? 0.25 : 1;
     NEON.red.color.setScalar(2.4 * k); neonRed.intensity = 2.6 * k;

@@ -1,5 +1,5 @@
 {
- "_note": "Merged catalog: mod list, tiers, brands, price ranges (triệu VND, market estimates, excluding labour), inspection flags and explanations come from the earlier 'Chili Paprika Garage' benchmark app; 'phys' adds the drag/dyno sim effects. score = chassis score deltas on the 1-10 scale (h handling, b phanh, d drift/grip, e độ êm). phys keys: tq/pw fractional torque gain low-mid / top end, boost = bolt-on turbo gain after spool, rev = extra redline rpm, kg, shift/tau multipliers, cda fraction, hcg (m), lower (mm), mu/crr for tyres. physBy.<na|turbo|diesel> overrides per engine type. A tier's own score/phys/dk replaces the mod's. fun = 'lái vui' points. presets: one list for the whole garage; each sets performance mods (keys) and exterior (ext).",
+ "_note": "Merged catalog: mod list, tiers, brands, price ranges (triệu VND, market estimates, excluding labour), inspection flags and explanations come from the earlier 'Chili Paprika Garage' benchmark app; 'phys' adds the drag/dyno sim effects. score = chassis score deltas on the 1-10 scale (h handling, b phanh, d drift/grip, e độ êm). phys keys: tq/pw fractional torque gain low-mid / top end, boost = bolt-on turbo gain after spool, rev = extra redline rpm, kg, shift/tau multipliers, cda fraction, hcg (m), lower (mm), mu/crr for tyres. physBy.<na|turbo|diesel> overrides per engine type. A tier's own score/phys/dk replaces the mod's. fun = 'lái vui' points. presets: one list for the whole garage; each sets performance mods (keys) and exterior (ext). body.*.clf/clr = lift coefficient change front/rear (negative = downforce); ride height adds -0.01 per 10 mm on both.",
  "axes": [
   "Tốc độ tối đa",
   "Tăng tốc",
@@ -969,7 +969,8 @@
      4,
      8
     ],
-    "fun": 1
+    "fun": 1,
+    "clf": -0.04
    },
    "sport": {
     "cda": 0.01,
@@ -977,7 +978,8 @@
      10,
      18
     ],
-    "fun": 2
+    "fun": 2,
+    "clf": -0.06
    }
   },
   "bumper_R": {
@@ -987,7 +989,8 @@
      6,
      12
     ],
-    "fun": 1
+    "fun": 1,
+    "clr": -0.05
    }
   },
   "skirt": {
@@ -997,7 +1000,9 @@
      6,
      10
     ],
-    "fun": 1
+    "fun": 1,
+    "clf": -0.01,
+    "clr": -0.01
    }
   },
   "spoiler": {
@@ -1007,7 +1012,8 @@
      3,
      7
     ],
-    "fun": 1
+    "fun": 1,
+    "clr": -0.04
    },
    "gt_wing": {
     "cda": 0.04,
@@ -1015,7 +1021,8 @@
      10,
      18
     ],
-    "fun": 2
+    "fun": 2,
+    "clr": -0.2
    }
   }
  }
