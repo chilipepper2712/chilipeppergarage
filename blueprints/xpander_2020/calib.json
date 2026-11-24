@@ -1,0 +1,12 @@
+{
+  "image": "blueprint.jpg",
+  "source": "3-view CAD line drawing (side/front/rear) of the Xpander 2020, 655x468, supplied by user; no top view",
+  "px_per_m": 79.9,
+  "calibrated_on": "wheelbase 2.775 m = 221.75 px (axles x=305.75 / 527.5)",
+  "check": "length dim line 4.48 m (spec 4.500); front view 1800 dim = 143.3 px (79.6 px/m)",
+  "views": {
+    "side":  {"origin": [416.6, 210.0], "u": "-y", "v": "z"},
+    "front": {"origin": [135.4, 210.0], "u": "-x", "v": "z"},
+    "rear":  {"origin": [135.5, 400.75], "u": "x", "v": "z"}
+  }
+}

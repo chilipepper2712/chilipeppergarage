@@ -1,0 +1,147 @@
+{
+ "car": "xpander_2020",
+ "stations": 28,
+ "body_verts": 422,
+ "body_faces": 492,
+ "parts": [
+  "body",
+  "bumper_F",
+  "bumper_R",
+  "door_FL",
+  "door_FR",
+  "door_RL",
+  "door_RR",
+  "fender_FL",
+  "fender_FR",
+  "headlight_L",
+  "headlight_R",
+  "hood",
+  "mirror_L",
+  "mirror_R",
+  "skirt_L",
+  "skirt_R",
+  "tailgate"
+ ],
+ "swap_parts": {
+  "bumper_F": {
+   "file": "bumper_F_stock.glb",
+   "verts": 88,
+   "texture": 128
+  },
+  "bumper_R": {
+   "file": "bumper_R_stock.glb",
+   "verts": 46,
+   "texture": 128
+  },
+  "skirt_L": {
+   "file": "skirt_L_stock.glb",
+   "verts": 14,
+   "texture": 128
+  },
+  "skirt_R": {
+   "file": "skirt_R_stock.glb",
+   "verts": 14,
+   "texture": 128
+  }
+ },
+ "uv1": {
+  "density_px_m": 64,
+  "texture": 512,
+  "uv_extent": [
+   0.8061516814093049,
+   0.7772818450552164
+  ],
+  "surface_m2": 27.243947430361004
+ },
+ "wheel": {
+  "tyre": [
+   205,
+   55,
+   16
+  ],
+  "width_m": 0.205,
+  "rim_r_m": 0.2032,
+  "tyre_r_m": 0.316,
+  "verts": 24,
+  "texture": 128,
+  "density_px_m": 128,
+  "rim": {
+   "style": "spoke",
+   "spokes": 5,
+   "spoke_w": 0.03,
+   "hub_r": 0.055,
+   "lip": 0.014,
+   "color": "metal",
+   "dish": 0.0
+  }
+ },
+ "sockets": {
+  "wheel_FL": [
+   -0.76,
+   1.3875,
+   0.31595
+  ],
+  "wheel_FR": [
+   0.76,
+   1.3875,
+   0.31595
+  ],
+  "wheel_RL": [
+   -0.755,
+   -1.3875,
+   0.31595
+  ],
+  "wheel_RR": [
+   0.755,
+   -1.3875,
+   0.31595
+  ],
+  "bumper_F": [
+   0,
+   2.21,
+   0.4
+  ],
+  "bumper_R": [
+   0,
+   -2.28,
+   0.4
+  ],
+  "skirt_L": [
+   -0.885,
+   0,
+   0.2
+  ],
+  "skirt_R": [
+   0.885,
+   0,
+   0.2
+  ],
+  "hood": [
+   0,
+   1.85,
+   1.05
+  ],
+  "roof": [
+   0,
+   -0.6,
+   1.69
+  ],
+  "spoiler": [
+   0,
+   -2.0,
+   1.64
+  ],
+  "exhaust": [
+   0.45,
+   -2.28,
+   0.4
+  ],
+  "grille": [
+   0,
+   2.21,
+   0.73
+  ]
+ },
+ "tyre_diameter_m": 0.6319,
+ "arch_radius_m": 0.4
+}

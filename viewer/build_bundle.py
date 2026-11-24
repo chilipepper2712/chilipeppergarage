@@ -6,7 +6,7 @@ attaches itself (CSP allows data: images, but not data: fetches, so GLTFLoader n
 import json, struct, base64, pathlib, glob
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-CARS = ["mazda2_2013", "civic_fd_2008", "cx5_2020", "mini_f55_2018", "ranger_raptor_2019"]
+CARS = ["mazda2_2013", "civic_fd_2008", "cx5_2020", "mini_f55_2018", "ranger_raptor_2019", "xpander_2020"]
 SRC = {"env/garage": ROOT / "out/env/garage.glb", "env/tunnel": ROOT / "out/env/tunnel.glb"}
 for car in CARS:
     SRC[car] = ROOT / f"out/{car}/{car}.glb"

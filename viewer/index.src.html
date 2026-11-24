@@ -474,7 +474,7 @@ const PRESETS = { stock: { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wh
 const GDB = JSON.parse(document.getElementById("perfdata").textContent).db;
 const tyreD = t => t[2] * 25.4 + 2 * t[0] * t[1] / 100;
 const CARS = Object.fromEntries(Object.entries(GDB.cars).map(([k, c]) => {
-  const bt = GDB.bodyTypes[c.body], model = c.model || bt.model || bt.fallback, md = GDB.models[model], own = !!c.model;
+  const bt = GDB.bodyTypes[c.body], model = c.model || bt.model || bt.fallback, md = GDB.models[model], own = model === k;   // the car is drawn by its own model (or is its body type's representative)
   const est = f => (c.est || []).some(e => e === f || e.startsWith(f + "."));
   return [k, {
     name: c.short, body: c.body, model, own, est,

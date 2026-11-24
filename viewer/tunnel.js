@@ -335,7 +335,7 @@ function render() {
     const dq = (r.t402 - b.t402), dv = r.vmax - b.vmax;
     const q60 = 0.5 * RHO * (60 / 3.6) ** 2 * t.area, q160 = 0.5 * RHO * (160 / 3.6) ** 2 * t.area;
     const ax = aero.drive === "fwd" ? 0 : 1, dn = c => Math.max(0, -c.cl[ax]);
-    facts.push(`Trong drag 1/4 dặm, đồ khí động gần như <b>không giúp bám</b>: xe chỉ thiếu bám lúc đề pa, khi tốc độ còn thấp. Lực ép ở ${axle} (cầu dẫn động) chỉ khoảng ${Math.round(dn(t) * q60)} N ở 60 km/h, lên ${Math.round(dn(t) * q160)} N ở 160 km/h.`);
+    facts.push(`Trong drag 1/4 dặm, đồ khí động gần như <b>không giúp bám</b>: xe chỉ thiếu bám lúc đề pa, khi tốc độ còn thấp. ${dn(t) > 0 ? `Lực ép ở ${axle} (cầu dẫn động) chỉ khoảng ${Math.round(dn(t) * q60)} N ở 60 km/h, lên ${Math.round(dn(t) * q160)} N ở 160 km/h.` : `Với bản độ này ${axle} (cầu dẫn động) vẫn bị <b>nâng</b> nhẹ, không có lực ép nào để thêm bám.`}`);
     facts.push(`So với cùng bản độ nhưng bỏ hết cánh, cản, ốp: 1/4 dặm <b>${dq >= 0 ? "chậm hơn" : "nhanh hơn"} ${f2(Math.abs(dq))} s</b>, tốc độ tối đa ${dv <= 0 ? "giảm" : "tăng"} ${Math.abs(Math.round(dv))} km/h. Cánh gió có giá trị khi vào cua tốc độ cao, không phải khi chạy thẳng.`);
     if (aero.drive === "fwd" && G.state.spoiler === "gt_wing") facts.push(`Xe này <b>cầu trước</b>: GT wing ép đuôi xe, tức là ép bánh không kéo. Lực ép đó không chuyển thành độ bám khi tăng tốc.`);
   }

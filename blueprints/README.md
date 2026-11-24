@@ -11,3 +11,4 @@ its `calib.json` (file name as in `calib.json` → `image`) to run `pipeline/bp_
 | cx5_2020 | 4-view line blueprint (CX-5 KF) |
 | mini_f55_2018 | vector-templates.com — MINI Cooper S 5-door 2018 |
 | ranger_raptor_2019 | Ford Ranger Raptor 2019 vector blueprint |
+| xpander_2020 | CAD line drawing (side/front/rear, no top view) |
