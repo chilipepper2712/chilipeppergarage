@@ -23,7 +23,7 @@
 html, body { height: 100%; }
 body {
   background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px;
-  display: grid; grid-template-columns: minmax(0, 1fr) 380px; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) clamp(380px, 30vw, 460px); overflow: hidden;
 }
 #bay { position: relative; min-width: 0; height: 100%; background: #000; }
 #bay canvas { width: 100%; height: 100%; display: block; }
@@ -162,6 +162,11 @@ table.slip th { text-align: right; color: var(--muted); font-weight: 400; paddin
 table.slip th:first-child, table.slip td:first-child { text-align: left; }
 table.slip td { text-align: right; padding: 3px 6px; }
 
+#narrow { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: none; place-items: center; padding: 24px max(24px, env(safe-area-inset-right, 0px)) 24px max(24px, env(safe-area-inset-left, 0px)); text-align: center; }
+#narrow div { max-width: 420px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+#narrow h2 { font: 400 18px var(--font-display); margin: 0; }
+#narrow p { margin: 0; color: var(--muted); line-height: 1.55; }
+@media (max-width: 1023px) { #narrow:not([hidden]) { display: grid; } }
 @media (max-width: 760px) {
   body { grid-template-columns: minmax(0, 1fr); grid-template-rows: 52vh auto; overflow: auto; height: auto; }
   #bay { height: 52vh; }
@@ -170,6 +175,11 @@ table.slip td { text-align: right; padding: 3px 6px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
+<div id="narrow"><div>
+  <h2>CHILI PEPPER GARAGE</h2>
+  <p>Xưởng có nhiều thông số nên được làm cho màn hình rộng: máy tính, laptop hoặc iPad xoay ngang (từ 1024 px).</p>
+  <button type="button" class="run" id="narrowGo">Vẫn mở trên màn hình này</button>
+</div></div>
 <div id="bay" class="pixel">
   <div id="loading">ĐANG LOAD XƯỞNG…</div>
   <div class="hud">
@@ -194,12 +204,8 @@ table.slip td { text-align: right; padding: 3px 6px; }
     <div class="seg big" id="cars"></div>
   </section>
   <section>
-    <h2 class="label">Bản độ có sẵn</h2>
-    <div class="seg big" id="presets">
-      <button data-preset="stock" type="button">ZIN</button>
-      <button data-preset="street" type="button">STREET</button>
-      <button data-preset="sport" type="button">SPORT</button>
-    </div>
+    <h2 class="label">Gói độ</h2>
+    <div class="chips" id="presetChips"></div>
   </section>
   <div class="tabs" role="tablist">
     <button type="button" role="tab" data-tab="ext" aria-selected="true">Ngoại thất</button>
@@ -242,10 +248,6 @@ table.slip td { text-align: right; padding: 3px 6px; }
     <section>
       <h2 class="label">After market range</h2>
       <div class="seg" id="tiers"><button type="button" data-tier="eco">Phổ thông</button><button type="button" data-tier="pro">Premium</button></div>
-    </section>
-    <section>
-      <h2 class="label">Gói độ gợi ý</h2>
-      <div class="chips" id="presetChips"></div>
     </section>
     <div class="flag-legend" id="flagLegend"></div>
     <section><h2 class="label">Độ thay đổi số liệu</h2><div class="mods" id="mods-spec"></div></section>
@@ -340,11 +342,8 @@ const SLOTS = [
   { key: "spoiler",  label: "Cánh gió",  opts: [["none","Không"],["roof_ext","Đuôi dài"],["gt_wing","GT wing"]] },
 ];
 const RIMS = [["stock","Zin"],["mesh","Lưới"],["dish","Lòng sâu"],["steel","Mâm sắt"],["black6","6 chấu"]];
-const PRESETS = {
-  stock:  { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none" },
-  street: { bumper_F:"lip", bumper_R:"stock", skirt:"skirt", wheel:"mesh", spoiler:"roof_ext" },
-  sport:  { bumper_F:"sport", bumper_R:"diffuser", skirt:"skirt", wheel:"dish", spoiler:"gt_wing" },
-};
+// exterior reset used when switching cars; the build presets live in perf/parts.json (one list for the garage)
+const PRESETS = { stock: { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none" } };
 const CARS = {
   mazda2_2013:   { name: "MAZDA 2", title: "MAZDA 2 DE · 2013", sub: "1.5 MT · 3885×1695×1475 · WB 2490",
                    plate: "51F-213.13", paint: "Xanh Mazda", rim: "Mâm 15″ · lốp 185/55", clearance: 140 },
@@ -359,6 +358,7 @@ const CARS = {
 };
 const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", lights: false };
 const $ = id => document.getElementById(id);
+$("narrowGo").addEventListener("click", () => { $("narrow").hidden = true; });
 
 // ---- renderer, camera ---------------------------------------------------------
 const bay = $("bay");
@@ -852,7 +852,7 @@ for (const [name, p] of Object.entries(PAINTS)) {
   b.addEventListener("click", () => { state.paint = name; for (const m of carMats(m => m.userData.surface)) recolor(m, p); syncUI(); updateSpec(); });
   sws.append(b);
 }
-document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => { Object.assign(state, PRESETS[b.dataset.preset]); apply(); }));
+
 const lower = $("lower");
 lower.addEventListener("input", () => { state.lower = +lower.value; body.position.y = -state.lower / 1000; syncUI(); updateSpec(); });
 $("tPixel").addEventListener("change", e => { bay.classList.toggle("pixel", e.target.checked); resize(); });
@@ -863,10 +863,6 @@ function syncUI() {
   document.querySelectorAll("[data-car]").forEach(b => b.setAttribute("aria-pressed", state.car === b.dataset.car));
   document.querySelectorAll("[data-slot]").forEach(b => b.setAttribute("aria-pressed", state[b.dataset.slot] === b.dataset.val));
   document.querySelectorAll(".sw").forEach(b => b.setAttribute("aria-pressed", state.paint === b.dataset.paint));
-  document.querySelectorAll("[data-preset]").forEach(b => {
-    const p = PRESETS[b.dataset.preset];
-    b.setAttribute("aria-pressed", Object.keys(p).every(k => state[k] === p[k]));
-  });
   lower.value = state.lower;
   $("lowerVal").textContent = `${state.lower} mm`;
   $("paintName").textContent = state.paint;

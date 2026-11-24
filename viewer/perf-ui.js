@@ -9,7 +9,7 @@ const OTHER = ["#199e70", "#c98500", "#d55181"];              // slots 3-5, fixe
 const NAMES = { mazda2_2013: "Mazda 2", civic_fd_2008: "Civic FD", cx5_2020: "CX-5", mini_f55_2018: "MINI S", ranger_raptor_2019: "Raptor" };
 const FLAG = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5v13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4.2 2.2h8.6l-2 3.1 2 3.2H4.2z" fill="currentColor"/></svg>';
 
-let sel = new Set(), tier = "eco", preset = null;
+let sel = new Set(), tier = "eco", preset = "zin";
 const openInfo = new Set();
 const others = new Map();                       // carKey -> colour slot
 const car = () => CARS[G.state.car];
@@ -36,7 +36,10 @@ function toggle(key, on) {
   preset = null; refresh();
 }
 function applyPreset(k) {
-  preset = k; sel = new Set(CAT.presets[k].keys.filter(key => M.allowed(mod(key), car())));
+  const p = CAT.presets[k];
+  preset = k; sel = new Set(p.keys.filter(key => M.allowed(mod(key), car())));
+  Object.assign(G.state, p.ext);
+  G.apply().then(() => { preset = k; refresh(); });
   refresh();
 }
 function syncSuspension() {
@@ -54,8 +57,6 @@ for (const [k, p] of Object.entries(CAT.presets)) {
   const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = p.label; b.dataset.perfpreset = k;
   b.addEventListener("click", () => applyPreset(k)); presetEl.append(b);
 }
-{ const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = "Bỏ hết";
-  b.addEventListener("click", () => { sel.clear(); preset = null; refresh(); }); presetEl.append(b); }
 document.querySelectorAll("#tiers button").forEach(b => b.addEventListener("click", () => { tier = b.dataset.tier; refresh(); }));
 
 function renderMods() {
@@ -367,10 +368,14 @@ document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click
 }));
 // exterior presets only touch body kit / wheels; ride height stays with the suspension pick
 document.querySelectorAll("[data-car]").forEach(b => b.addEventListener("click", () => setTimeout(() => {
-  sel.clear(); preset = null; others.delete(G.state.car); $("results").hidden = true; refresh();
+  sel.clear(); preset = "zin"; others.delete(G.state.car); $("results").hidden = true; refresh();
 }, 0)));
 document.querySelector("aside").addEventListener("click", e => {
-  if (e.target.closest("#tab-perf, #tab-cmp")) return;
+  if (e.target.closest("#tab-ext [data-slot]")) {                 // hand-picked body kit / wheel
+    preset = null;
+    document.querySelectorAll("#presetChips [data-perfpreset]").forEach(b => b.setAttribute("aria-pressed", "false"));
+  }
+  if (e.target.closest("#tab-perf, #tab-cmp, #presetChips")) return;
   setTimeout(() => { syncSuspension(); stats(); renderCompare(); }, 0);
 });
 $("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
