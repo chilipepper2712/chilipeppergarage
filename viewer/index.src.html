@@ -1,0 +1,843 @@
+<title>Garage Mazda 2 DE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a garage bay. 3D viewport fills the left, a parts bench on the right (label | control rows);
+   stacks on phones. Single deliberate look: workshop at night, one sodium-amber accent. */
+:root {
+  --bg: #0e0f12;
+  --panel: #16181d;
+  --raise: #1d2026;
+  --line: #2a2e36;
+  --fg: #e6e2d8;
+  --muted: #8a909b;
+  --accent: #f2a33a;
+  --accent-ink: #1b1306;
+  --font-display: "Silkscreen", ui-monospace, monospace;
+  --font-body: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, monospace;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; overflow: hidden;
+}
+#bay { position: relative; min-width: 0; height: 100%; background: #000; }
+#bay canvas { width: 100%; height: 100%; display: block; }
+#bay.pixel canvas { image-rendering: pixelated; }
+.hud {
+  position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: 14px;
+  display: flex; flex-direction: column; gap: 4px; pointer-events: none;
+  background: rgba(8, 9, 11, .72); padding: 10px 14px; border-left: 3px solid var(--accent);
+}
+.hud h1 { font-family: var(--font-display); font-size: 20px; font-weight: 400; letter-spacing: .04em; margin: 0; }
+.hud .sub { font-family: var(--font-data); font-size: 11px; color: var(--muted); }
+.plate {
+  position: absolute; right: 14px; bottom: 14px; font-family: var(--font-data); font-size: 12px;
+  background: #e6e6de; color: #111; padding: 4px 10px; border: 2px solid #111; letter-spacing: .08em;
+}
+#loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); color: var(--muted); text-align: center; padding: 24px; }
+
+aside {
+  background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto;
+  padding-block: 16px 22px; padding-left: 16px; padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+section { display: flex; flex-direction: column; gap: 8px; }
+.label { font-family: var(--font-display); font-size: 11px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; font-weight: 400; }
+h2.label { margin: 0; }
+/* slot rows: label | segmented control */
+.rows { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 6px 10px; align-items: center; }
+.rows > .name { font-size: 13px; color: var(--muted); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.seg button {
+  font: 500 12.5px var(--font-body); color: var(--fg); background: var(--raise); border: 0;
+  border-left: 1px solid var(--line); padding: 7px 4px; cursor: pointer; white-space: nowrap;
+}
+.seg button:first-child { border-left: 0; }
+.seg button:hover { background: #262a31; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg.big button { font-family: var(--font-display); font-size: 12px; padding: 9px 4px; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* rims: thumbnails of the actual rim textures */
+.rims { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.rim {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 2px 5px; min-width: 0;
+  background: var(--raise); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; color: var(--fg);
+  font: 500 11px var(--font-body);
+}
+.rim canvas { width: 44px; height: 44px; max-width: 100%; image-rendering: pixelated; }
+.rim[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.rim span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.val { font-family: var(--font-data); font-size: 12px; font-variant-numeric: tabular-nums; }
+.swatches { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.sw { aspect-ratio: 1; max-width: 100%; border: 2px solid var(--line); cursor: pointer; padding: 0; border-radius: 3px; }
+.sw[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--bg); }
+.toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 13px; }
+.toggles label { display: flex; gap: 7px; align-items: center; cursor: pointer; }
+.toggles input { accent-color: var(--accent); }
+.spec { border-top: 1px solid var(--line); padding-top: 12px; display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-family: var(--font-data); font-size: 12px; margin: 0; }
+.spec dt { color: var(--muted); }
+.spec dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+.hint { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.45; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.tabs button { background: none; border: 0; color: var(--muted); font: 400 12px var(--font-display); letter-spacing: .06em; text-transform: uppercase; padding: 10px 4px; cursor: pointer; border-bottom: 2px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.tabpane { display: flex; flex-direction: column; gap: 16px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.stat { background: var(--raise); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat .k { font-size: 11px; color: var(--muted); }
+.stat .v { font: 500 16px var(--font-data); font-variant-numeric: tabular-nums; }
+.stat .d { font: 400 11px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+.stat .d.up { color: #8fd18f; } .stat .d.down { color: #e98a7a; }
+.funbar { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin-top: 4px; }
+.funbar .bar { height: 8px; background: var(--raise); border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
+.funbar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+.seg.wrap { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); }
+.seg.wrap button { border-top: 1px solid var(--line); margin-top: -1px; }
+.seg button:disabled { color: #50545c; cursor: not-allowed; background: var(--raise); }
+.runrow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+button.run { font: 400 12px var(--font-display); letter-spacing: .05em; padding: 11px 6px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 3px; cursor: pointer; }
+button.run:hover { filter: brightness(1.08); }
+#results { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); right: 12px; bottom: 54px; max-width: 680px; margin: 0 auto;
+  background: rgba(14, 15, 18, .94); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.res-head { display: flex; align-items: center; gap: 10px; }
+.res-head h2 { margin: 0; flex: 1; }
+.res-head .seg button { padding: 5px 8px; font-size: 12px; }
+.res-head .close { background: none; border: 0; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; padding: 0 4px; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
+.chartwrap { position: relative; }
+#resCanvas { width: 100%; height: 220px; display: block; }
+.tip { position: absolute; pointer-events: none; background: #1d2026; border: 1px solid var(--line); border-radius: 3px; padding: 6px 8px; font: 12px var(--font-data); white-space: nowrap; }
+table.slip { width: 100%; border-collapse: collapse; font: 12px var(--font-data); font-variant-numeric: tabular-nums; }
+table.slip th { text-align: right; color: var(--muted); font-weight: 400; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+table.slip th:first-child, table.slip td:first-child { text-align: left; }
+table.slip td { text-align: right; padding: 3px 6px; }
+
+@media (max-width: 760px) {
+  body { grid-template-columns: minmax(0, 1fr); grid-template-rows: 52vh auto; overflow: auto; height: auto; }
+  #bay { height: 52vh; }
+  aside { border-left: 0; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="bay" class="pixel">
+  <div id="loading">ĐANG LOAD XƯỞNG…</div>
+  <div class="hud">
+    <h1 id="carTitle">MAZDA 2 DE · 2013</h1>
+    <div class="sub" id="carSub">1.5 MT · 3885×1695×1475 · WB 2490</div>
+  </div>
+  <div class="plate" id="plate">51F-213.13</div>
+  <div id="results" hidden>
+    <div class="res-head"><h2 class="label" id="resTitle">Dyno</h2>
+      <div class="seg" id="dynoMode"><button type="button" data-m="whp" aria-pressed="true">Công suất bánh</button><button type="button" data-m="nm" aria-pressed="false">Mô-men</button></div>
+      <button type="button" class="close" id="resClose" aria-label="Đóng">×</button></div>
+    <div class="legend" id="resLegend"></div>
+    <div class="chartwrap"><canvas id="resCanvas"></canvas><div class="tip" id="resTip" hidden></div></div>
+    <table class="slip" id="resTable"></table>
+    <p class="hint" id="resNote"></p>
+  </div>
+</div>
+
+<aside>
+  <section>
+    <h2 class="label">Xe trong xưởng</h2>
+    <div class="seg big" id="cars"></div>
+  </section>
+  <section>
+    <h2 class="label">Bản độ có sẵn</h2>
+    <div class="seg big" id="presets">
+      <button data-preset="stock" type="button">ZIN</button>
+      <button data-preset="street" type="button">STREET</button>
+      <button data-preset="sport" type="button">SPORT</button>
+    </div>
+  </section>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="ext" aria-selected="true">Ngoại thất</button>
+    <button type="button" role="tab" data-tab="perf" aria-selected="false">Hiệu năng</button>
+  </div>
+  <div id="tab-ext" class="tabpane">
+  <section>
+    <h2 class="label">Body kit</h2>
+    <div class="rows" id="slots"></div>
+  </section>
+  <section>
+    <h2 class="label" id="rimLabel">Mâm 15″ · lốp 185/55</h2>
+    <div class="rims" id="rims"></div>
+  </section>
+  <section>
+    <div class="line"><h2 class="label">Hạ gầm</h2><span class="val" id="lowerVal">0 mm</span></div>
+    <input id="lower" type="range" min="0" max="60" step="5" value="0" aria-label="Hạ gầm, mm">
+    <p class="hint" id="lowerHint">Cần lò xo hạ hoặc coilover (tab Hiệu năng).</p>
+  </section>
+  <section>
+    <div class="line"><h2 class="label">Màu sơn</h2><span class="val" id="paintName"></span></div>
+    <div class="swatches" id="swatches"></div>
+  </section>
+  <section>
+    <h2 class="label">Hiển thị</h2>
+    <div class="toggles">
+      <label><input id="tPixel" type="checkbox" checked> Pixel PS1</label>
+      <label><input id="tDither" type="checkbox" checked> Màu 15-bit</label>
+      <label><input id="tLights" type="checkbox"> Bật đèn xe</label>
+      <label><input id="tSpin" type="checkbox"> Tự xoay</label>
+    </div>
+  </section>
+  </div>
+  <div id="tab-perf" class="tabpane" hidden>
+    <section>
+      <div class="stats" id="stats"></div>
+      <div class="funbar"><span class="label">Lái vui</span><div class="bar"><i id="funFill"></i></div><span class="val" id="funVal"></span></div>
+    </section>
+    <section>
+      <div class="line"><h2 class="label">Đồ độ hiệu năng</h2><span class="val" id="perfCost"></span></div>
+      <div class="rows" id="perfRows"></div>
+      <p class="hint" id="perfNote"></p>
+    </section>
+    <section class="runrow">
+      <button type="button" class="run" id="runDyno">Chạy dyno</button>
+      <button type="button" class="run" id="runDrag">Chạy drag 1/4 dặm</button>
+    </section>
+    <p class="note">Mô phỏng chạy thẳng: đường cong mô-men theo loại máy, hộp số thật, bám đường có dồn tải, cản gió, thời gian sang số. Hiệu chỉnh xe zin theo 0–100 hãng công bố (lệch 0–5%). Thanh giằng và phuộc chỉ tăng "lái vui", không đổi thời gian chạy thẳng.</p>
+  </div>
+  <dl class="spec" id="spec"></dl>
+  <p class="note">Hình khối PS1, ánh sáng realtime: đèn treo, nắng qua cửa sổ có đổ bóng, bloom và color grade. Tỉ lệ từng xe đo trên blueprint riêng. Vệt bánh trước/sau đang là số tạm.</p>
+</aside>
+
+<!--BUNDLE-->
+<!--PERF-->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+
+// ---- palette (mirrors pipeline/palette.py) ----------------------------------
+const SRC = { ramp: ["#081a45","#10307a","#1a4bb0","#2d6be0","#5c93f2","#a8c8ff"], seam: "#050f2c" };
+const PAINTS = {
+  "Xanh Mazda": SRC,
+  "Đỏ Soul":    { ramp: ["#3d0607","#6e0d10","#a31519","#d42b2b","#f05a4e","#ffb0a0"], seam: "#2a0304" },
+  "Trắng":      { ramp: ["#6c7178","#9aa0a7","#c3c8cd","#dfe2e5","#f1f3f5","#ffffff"], seam: "#4a4e55" },
+  "Bạc":        { ramp: ["#33373d","#555a62","#7d838c","#a7adb5","#ccd1d7","#eef1f4"], seam: "#23262b" },
+  "Đen":        { ramp: ["#08080a","#121216","#1c1d22","#2a2b31","#3e4048","#6a6d76"], seam: "#050506" },
+  "Vàng":       { ramp: ["#3d2a02","#6e4c05","#a8760b","#dca21a","#f5c94a","#fff0a8"], seam: "#2a1c01" },
+  "Xanh rêu":   { ramp: ["#08200f","#0f3a1c","#18582b","#25783d","#4a9e5f","#9fd6ad"], seam: "#04140a" },
+};
+const key = h => parseInt(h.slice(1), 16);
+const hex = h => [1,3,5].map(i => parseInt(h.slice(i, i+2), 16));
+// material classes read straight from palette indices: [roughness, metalness, emissive rgb or null]
+const CLASS = new Map();
+const put = (list, v) => list.forEach(h => CLASS.set(key(h), v));
+put([...SRC.ramp, SRC.seam], [0.34, 0.0, null]);                                         // car paint
+put(["#081a20","#0f2c35","#17414d","#235a68","#3d8494"], [0.04, 0.0, null]);             // glass
+put(["#3a3d42","#5d6168","#878c94","#b3b8bf","#e2e6ea","#8c939c"], [0.32, 0.45, null]);  // metal / rims
+put(["#eef2f6"], [0.1, 0.6, [255, 236, 200]]);                                            // chrome hi / projector
+put(["#6c7178","#9aa0a7","#c3c8cd","#dfe2e5","#f1f3f5","#ffffff","#c9d3dc"], [0.1, 0.2, [255, 240, 210]]); // headlamp lens
+put(["#7a0d10","#d3262b"], [0.2, 0.0, [255, 30, 20]]);                                   // tail lamps
+put(["#e08a1c"], [0.2, 0.0, [255, 140, 20]]);                                             // indicators
+put(["#111113","#1b1b1e","#26262a","#34343a"], [0.92, 0.0, null]);                       // tyre
+const DEFAULT_CLASS = [0.75, 0.0, null];
+const ENV_PBR = { steel: [0.5, 0.65], roof: [0.55, 0.6], epoxy: [0.48, 0.0], floor: [0.62, 0.0],
+  barrel_o: [0.45, 0.35], barrel_b: [0.45, 0.35], bucket: [0.5, 0.0], red: [0.35, 0.1], ladder: [0.5, 0.1],
+  grate: [0.4, 0.8] };
+
+const SLOTS = [
+  { key: "bumper_F", label: "Cản trước", opts: [["stock","Zin"],["lip","Lip"],["sport","Sport"]] },
+  { key: "bumper_R", label: "Cản sau",   opts: [["stock","Zin"],["diffuser","Diffuser"]] },
+  { key: "skirt",    label: "Ốp sườn",   opts: [["stock","Zin"],["skirt","Hạ 45mm"]] },
+  { key: "spoiler",  label: "Cánh gió",  opts: [["none","Không"],["roof_ext","Đuôi dài"],["gt_wing","GT wing"]] },
+];
+const RIMS = [["stock","Zin"],["mesh","Lưới"],["dish","Lòng sâu"],["steel","Mâm sắt"],["black6","6 chấu"]];
+const PRESETS = {
+  stock:  { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none", lower:0 },
+  street: { bumper_F:"lip", bumper_R:"stock", skirt:"skirt", wheel:"mesh", spoiler:"roof_ext", lower:35 },
+  sport:  { bumper_F:"sport", bumper_R:"diffuser", skirt:"skirt", wheel:"dish", spoiler:"gt_wing", lower:50 },
+};
+const CARS = {
+  mazda2_2013:   { name: "MAZDA 2", title: "MAZDA 2 DE · 2013", sub: "1.5 MT · 3885×1695×1475 · WB 2490",
+                   plate: "51F-213.13", paint: "Xanh Mazda", rim: "Mâm 15″ · lốp 185/55", clearance: 140 },
+  civic_fd_2008: { name: "CIVIC FD", title: "HONDA CIVIC FD · 2008", sub: "1.8 MT · 4540×1750×1450 · WB 2700",
+                   plate: "30A-868.08", paint: "Trắng", rim: "Mâm 15″ · lốp 195/65", clearance: 170 },
+  cx5_2020:      { name: "CX-5", title: "MAZDA CX-5 · 2020", sub: "2.0 AT · 4550×1840×1680 · WB 2700",
+                   plate: "51K-020.20", paint: "Đỏ Soul", rim: "Mâm 19″ · lốp 225/55", clearance: 200, cam: 1.06 },
+  mini_f55_2018: { name: "MINI", title: "MINI COOPER S 5 CỬA · 2018", sub: "2.0 Turbo MT · 4013×1727×1424 · WB 2567",
+                   plate: "51H-555.55", paint: "Xanh rêu", rim: "Mâm 17″ · lốp 205/45", clearance: 130 },
+  ranger_raptor_2019: { name: "RAPTOR", title: "FORD RANGER RAPTOR · 2019", sub: "2.0 Bi-Turbo 10AT · 5398×2028×1873 · WB 3220",
+                   plate: "60C-219.19", paint: "Trắng", rim: "Mâm 17″ · lốp 285/70", clearance: 283, cam: 1.22 },
+};
+const state = { car: "mazda2_2013", ...PRESETS.stock, paint: "Xanh Mazda", lights: false };
+const $ = id => document.getElementById(id);
+
+// ---- renderer, camera ---------------------------------------------------------
+const bay = $("bay");
+const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+bay.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#050505");
+scene.fog = new THREE.FogExp2("#070605", 0.03);
+const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+camera.position.set(4.6, 1.75, 5.9);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.65, 0);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.minDistance = 2.6; controls.maxDistance = 8;
+window.__garage = { camera, controls, scene, state, CARS, PRESETS, apply: () => apply(), setLower: mm => { state.lower = mm; body.position.y = -mm / 1000; syncUI(); updateSpec(); } };   // shared with the perf module + view checks
+
+// ---- lighting: balanced key / fill / ambient ------------------------------------
+// ambient: two fluorescent tube fixtures over the bay (soft, neutral) + a low sky fill;
+// key: neutral spot straight above the car; accent: a softer, near-neutral shaft from the left window.
+RectAreaLightUniformsLib.init();
+scene.add(new THREE.HemisphereLight("#c9d4e4", "#2a221a", 0.42));
+for (const z of [-1.3, 1.3]) {
+  const tube = new THREE.RectAreaLight("#eef3f8", 7, 1.5, 0.22);
+  tube.position.set(0, 3.95, z); tube.lookAt(0, 0, z); scene.add(tube);
+  const fx = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.05, 0.14), new THREE.MeshBasicMaterial({ color: new THREE.Color("#ffffff").multiplyScalar(2.2), fog: false }));
+  fx.position.set(0, 3.98, z); scene.add(fx);
+  const hood = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.06, 0.24), new THREE.MeshStandardMaterial({ color: "#2b2e33", roughness: 0.6, metalness: 0.5 }));
+  hood.position.set(0, 4.03, z); scene.add(hood);
+  for (const x of [-0.6, 0.6]) {                      // chains to the trusses
+    const c = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.45, 0.012), hood.material);
+    c.position.set(x, 4.28, z); scene.add(c);
+  }
+}
+const lamp = new THREE.SpotLight("#fff1de", 5.5, 0, Math.PI / 4.4, 0.85, 0);
+lamp.position.set(0, 4.15, -0.2); lamp.target.position.set(0, 0, -0.1);
+lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.bias = -0.0015; lamp.shadow.radius = 5;
+lamp.shadow.camera.near = 0.5; lamp.shadow.camera.far = 8;
+scene.add(lamp, lamp.target);
+const SUN_FROM = new THREE.Vector3(-13, 5.6, -2.2);
+const sun = new THREE.DirectionalLight("#fff4e6", 1.25);
+sun.position.copy(SUN_FROM); sun.target.position.set(0, 0, 0);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.02;
+Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 });
+scene.add(sun, sun.target);
+const bench = new THREE.PointLight("#ffc27a", 2.0, 6, 1.6); bench.position.set(0.3, 2.25, -4.6); scene.add(bench);
+const cool = new THREE.PointLight("#9fb6d8", 1.6, 9, 1.4); cool.position.set(4.6, 3.2, 0.8); scene.add(cool);  // right window spill
+// work lights on the floor (positions = env/anchors.json, Blender xyz -> three x, z, -y)
+function workSpot(pos, target, intensity) {
+  const l = new THREE.SpotLight("#fff1dc", intensity, 7, 0.62, 0.75, 1.2);
+  l.position.set(...pos); l.target.position.set(...target); scene.add(l, l.target);
+}
+workSpot([1.41, 0.27, 3.507], [0.15, 0.45, 1.9], 4.5);          // floor flood -> front bumper
+workSpot([1.75, 1.79, -3.253], [-0.1, 0.5, -1.85], 3.2);        // tripod heads -> rear bumper
+workSpot([1.453, 1.79, -3.55], [0.2, 0.5, -1.85], 3.2);
+// neon signs spill their colour onto walls, stairs and bench
+const neonRed = new THREE.RectAreaLight("#ff3020", 2.6, 1.95, 0.825);
+neonRed.position.set(-5.4, 2.0, 2.55); neonRed.lookAt(0, 2.0, 2.55); scene.add(neonRed);
+const neonPurple = new THREE.RectAreaLight("#b040ff", 2.6, 1.0, 1.0);
+neonPurple.position.set(-2.45, 1.65, -5.83); neonPurple.lookAt(-2.45, 1.65, 0); scene.add(neonPurple);
+const NEON = { red: null, purple: null };
+// low kickers at wheel height so rims and lower body keep their detail
+for (const x of [-3.2, 3.2]) { const k = new THREE.PointLight("#dfe6f0", 3.2, 5.5, 1.3); k.position.set(x * 0.85, 0.45, 0.2); scene.add(k); }
+
+// volumetric shaft: window rectangle swept along the sun direction down to the floor
+const shaftMat = new THREE.ShaderMaterial({
+  uniforms: { uColor: { value: new THREE.Color("#fff0dc") }, uI: { value: 0.035 } },
+  vertexShader: `attribute float f; varying float vF; varying vec3 vN; varying vec3 vV;
+    void main(){ vF=f; vec4 w=modelMatrix*vec4(position,1.); vN=normalize(mat3(modelMatrix)*normal);
+      vV=normalize(cameraPosition-w.xyz); gl_Position=projectionMatrix*viewMatrix*w; }`,
+  fragmentShader: `uniform vec3 uColor; uniform float uI; varying float vF; varying vec3 vN; varying vec3 vV;
+    void main(){ float edge=pow(abs(dot(normalize(vN),normalize(vV))),1.4);
+      float a=uI*edge*pow(1.-vF,0.7)*smoothstep(0.,.08,vF); gl_FragColor=vec4(uColor*a,1.); }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
+});
+const dir = new THREE.Vector3().subVectors(sun.target.position, SUN_FROM).normalize();
+function addShaft(c) {      // c: 4 window corners (world)
+  const pts = [...c, ...c.map(p => p.clone().addScaledVector(dir, p.y / -dir.y))];
+  const pos = [], f = [];
+  const quad = (a, b, cc, d, fa, fb, fc, fd) => {
+    for (const [p, ff] of [[a,fa],[b,fb],[cc,fc],[a,fa],[cc,fc],[d,fd]]) { pos.push(p.x, p.y, p.z); f.push(ff); }
+  };
+  for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; quad(pts[i], pts[j], pts[4 + j], pts[4 + i], 0, 0, 1, 1); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("f", new THREE.Float32BufferAttribute(f, 1));
+  g.computeVertexNormals();
+  scene.add(new THREE.Mesh(g, shaftMat));
+}
+const leftWin = [new THREE.Vector3(-5.5, 4.1, -2.4), new THREE.Vector3(-5.5, 4.1, 2.0),
+                 new THREE.Vector3(-5.5, 2.8, 2.0), new THREE.Vector3(-5.5, 2.8, -2.4)];
+addShaft(leftWin);
+
+// ---- dust: lifetime particles, visible only where light hits them ----------------------
+// each mote lives 8-14 s: fades in, drifts on slow random currents (+ convection under the lamp),
+// fades out, respawns. Brightness = how much light it sits in (sun beam or lamp cone).
+const DUST = { n: 240, life: new Float32Array(240), span: new Float32Array(240), seed: new Float32Array(240),
+  emitter: new Uint8Array(240) };
+const dPos = new Float32Array(DUST.n * 3), dA = new Float32Array(DUST.n);
+const LAMP = new THREE.Vector3(0, 4.15, -0.2), LAMP_TAN = Math.tan(Math.PI / 4.4);
+function inSun(x, y, z) {               // trace back to the window plane, soft edges
+  const s = (x - leftWin[0].x) / dir.x;
+  if (s < 0) return 0;
+  const qy = y - dir.y * s, qz = z - dir.z * s;
+  const e = (v, a, b) => Math.min(1, Math.max(0, Math.min(v - a, b - v) / 0.25));
+  return e(qy, 2.8, 4.1) * e(qz, -2.4, 2.0);
+}
+function inLamp(x, y, z) {
+  const h = LAMP.y - y; if (h <= 0) return 0;
+  const r = Math.hypot(x - LAMP.x, z - LAMP.z), R = h * LAMP_TAN;
+  return Math.max(0, 1 - r / R) * 0.8;
+}
+function spawn(i, fresh) {
+  const beam = Math.random() < 0.62;
+  DUST.emitter[i] = beam ? 0 : 1;
+  let x, y, z;
+  if (beam) {                            // somewhere along the shaft, a little outside it too
+    const u = Math.random(), v = Math.random(), t = Math.random() * 0.9;
+    const top = leftWin[0].clone().lerp(leftWin[1], u), bot = leftWin[3].clone().lerp(leftWin[2], u);
+    const p = top.lerp(bot, v).addScaledVector(dir, ((top.y) / -dir.y) * t);
+    x = p.x + (Math.random() - .5) * .6; y = Math.max(0.15, p.y + (Math.random() - .5) * .6); z = p.z + (Math.random() - .5) * .6;
+  } else {                               // under the lamp, rising off the warm car roof
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 1.6;
+    x = LAMP.x + Math.cos(a) * r; z = LAMP.z + Math.sin(a) * r; y = 0.6 + Math.random() * 2.6;
+  }
+  dPos.set([x, y, z], i * 3);
+  DUST.span[i] = 8 + Math.random() * 6;
+  DUST.life[i] = fresh ? Math.random() : 0;
+  DUST.seed[i] = Math.random() * 1000;
+}
+for (let i = 0; i < DUST.n; i++) spawn(i, true);
+const dGeo = new THREE.BufferGeometry();
+dGeo.setAttribute("position", new THREE.BufferAttribute(dPos, 3));
+dGeo.setAttribute("aAlpha", new THREE.BufferAttribute(dA, 1));
+const dMat = new THREE.ShaderMaterial({
+  uniforms: { uColor: { value: new THREE.Color("#fff3e0") }, uSize: { value: 0.014 }, uScale: { value: 400 } },
+  vertexShader: `attribute float aAlpha; varying float vA; uniform float uSize; uniform float uScale;
+    void main(){ vA=aAlpha; vec4 mv=modelViewMatrix*vec4(position,1.); gl_PointSize=max(1.,uSize*uScale/-mv.z); gl_Position=projectionMatrix*mv; }`,
+  fragmentShader: `uniform vec3 uColor; varying float vA; void main(){ if(vA<0.01) discard; gl_FragColor=vec4(uColor*vA,1.); }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+scene.add(new THREE.Points(dGeo, dMat));
+function stepDust(dt, t) {
+  for (let i = 0; i < DUST.n; i++) {
+    DUST.life[i] += dt / DUST.span[i];
+    if (DUST.life[i] >= 1) spawn(i, false);
+    const s = DUST.seed[i], j = i * 3;
+    const rise = DUST.emitter[i] ? 0.045 : 0.012;              // convection under the lamp
+    dPos[j]     += (Math.sin(t * 0.31 + s) * 0.035 + Math.sin(t * 0.07 + s * 3.1) * 0.02) * dt;
+    dPos[j + 1] += (rise + Math.sin(t * 0.23 + s * 1.7) * 0.02) * dt;
+    dPos[j + 2] += (Math.cos(t * 0.27 + s) * 0.035 + Math.cos(t * 0.05 + s * 2.3) * 0.02) * dt;
+    const fade = Math.sin(Math.PI * DUST.life[i]);
+    const light = Math.max(inSun(dPos[j], dPos[j+1], dPos[j+2]), inLamp(dPos[j], dPos[j+1], dPos[j+2]));
+    const twinkle = 0.75 + 0.25 * Math.sin(t * 2.3 + s);
+    dA[i] = fade * light * twinkle * (0.25 + 0.45 * ((s * 7.13) % 1));   // most motes faint, a few catch the light
+  }
+  dGeo.attributes.position.needsUpdate = true; dGeo.attributes.aAlpha.needsUpdate = true;
+}
+
+// parking bay lines
+{
+  const lineM = new THREE.MeshStandardMaterial({ color: "#a8741f", roughness: 0.7 });
+  for (const x of [-1.45, 1.45]) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 5.2), lineM); l.rotation.x = -Math.PI/2; l.position.set(x, 0.006, 0.3); l.receiveShadow = true; scene.add(l); }
+}
+
+// ---- post: bloom -> tonemap/sRGB -> grade, vignette, grain, optional 15-bit dither ----
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.35, 0.4, 0.96);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+const grade = new ShaderPass({
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uDither: { value: 1 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime; uniform float uDither; varying vec2 vUv;
+    float bayer(vec2 p){ int x=int(mod(p.x,4.)), y=int(mod(p.y,4.)); int i=x+y*4;
+      int m[16]=int[16](0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5); return (float(m[i])+.5)/16.; }
+    float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+    void main(){
+      vec3 c=texture2D(tDiffuse,vUv).rgb;
+      float l=dot(c,vec3(.299,.587,.114));
+      c=mix(c*vec3(.86,.97,1.08), c, smoothstep(.0,.45,l));          // teal shadows
+      c*=mix(vec3(1.), vec3(1.07,1.0,.9), smoothstep(.35,1.,l));      // warm highlights
+      c=mix(c, c*c*(3.-2.*c), .35);                                    // S-curve contrast
+      vec2 q=vUv-.5; c*=1.-smoothstep(.25,.85,dot(q,q)*2.2)*.75;       // vignette
+      c+=(h(gl_FragCoord.xy+uTime)-.5)*.035;                           // grain
+      if(uDither>.5){ c=floor(c*31.+bayer(gl_FragCoord.xy))/31.; }     // PS1-ish 15-bit colour
+      gl_FragColor=vec4(c,1.); }`,
+});
+composer.addPass(grade);
+
+// ---- loading & materials ----------------------------------------------------------
+const loader = new GLTFLoader();
+// Every model is inlined in #bundle (the mobile viewer refuses side files): geometry is base64,
+// rebuilt into a GLB and parsed; textures are data: images attached here, never fetched.
+const BUNDLE = JSON.parse(document.getElementById("bundle").textContent);
+const imgCache = new Map();
+function image(uri) {
+  if (!imgCache.has(uri)) imgCache.set(uri, new Promise((res, rej) => {
+    const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error("texture decode failed")); im.src = uri;
+  }));
+  return imgCache.get(uri);
+}
+async function load(url) {
+  const key = url.replace(/^assets\//, "").replace(/\.json$/, "");
+  const e = BUNDLE[key];
+  if (!e) throw new Error(`thiếu asset ${key}`);
+  const bin = Uint8Array.from(atob(e.bin), c => c.charCodeAt(0));
+  const enc = new TextEncoder().encode(JSON.stringify(e.gltf));
+  const jl = (enc.length + 3) & ~3, bl = (bin.length + 3) & ~3;
+  const buf = new ArrayBuffer(12 + 8 + jl + 8 + bl);
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, buf.byteLength, true);
+  dv.setUint32(12, jl, true); dv.setUint32(16, 0x4E4F534A, true);
+  u8.fill(0x20, 20, 20 + jl); u8.set(enc, 20);
+  dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004E4942, true);
+  u8.set(bin, 28 + jl);
+  const sceneRoot = await new Promise((res, rej) => loader.parse(buf, "", g => res(g.scene), rej));
+  const texByImg = new Map();
+  const meshes = []; sceneRoot.traverse(o => { if (o.isMesh) meshes.push(o); });
+  for (const o of meshes) {
+    const idx = e.matImg[o.material.name];
+    if (idx === undefined) continue;
+    if (!texByImg.has(idx)) {
+      const t = new THREE.Texture(await image(e.images[idx]));
+      t.flipY = false; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.needsUpdate = true;
+      texByImg.set(idx, t);
+    }
+    o.material.map = texByImg.get(idx); o.material.needsUpdate = true;
+  }
+  return sceneRoot;
+}
+
+const nearest = t => { t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; return t; };
+const paintable = new Set(), glowing = new Set(), origPixels = new Map();
+
+function pixels(img) {
+  const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+  const g = c.getContext("2d"); g.drawImage(img, 0, 0);
+  return g.getImageData(0, 0, c.width, c.height);
+}
+function canvasTex(imgData, flipY, srgb) {
+  const c = document.createElement("canvas"); c.width = imgData.width; c.height = imgData.height;
+  c.getContext("2d").putImageData(imgData, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.flipY = flipY;
+  t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  return t;
+}
+// PBR maps derived from palette classes: G = roughness, B = metalness; emissive for lamps
+function pbrFromPalette(mat, flipY) {
+  const src = pixels(mat.map.image), n = src.width * src.height;
+  const orm = new ImageData(src.width, src.height), em = new ImageData(src.width, src.height);
+  let glow = false;
+  for (let i = 0; i < n; i++) {
+    const k = (src.data[i*4] << 16) | (src.data[i*4+1] << 8) | src.data[i*4+2];
+    const [r, m, e] = CLASS.get(k) || DEFAULT_CLASS;
+    orm.data.set([255, r * 255, m * 255, 255], i * 4);
+    em.data.set(e ? [...e, 255] : [0, 0, 0, 255], i * 4);
+    if (e) glow = true;
+  }
+  mat.roughnessMap = mat.metalnessMap = canvasTex(orm, flipY, false);
+  mat.roughness = 1; mat.metalness = 1;
+  if (glow) { mat.emissiveMap = canvasTex(em, flipY, true); mat.emissive.set("#ffffff"); mat.emissiveIntensity = state.lights ? 2.2 : 0; mat.userData.glow = true; }
+}
+
+const SHELL = new Set(["floor", "brick", "plaster", "plaster_low", "roof", "EMIT_window"]);
+// See-through: any prop fragment sitting in the cone between camera and car is dropped with an
+// ordered (Bayer) dither, so shelves, benches and posts never hide the car. Shadows are unaffected.
+const CAR_FOCUS = { value: new THREE.Vector3(0, 0.7, 0) };
+const NO_SEE_THROUGH = new Set(["floor", "epoxy", "grate", "paper"]);
+function seeThrough(mat) {
+  mat.onBeforeCompile = sh => {
+    sh.uniforms.uCar = CAR_FOCUS;
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vWP;")
+      .replace("#include <project_vertex>", "#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", `#include <common>
+        varying vec3 vWP; uniform vec3 uCar;
+        float bay4(vec2 p){ int x=int(mod(p.x,4.)), y=int(mod(p.y,4.));
+          int m[16]=int[16](0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5); return (float(m[x+y*4])+.5)/16.; }`)
+      .replace("#include <clipping_planes_fragment>", `#include <clipping_planes_fragment>
+        { vec3 ab = uCar - cameraPosition; float L2 = dot(ab, ab);
+          float t = dot(vWP - cameraPosition, ab) / L2;
+          if (t > 0.0 && t < 1.0 - 1.3 / sqrt(L2)) {
+            float d = length(vWP - (cameraPosition + ab * t));
+            float r = mix(0.5, 2.0, t);
+            float k = 1.0 - smoothstep(r * 0.55, r, d);
+            if (k * 0.7 > bay4(gl_FragCoord.xy)) discard;
+          } }`);
+  };
+  mat.customProgramCacheKey = () => "seeThrough";
+}
+function prepMaterials(root, kind) {      // kind: car | wheel | env
+  root.traverse(o => {
+    if (!o.isMesh) return;
+    const m = o.material, map = m.map ? nearest(m.map) : null, name = m.name || o.name;
+    if (kind === "env" && name.startsWith("EMIT_neon")) {
+      const mat = new THREE.MeshBasicMaterial({ map, transparent: true, blending: THREE.AdditiveBlending,
+        depthWrite: false, side: THREE.DoubleSide, fog: false });
+      mat.color.setScalar(2.4);
+      if (name.endsWith("red")) NEON.red = mat; else NEON.purple = mat;
+      o.material = mat; o.castShadow = false; o.receiveShadow = false;
+      return;
+    }
+    if (kind === "env" && name === "EMIT_work") {
+      o.material = new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide, fog: false });
+      o.material.color.setScalar(3.5); o.castShadow = false;
+      return;
+    }
+    if (kind === "env" && name.startsWith("EMIT_")) {
+      o.material = new THREE.MeshBasicMaterial({ map, color: name === "EMIT_window" ? "#fff1d8" : "#ffffff", fog: false });
+      o.material.color.multiplyScalar(name === "EMIT_window" ? 1.6 : 3.0);
+      o.castShadow = false; o.receiveShadow = false;
+      return;
+    }
+    const side = kind === "env" && !SHELL.has(name) ? THREE.DoubleSide : THREE.FrontSide;
+    const mat = new THREE.MeshStandardMaterial({ map, side });
+    if (kind === "env") {
+      const [r, mt] = ENV_PBR[name] || [0.88, 0];
+      mat.roughness = r; mat.metalness = mt; mat.envMapIntensity = 0.35;
+      if (!NO_SEE_THROUGH.has(name)) seeThrough(mat);
+      o.castShadow = name !== "floor" && name !== "puddle" && name !== "grate" && name !== "paper";
+    } else {
+      mat.envMapIntensity = kind === "wheel" ? 0.72 : 0.44;
+      if (map) pbrFromPalette(mat, map.flipY);
+      o.castShadow = true;
+      if (kind === "car" && map) mat.userData.paint = true;
+      if (map) mat.userData.surface = true;
+    }
+    mat.name = name;
+    o.material = mat; o.receiveShadow = true;
+  });
+}
+
+function recolor(mat, paint) {
+  const tex = mat.map;
+  if (!origPixels.has(mat)) origPixels.set(mat, { data: pixels(tex.image), flipY: tex.flipY });
+  const { data, flipY } = origPixels.get(mat);
+  const src = SRC.ramp.map(hex), dst = paint.ramp.map(hex), sSeam = hex(SRC.seam), dSeam = hex(paint.seam);
+  const out = new ImageData(new Uint8ClampedArray(data.data), data.width, data.height);
+  const p = out.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i], g = p[i+1], b = p[i+2];
+    let k = -1;
+    for (let j = 0; j < src.length; j++) if (src[j][0] === r && src[j][1] === g && src[j][2] === b) { k = j; break; }
+    if (k >= 0) p.set(dst[k], i);
+    else if (r === sSeam[0] && g === sSeam[1] && b === sSeam[2]) p.set(dSeam, i);
+  }
+  mat.map = canvasTex(out, flipY, true); mat.needsUpdate = true;
+}
+
+// ---- car assembly -------------------------------------------------------------------
+const carRoot = new THREE.Group(); scene.add(carRoot);
+const body = new THREE.Group(); carRoot.add(body);
+const wheelGroup = new THREE.Group(); carRoot.add(wheelGroup);
+let stock = {}, sockets = {}, swapped = {};
+const cache = {}, carCache = {};
+const carMats = pred => { const out = new Set(); carRoot.traverse(o => { if (o.isMesh && pred(o.material)) out.add(o.material); }); return out; };
+
+async function part(file, kind = "car") {
+  const k = `${state.car}/parts/${file}`;
+  if (!cache[k]) { const s = await load(k); prepMaterials(s, kind); cache[k] = s; }
+  return cache[k];
+}
+
+async function selectCar(key) {
+  state.car = key;
+  Object.assign(state, PRESETS.stock, { paint: CARS[key].paint });
+  body.clear(); wheelGroup.clear(); stock = {}; sockets = {}; swapped = {};
+  if (!carCache[key]) {
+    const car = await load(key);
+    car.updateMatrixWorld(true);
+    const sk = {};
+    car.traverse(o => { if (o.name.startsWith("SOCKET_wheel_")) sk[o.name.slice(13)] = o.getWorldPosition(new THREE.Vector3()); });
+    const meshes = []; car.traverse(o => { if (o.isMesh && !/^wheel_(FL|FR|RL|RR)$/.test(o.name)) meshes.push(o); });
+    const g = new THREE.Group(); for (const o of meshes) { o.removeFromParent(); g.add(o); }
+    prepMaterials(g, "car");
+    carCache[key] = { meshes, sockets: sk };
+  }
+  for (const o of carCache[key].meshes) { o.visible = true; body.add(o); stock[o.name] = o; }
+  sockets = carCache[key].sockets;
+  const c = CARS[key];
+  // frame the car: same viewing direction, distance scaled to the car's size
+  const off = camera.position.clone().sub(controls.target);
+  off.setLength(7.56 * (c.cam || 1));
+  camera.position.copy(controls.target).add(off);
+  controls.maxDistance = 8 * (c.cam || 1);
+  $("carTitle").textContent = c.title; $("carSub").textContent = c.sub; $("plate").textContent = c.plate;
+  $("rimLabel").textContent = c.rim;
+  refreshRims();
+  await apply();
+}
+
+async function init() {
+  const room = await load("assets/env/garage.json");
+  prepMaterials(room, "env");
+  scene.add(room);
+  // reflections: capture the lit garage once into a prefiltered env map (from car height)
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  room.position.y = -0.8;
+  scene.environment = pmrem.fromScene(scene, 0.03).texture;
+  room.position.y = 0;
+  carRoot.rotation.y = Math.PI;                 // nose toward the open side of the bay
+  await selectCar(state.car);
+  $("loading").hidden = true;
+}
+
+async function setSlot(stockNames, file) {
+  for (const n of stockNames) if (swapped[n]) { body.remove(swapped[n]); delete swapped[n]; }
+  for (const n of stockNames) if (stock[n]) stock[n].visible = !file;
+  if (!file) return;
+  for (const n of stockNames) {
+    const clone = (await part(file.replace("{n}", n))).clone(true);
+    body.add(clone); swapped[n] = clone;
+  }
+}
+
+async function apply() {
+  await setSlot(["bumper_F"], state.bumper_F === "stock" ? null : `{n}_${state.bumper_F}`);
+  await setSlot(["bumper_R"], state.bumper_R === "stock" ? null : `{n}_${state.bumper_R}`);
+  await setSlot(["skirt_L", "skirt_R"], state.skirt === "stock" ? null : `{n}_${state.skirt}`);
+  if (swapped.spoiler) { body.remove(swapped.spoiler); delete swapped.spoiler; }
+  if (state.spoiler !== "none") { const s = (await part(`spoiler_${state.spoiler}`)).clone(true); body.add(s); swapped.spoiler = s; }
+  wheelGroup.clear();
+  const proto = await part(`wheel_${state.wheel}`, "wheel");
+  for (const p of Object.values(sockets)) {
+    const w = proto.clone(true); w.position.copy(p);
+    if (p.x < 0) w.rotation.y = Math.PI;
+    wheelGroup.add(w);
+  }
+  body.position.y = -state.lower / 1000;
+  for (const m of carMats(m => m.userData.surface)) recolor(m, PAINTS[state.paint]);
+  for (const m of carMats(m => m.userData.glow)) m.emissiveIntensity = state.lights ? 2.2 : 0;
+  syncUI(); updateSpec();
+}
+
+// ---- UI ---------------------------------------------------------------------------------
+function seg(container, opts, onPick, dataKey) {
+  for (const [v, txt] of opts) {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = txt; b.dataset.slot = dataKey; b.dataset.val = v;
+    b.addEventListener("click", () => onPick(v));
+    container.append(b);
+  }
+}
+const slotsEl = $("slots");
+for (const s of SLOTS) {
+  const name = document.createElement("span"); name.className = "name"; name.textContent = s.label;
+  const box = document.createElement("div"); box.className = "seg"; box.setAttribute("role", "group"); box.setAttribute("aria-label", s.label);
+  seg(box, s.opts, v => { state[s.key] = v; apply(); }, s.key);
+  slotsEl.append(name, box);
+}
+const rimsEl = $("rims");
+for (const [v, txt] of RIMS) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "rim"; b.dataset.slot = "wheel"; b.dataset.val = v; b.setAttribute("aria-label", "Mâm " + txt);
+  const c = document.createElement("canvas"); c.width = c.height = 76;
+  const sp = document.createElement("span"); sp.textContent = txt;
+  b.append(c, sp);
+  const img = new Image();
+  img.onload = () => { const g = c.getContext("2d"); g.imageSmoothingEnabled = false; g.drawImage(img, 2, 2, 76, 76, 0, 0, 76, 76); };
+  b.addEventListener("click", () => { state.wheel = v; apply(); });
+  rimsEl.append(b);
+}
+function refreshRims() {
+  for (const b of rimsEl.querySelectorAll(".rim")) {
+    const c = b.querySelector("canvas"), img = new Image();
+    img.onload = () => { const g = c.getContext("2d"); g.clearRect(0, 0, 76, 76); g.imageSmoothingEnabled = false; g.drawImage(img, 2, 2, 76, 76, 0, 0, 76, 76); };
+    img.src = BUNDLE[`${state.car}/parts/wheel_${b.dataset.val}`].images[0];
+  }
+}
+const carsEl = $("cars");
+for (const [k, c] of Object.entries(CARS)) {
+  const b = document.createElement("button"); b.type = "button"; b.textContent = c.name; b.dataset.car = k;
+  b.addEventListener("click", () => { if (state.car !== k) selectCar(k); });
+  carsEl.append(b);
+}
+const sws = $("swatches");
+for (const [name, p] of Object.entries(PAINTS)) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "sw"; b.title = name; b.setAttribute("aria-label", "Sơn " + name);
+  b.style.background = `linear-gradient(180deg, ${p.ramp[4]} 0 35%, ${p.ramp[2]} 35% 75%, ${p.ramp[1]} 75%)`;
+  b.dataset.paint = name;
+  b.addEventListener("click", () => { state.paint = name; for (const m of carMats(m => m.userData.surface)) recolor(m, p); syncUI(); updateSpec(); });
+  sws.append(b);
+}
+document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => { Object.assign(state, PRESETS[b.dataset.preset]); apply(); }));
+const lower = $("lower");
+lower.addEventListener("input", () => { state.lower = +lower.value; body.position.y = -state.lower / 1000; syncUI(); updateSpec(); });
+$("tPixel").addEventListener("change", e => { bay.classList.toggle("pixel", e.target.checked); resize(); });
+$("tDither").addEventListener("change", e => { grade.uniforms.uDither.value = e.target.checked ? 1 : 0; });
+$("tLights").addEventListener("change", e => { state.lights = e.target.checked; for (const m of carMats(m => m.userData.glow)) m.emissiveIntensity = state.lights ? 2.2 : 0; });
+
+function syncUI() {
+  document.querySelectorAll("[data-car]").forEach(b => b.setAttribute("aria-pressed", state.car === b.dataset.car));
+  document.querySelectorAll("[data-slot]").forEach(b => b.setAttribute("aria-pressed", state[b.dataset.slot] === b.dataset.val));
+  document.querySelectorAll(".sw").forEach(b => b.setAttribute("aria-pressed", state.paint === b.dataset.paint));
+  document.querySelectorAll("[data-preset]").forEach(b => {
+    const p = PRESETS[b.dataset.preset];
+    b.setAttribute("aria-pressed", Object.keys(p).every(k => state[k] === p[k]));
+  });
+  lower.value = state.lower;
+  $("lowerVal").textContent = `${state.lower} mm`;
+  $("paintName").textContent = state.paint;
+}
+function isShown(o) { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; }
+function updateSpec() {
+  let verts = 0; const tex = new Set();
+  carRoot.traverse(o => { if (o.isMesh && isShown(o)) { verts += o.geometry.attributes.position.count; if (o.material.map) tex.add(o.material.map); } });
+  const rows = [
+    ["Khoảng sáng gầm", `${CARS[state.car].clearance - state.lower} mm`],
+    ["Đỉnh xe đang hiển thị", verts.toLocaleString("vi-VN")],
+    ["Texture xe", `${tex.size} tấm · 64 px/m`],
+  ];
+  $("spec").innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("");
+}
+
+// ---- loop ---------------------------------------------------------------------------------
+function resize() {
+  const w = bay.clientWidth, h = bay.clientHeight;
+  const pr = $("tPixel").checked ? Math.max(0.3, 340 / h) : Math.min(window.devicePixelRatio, 2);
+  renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
+  composer.setPixelRatio(pr); composer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  dMat.uniforms.uScale.value = h * pr * 0.5 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+}
+new ResizeObserver(resize).observe(bay);
+resize();
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta(), t = clock.elapsedTime;
+  if ($("tSpin").checked) carRoot.rotation.y += dt * 0.25;
+  stepDust(reduce ? 0 : Math.min(dt, 0.05), t);
+  // neon: steady, with a rare stutter on the red sign like an ageing transformer
+  if (NEON.red) {
+    const stutter = !reduce && (Math.sin(t * 0.7) > 0.985) && Math.random() < 0.5;
+    const k = stutter ? 0.25 : 1;
+    NEON.red.color.setScalar(2.4 * k); neonRed.intensity = 2.6 * k;
+  }
+  grade.uniforms.uTime.value = t;
+  controls.update();
+  composer.render();
+});
+
+init().catch(e => { $("loading").textContent = "Không load được xưởng: " + e.message; console.error(e); });
+</script>

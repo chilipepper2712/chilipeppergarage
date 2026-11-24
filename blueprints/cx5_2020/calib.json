@@ -1,0 +1,13 @@
+{
+  "image": "blueprint.png",
+  "source": "4-view line blueprint of the KF CX-5, 941x1125, supplied by user",
+  "px_per_m": 193.3,
+  "calibrated_on": "wheelbase 2.700 m = 522 px (tyre contacts x=190.5 / 712.5)",
+  "check": "length 4.537 m (spec 4.550), height 1.67 (spec 1.68); front/rear views drawn 4% larger",
+  "views": {
+    "side":  {"origin": [451.5, 329.5], "u": "-y", "v": "z"},
+    "top":   {"origin": [451.5, 546.0], "u": "-y", "v": "x"},
+    "front": {"origin": [262.5, 1113], "u": "-x", "v": "z", "scale": 1.04},
+    "rear":  {"origin": [702.5, 1113], "u": "x", "v": "z", "scale": 1.04}
+  }
+}

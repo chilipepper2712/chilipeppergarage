@@ -1,0 +1,13 @@
+{
+  "image": "blueprint.png",
+  "source": "Outlines 4-view, Honda Civic Sedan US 2006 (FA), 448x450, supplied by user",
+  "px_per_m": 49.6,
+  "calibrated_on": "wheelbase 2.700 m = 134 px (tyre contacts x=86.5 / 220.5)",
+  "check": "length 4.515 m (US 4.488 / VN 4.540); roof reads 1.49 m vs 1.45 spec -> heights above 0.65 m compressed in the profile",
+  "views": {
+    "side":  {"origin": [153.5, 184.5], "u": "-y", "v": "z"},
+    "top":   {"origin": [153.5, 290.0], "u": "-y", "v": "x"},
+    "front": {"origin": [368, 184.5], "u": "-x", "v": "z"},
+    "rear":  {"origin": [368, 327.5], "u": "x",  "v": "z"}
+  }
+}

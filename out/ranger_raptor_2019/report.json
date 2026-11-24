@@ -1,0 +1,147 @@
+{
+ "car": "ranger_raptor_2019",
+ "stations": 29,
+ "body_verts": 529,
+ "body_faces": 727,
+ "parts": [
+  "body",
+  "bumper_F",
+  "bumper_R",
+  "door_FL",
+  "door_FR",
+  "door_RL",
+  "door_RR",
+  "fender_FL",
+  "fender_FR",
+  "headlight_L",
+  "headlight_R",
+  "hood",
+  "mirror_L",
+  "mirror_R",
+  "skirt_L",
+  "skirt_R",
+  "tailgate"
+ ],
+ "swap_parts": {
+  "bumper_F": {
+   "file": "bumper_F_stock.glb",
+   "verts": 177,
+   "texture": 256
+  },
+  "bumper_R": {
+   "file": "bumper_R_stock.glb",
+   "verts": 28,
+   "texture": 128
+  },
+  "skirt_L": {
+   "file": "skirt_L_stock.glb",
+   "verts": 20,
+   "texture": 256
+  },
+  "skirt_R": {
+   "file": "skirt_R_stock.glb",
+   "verts": 20,
+   "texture": 256
+  }
+ },
+ "uv1": {
+  "density_px_m": 64,
+  "texture": 1024,
+  "uv_extent": [
+   0.5071027530223998,
+   0.4778724543038643
+  ],
+  "surface_m2": 36.57629544996661
+ },
+ "wheel": {
+  "tyre": [
+   285,
+   70,
+   17
+  ],
+  "width_m": 0.285,
+  "rim_r_m": 0.2159,
+  "tyre_r_m": 0.4154,
+  "verts": 24,
+  "texture": 128,
+  "density_px_m": 128,
+  "rim": {
+   "style": "spoke",
+   "spokes": 5,
+   "spoke_w": 0.03,
+   "hub_r": 0.055,
+   "lip": 0.014,
+   "color": "metal",
+   "dish": 0.0
+  }
+ },
+ "sockets": {
+  "wheel_FL": [
+   -0.855,
+   1.61,
+   0.4154
+  ],
+  "wheel_FR": [
+   0.855,
+   1.61,
+   0.4154
+  ],
+  "wheel_RL": [
+   -0.855,
+   -1.61,
+   0.4154
+  ],
+  "wheel_RR": [
+   0.855,
+   -1.61,
+   0.4154
+  ],
+  "bumper_F": [
+   0,
+   2.53,
+   0.4
+  ],
+  "bumper_R": [
+   0,
+   -2.86,
+   0.4
+  ],
+  "skirt_L": [
+   -1.01,
+   0,
+   0.2
+  ],
+  "skirt_R": [
+   1.01,
+   0,
+   0.2
+  ],
+  "hood": [
+   0,
+   1.9,
+   1.33
+  ],
+  "roof": [
+   0,
+   -0.3,
+   1.87
+  ],
+  "spoiler": [
+   0,
+   -0.95,
+   1.86
+  ],
+  "exhaust": [
+   -0.62,
+   -2.76,
+   0.45
+  ],
+  "grille": [
+   0,
+   2.53,
+   1.05
+  ]
+ },
+ "tyre_diameter_m": 0.8308,
+ "arch_radius_m": 0.55
+}

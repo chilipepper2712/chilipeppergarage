@@ -1,0 +1,147 @@
+{
+ "car": "mini_f55_2018",
+ "stations": 25,
+ "body_verts": 483,
+ "body_faces": 651,
+ "parts": [
+  "body",
+  "bumper_F",
+  "bumper_R",
+  "door_FL",
+  "door_FR",
+  "door_RL",
+  "door_RR",
+  "fender_FL",
+  "fender_FR",
+  "headlight_L",
+  "headlight_R",
+  "hood",
+  "mirror_L",
+  "mirror_R",
+  "skirt_L",
+  "skirt_R",
+  "tailgate"
+ ],
+ "swap_parts": {
+  "bumper_F": {
+   "file": "bumper_F_stock.glb",
+   "verts": 151,
+   "texture": 256
+  },
+  "bumper_R": {
+   "file": "bumper_R_stock.glb",
+   "verts": 28,
+   "texture": 128
+  },
+  "skirt_L": {
+   "file": "skirt_L_stock.glb",
+   "verts": 12,
+   "texture": 128
+  },
+  "skirt_R": {
+   "file": "skirt_R_stock.glb",
+   "verts": 12,
+   "texture": 128
+  }
+ },
+ "uv1": {
+  "density_px_m": 64,
+  "texture": 512,
+  "uv_extent": [
+   0.7618115846514414,
+   0.7388246520546038
+  ],
+  "surface_m2": 23.16777922140969
+ },
+ "wheel": {
+  "tyre": [
+   205,
+   45,
+   17
+  ],
+  "width_m": 0.205,
+  "rim_r_m": 0.2159,
+  "tyre_r_m": 0.3081,
+  "verts": 24,
+  "texture": 128,
+  "density_px_m": 128,
+  "rim": {
+   "style": "spoke",
+   "spokes": 5,
+   "spoke_w": 0.03,
+   "hub_r": 0.055,
+   "lip": 0.014,
+   "color": "metal",
+   "dish": 0.0
+  }
+ },
+ "sockets": {
+  "wheel_FL": [
+   -0.7505,
+   1.2835,
+   0.30815
+  ],
+  "wheel_FR": [
+   0.7505,
+   1.2835,
+   0.30815
+  ],
+  "wheel_RL": [
+   -0.7505,
+   -1.2835,
+   0.30815
+  ],
+  "wheel_RR": [
+   0.7505,
+   -1.2835,
+   0.30815
+  ],
+  "bumper_F": [
+   0,
+   2.12,
+   0.4
+  ],
+  "bumper_R": [
+   0,
+   -1.88,
+   0.4
+  ],
+  "skirt_L": [
+   -0.865,
+   0,
+   0.2
+  ],
+  "skirt_R": [
+   0.865,
+   0,
+   0.2
+  ],
+  "hood": [
+   0,
+   1.6,
+   0.9
+  ],
+  "roof": [
+   0,
+   -0.4,
+   1.42
+  ],
+  "spoiler": [
+   0,
+   -1.4095,
+   1.39
+  ],
+  "exhaust": [
+   0.0,
+   -1.88,
+   0.24
+  ],
+  "grille": [
+   0,
+   2.12,
+   0.6
+  ]
+ },
+ "tyre_diameter_m": 0.6163,
+ "arch_radius_m": 0.36
+}

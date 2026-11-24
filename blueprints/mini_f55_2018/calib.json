@@ -1,0 +1,13 @@
+{
+  "image": "blueprint.png",
+  "source": "vector-templates.com MINI Cooper S 5-door (2018), 750x531, supplied by user (watermarked)",
+  "px_per_m": 100.0,
+  "calibrated_on": "drawn wheelbase dimension line 2567 mm = 256.7 px",
+  "check": "length line 4013 mm and height 1424 mm agree with the drawing",
+  "views": {
+    "side":  {"origin": [275, 192.7], "u": "-y", "v": "z"},
+    "top":   {"origin": [275, 351.5], "u": "-y", "v": "x"},
+    "front": {"origin": [617.5, 193], "u": "-x", "v": "z"},
+    "rear":  {"origin": [617, 431], "u": "x", "v": "z"}
+  }
+}

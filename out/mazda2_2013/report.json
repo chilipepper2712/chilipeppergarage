@@ -1,0 +1,147 @@
+{
+ "car": "mazda2_2013",
+ "stations": 27,
+ "body_verts": 570,
+ "body_faces": 811,
+ "parts": [
+  "body",
+  "bumper_F",
+  "bumper_R",
+  "door_FL",
+  "door_FR",
+  "door_RL",
+  "door_RR",
+  "fender_FL",
+  "fender_FR",
+  "headlight_L",
+  "headlight_R",
+  "hood",
+  "mirror_L",
+  "mirror_R",
+  "skirt_L",
+  "skirt_R",
+  "tailgate"
+ ],
+ "swap_parts": {
+  "bumper_F": {
+   "file": "bumper_F_stock.glb",
+   "verts": 223,
+   "texture": 128
+  },
+  "bumper_R": {
+   "file": "bumper_R_stock.glb",
+   "verts": 44,
+   "texture": 128
+  },
+  "skirt_L": {
+   "file": "skirt_L_stock.glb",
+   "verts": 12,
+   "texture": 128
+  },
+  "skirt_R": {
+   "file": "skirt_R_stock.glb",
+   "verts": 12,
+   "texture": 128
+  }
+ },
+ "uv1": {
+  "density_px_m": 64,
+  "texture": 512,
+  "uv_extent": [
+   0.7443287182605974,
+   0.7424703751931774
+  ],
+  "surface_m2": 21.15164504587858
+ },
+ "wheel": {
+  "tyre": [
+   185,
+   55,
+   15
+  ],
+  "width_m": 0.185,
+  "rim_r_m": 0.1905,
+  "tyre_r_m": 0.2923,
+  "verts": 24,
+  "texture": 128,
+  "density_px_m": 128,
+  "rim": {
+   "style": "spoke",
+   "spokes": 5,
+   "spoke_w": 0.03,
+   "hub_r": 0.055,
+   "lip": 0.014,
+   "color": "metal",
+   "dish": 0.0
+  }
+ },
+ "sockets": {
+  "wheel_FL": [
+   -0.7375,
+   1.245,
+   0.29225
+  ],
+  "wheel_FR": [
+   0.7375,
+   1.245,
+   0.29225
+  ],
+  "wheel_RL": [
+   -0.7325,
+   -1.245,
+   0.29225
+  ],
+  "wheel_RR": [
+   0.7325,
+   -1.245,
+   0.29225
+  ],
+  "bumper_F": [
+   0,
+   2.04,
+   0.4
+  ],
+  "bumper_R": [
+   0,
+   -1.84,
+   0.4
+  ],
+  "skirt_L": [
+   -0.845,
+   0,
+   0.2
+  ],
+  "skirt_R": [
+   0.845,
+   0,
+   0.2
+  ],
+  "hood": [
+   0,
+   1.5,
+   0.94
+  ],
+  "roof": [
+   0,
+   -0.4,
+   1.47
+  ],
+  "spoiler": [
+   0,
+   -1.3,
+   1.42
+  ],
+  "exhaust": [
+   -0.4,
+   -1.84,
+   0.25
+  ],
+  "grille": [
+   0,
+   2.04,
+   0.43
+  ]
+ },
+ "tyre_diameter_m": 0.5845,
+ "arch_radius_m": 0.352
+}

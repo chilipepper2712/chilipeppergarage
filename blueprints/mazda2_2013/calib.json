@@ -1,0 +1,14 @@
+{
+  "image": "blueprint.jpg",
+  "source": "4-view line blueprint supplied by user, 736x450",
+  "px_per_m": 123.3,
+  "calibrated_on": "wheelbase 2.490 m = 307 px (tyre contact centres x=347.5 / 654.5)",
+  "check": "roof 1.464 m measured vs 1.475 spec; body half-width 0.835-0.843 vs 0.8475 spec",
+  "note": "nose clipped ~6 px by image edge; front overhang taken from spec",
+  "views": {
+    "side":  {"origin": [501, 204.5], "u": "-y", "v": "z"},
+    "top":   {"origin": [501, 328.0], "u": "-y", "v": "x"},
+    "front": {"origin": [127, 204.5], "u": "-x", "v": "z"},
+    "rear":  {"origin": [127, 415.0], "u": "x",  "v": "z"}
+  }
+}

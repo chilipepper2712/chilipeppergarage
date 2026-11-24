@@ -1,0 +1,147 @@
+{
+ "car": "cx5_2020",
+ "stations": 30,
+ "body_verts": 520,
+ "body_faces": 677,
+ "parts": [
+  "body",
+  "bumper_F",
+  "bumper_R",
+  "door_FL",
+  "door_FR",
+  "door_RL",
+  "door_RR",
+  "fender_FL",
+  "fender_FR",
+  "headlight_L",
+  "headlight_R",
+  "hood",
+  "mirror_L",
+  "mirror_R",
+  "skirt_L",
+  "skirt_R",
+  "tailgate"
+ ],
+ "swap_parts": {
+  "bumper_F": {
+   "file": "bumper_F_stock.glb",
+   "verts": 143,
+   "texture": 256
+  },
+  "bumper_R": {
+   "file": "bumper_R_stock.glb",
+   "verts": 42,
+   "texture": 128
+  },
+  "skirt_L": {
+   "file": "skirt_L_stock.glb",
+   "verts": 16,
+   "texture": 128
+  },
+  "skirt_R": {
+   "file": "skirt_R_stock.glb",
+   "verts": 16,
+   "texture": 128
+  }
+ },
+ "uv1": {
+  "density_px_m": 64,
+  "texture": 512,
+  "uv_extent": [
+   0.8427015211489142,
+   0.836382883742294
+  ],
+  "surface_m2": 27.715616468707594
+ },
+ "wheel": {
+  "tyre": [
+   225,
+   55,
+   19
+  ],
+  "width_m": 0.225,
+  "rim_r_m": 0.2413,
+  "tyre_r_m": 0.365,
+  "verts": 24,
+  "texture": 128,
+  "density_px_m": 128,
+  "rim": {
+   "style": "spoke",
+   "spokes": 5,
+   "spoke_w": 0.03,
+   "hub_r": 0.055,
+   "lip": 0.014,
+   "color": "metal",
+   "dish": 0.0
+  }
+ },
+ "sockets": {
+  "wheel_FL": [
+   -0.7975,
+   1.35,
+   0.36504999999999993
+  ],
+  "wheel_FR": [
+   0.7975,
+   1.35,
+   0.36504999999999993
+  ],
+  "wheel_RL": [
+   -0.7975,
+   -1.35,
+   0.36504999999999993
+  ],
+  "wheel_RR": [
+   0.7975,
+   -1.35,
+   0.36504999999999993
+  ],
+  "bumper_F": [
+   0,
+   2.28,
+   0.4
+  ],
+  "bumper_R": [
+   0,
+   -2.25,
+   0.4
+  ],
+  "skirt_L": [
+   -0.92,
+   0,
+   0.2
+  ],
+  "skirt_R": [
+   0.92,
+   0,
+   0.2
+  ],
+  "hood": [
+   0,
+   1.7,
+   1.09
+  ],
+  "roof": [
+   0,
+   -0.5,
+   1.648
+  ],
+  "spoiler": [
+   0,
+   -1.78,
+   1.55
+  ],
+  "exhaust": [
+   0.56,
+   -2.25,
+   0.37
+  ],
+  "grille": [
+   0,
+   2.28,
+   0.78
+  ]
+ },
+ "tyre_diameter_m": 0.7301,
+ "arch_radius_m": 0.43
+}

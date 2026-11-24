@@ -1,0 +1,13 @@
+{
+  "image": "blueprint.png",
+  "source": "Ford Ranger Raptor 2019 vector blueprint, 980x640, supplied by user",
+  "px_per_m": 127.6,
+  "calibrated_on": "overall length 5.398 m (height then reads 1.86 vs 1.873 spec); drawn wheelbase reads 3.295 vs 3.220 spec",
+  "check": "body width 2.03 m in front/rear views (spec 2.028)",
+  "views": {
+    "side":  {"origin": [656.25, 275], "u": "y", "v": "z"},
+    "top":   {"origin": [656.25, 422], "u": "y", "v": "x"},
+    "front": {"origin": [142.5, 275], "u": "-x", "v": "z"},
+    "rear":  {"origin": [142.5, 553], "u": "x", "v": "z"}
+  }
+}

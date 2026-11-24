@@ -1,0 +1,15 @@
+__pycache__/
+.venv/
+*.blend
+*.blend1
+# third-party blueprint images stay local (see blueprints/README.md)
+blueprints/**/*.png
+blueprints/**/*.jpg
+blueprints/**/*.webp
+# preview renders and debug overlays
+out/**/*_front*.png
+out/**/*_rear*.png
+out/**/*_side.png
+out/**/*_top.png
+out/**/*_bp_check.png
+out/**/builds/
