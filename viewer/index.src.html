@@ -227,6 +227,41 @@ table.slip td { text-align: right; padding: 3px 6px; }
   .tabpane { overflow-y: auto; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- intro: empty garage, Ớt asks for the car, then the budget ---- */
+body.intro aside, body.asking aside, body.intro .hudwrap, body.intro #roomBox, body.intro #footBox, body.intro .plate,
+body.asking #roomBox, body.asking #footBox { display: none !important; }
+#intro { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(14,15,18,.15), rgba(14,15,18,.78) 75%); overflow-y: auto; }
+.intro-card { width: min(920px, 100%); display: grid; gap: 14px; animation: rise .6s ease both .2s; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.eyebrow { font: 400 11px var(--font-data); letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0; }
+.intro-h { font: 400 clamp(22px, 3.2vw, 34px)/1.15 var(--font-display); letter-spacing: .02em; margin: 0; text-wrap: balance; }
+.intro-h.sm { font-size: 20px; }
+.intro-sub { color: var(--muted); margin: 0; max-width: 60ch; }
+.intro-cars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 6px; align-items: start; }
+.bodygrp { background: rgba(22,24,29,.88); border: 1px solid var(--line); border-radius: 4px; padding: 10px; display: grid; gap: 6px; align-content: start; backdrop-filter: blur(3px); }
+.bodygrp > span { font: 400 10.5px var(--font-data); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.carbtn { display: grid; gap: 1px; text-align: left; background: var(--raise); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; color: var(--fg); cursor: pointer; }
+.carbtn b { font: 600 14px var(--font-body); }
+.carbtn small { font: 11px var(--font-data); color: var(--muted); }
+.carbtn:hover, .carbtn:focus-visible { border-color: var(--accent); outline: none; }
+.carbtn:hover b, .carbtn:focus-visible b { color: var(--accent); }
+#budget { position: absolute; z-index: 6; right: 22px; top: 50%; transform: translateY(-50%); width: min(360px, calc(100% - 44px)); }
+.budget-card { background: rgba(22,24,29,.94); border: 1px solid var(--line); border-radius: 4px; padding: 18px; display: grid; gap: 12px; animation: rise .45s ease both; }
+.budget-card .bval { display: flex; justify-content: space-between; align-items: baseline; }
+.budget-card .bval b { font: 500 22px var(--font-data); color: var(--accent); font-variant-numeric: tabular-nums; }
+.goals { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.goals button { display: flex; align-items: center; gap: 8px; background: var(--raise); border: 1px solid var(--line); border-radius: 3px; padding: 9px 10px; color: var(--muted); font: 500 13px var(--font-body); cursor: pointer; }
+.goals button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: rgba(242,163,58,.08); }
+.budget-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+button.ghost { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 3px; padding: 0 12px; font: 500 12px var(--font-body); cursor: pointer; }
+button.ghost:hover { color: var(--fg); border-color: var(--muted); }
+button.run:disabled { opacity: .45; cursor: not-allowed; }
+#toast { position: absolute; z-index: 7; left: 50%; top: 18px; transform: translateX(-50%); background: rgba(22,24,29,.95); border: 1px solid var(--accent); color: var(--fg); border-radius: 3px; padding: 9px 14px; font-size: 13px; max-width: calc(100% - 40px); }
+#toast b { color: var(--accent); }
+.pickrow { display: flex; gap: 6px; pointer-events: auto; }
+.pickbtn.alt { background: rgba(22,24,29,.9); color: var(--accent); border: 1px solid var(--accent); }
+@media (max-width: 760px) { .intro-cars { grid-template-columns: 1fr 1fr; } #budget { right: 50%; transform: translate(50%, -50%); } }
 #rooms button { display: inline-flex; align-items: center; gap: 7px; }
 .flag-legend .ic, .qbtn .ic { width: 14px; height: 14px; }
 </style>
@@ -244,7 +279,10 @@ table.slip td { text-align: right; padding: 3px 6px; }
       <div class="sub" id="carSub">1.5 MT · 3885×1695×1475 · WB 2490</div>
       <div class="sub" id="carNote"></div>
     </div>
-    <button type="button" class="pickbtn" id="pickBtn" aria-expanded="false"><i data-ic="car"></i>Chọn xe<i data-ic="chev"></i></button>
+    <div class="pickrow">
+      <button type="button" class="pickbtn" id="pickBtn" aria-expanded="false"><i data-ic="car"></i>Chọn xe<i data-ic="chev"></i></button>
+      <button type="button" class="pickbtn alt" id="askBtn"><i data-ic="spark"></i>Ớt lên đồ</button>
+    </div>
     <div id="carPop" hidden><div class="carpick" id="cars"></div></div>
   </div>
   <div class="plate" id="plate">51F-213.13</div>
@@ -256,6 +294,35 @@ table.slip td { text-align: right; padding: 3px 6px; }
     <dl class="spec" id="spec"></dl>
     <footer class="srcline" id="srcline"></footer>
   </details>
+  <div id="intro" hidden>
+    <div class="intro-card">
+      <p class="eyebrow">Chili Pepper Garage</p>
+      <h1 class="intro-h">Anh em đang đi xe gì?</h1>
+      <p class="intro-sub">Ớt lên đồ theo đúng xe của anh em. Chọn xe trước, ngân sách tính sau.</p>
+      <div class="intro-cars" id="introCars"></div>
+    </div>
+  </div>
+  <div id="budget" hidden>
+    <div class="budget-card" role="dialog" aria-labelledby="budgetH">
+      <p class="eyebrow">Ớt hỏi chút</p>
+      <h2 class="intro-h sm" id="budgetH">Anh em định chi bao nhiêu?</h2>
+      <div class="bval"><span class="label">Ngân sách</span><b id="budgetVal">40 triệu</b></div>
+      <input id="budgetIn" type="range" min="10" max="200" step="5" value="40" aria-label="Ngân sách, triệu đồng">
+      <span class="label">Muốn xe thế nào (chọn một hoặc vài cái)</span>
+      <div class="goals" id="goals">
+        <button type="button" data-goal="em" aria-pressed="false"><i data-ic="cloud"></i>Êm hơn</button>
+        <button type="button" data-goal="vui" aria-pressed="false"><i data-ic="smile"></i>Lái vui hơn</button>
+        <button type="button" data-goal="nhanh" aria-pressed="false"><i data-ic="bolt"></i>Nhanh hơn</button>
+        <button type="button" data-goal="ngau" aria-pressed="false"><i data-ic="spark"></i>Ngầu hơn</button>
+      </div>
+      <p class="hint" id="budgetMsg">Ớt tính theo giá cao của từng món nên không vượt ngân sách. Chưa gồm công thợ.</p>
+      <div class="budget-actions">
+        <button type="button" class="run" id="budgetGo" disabled><i data-ic="spark"></i>Ớt lên đồ</button>
+        <button type="button" class="ghost" id="budgetSkip">Bỏ qua, tự chọn</button>
+      </div>
+    </div>
+  </div>
+  <div id="toast" hidden></div>
   <div id="results" hidden>
     <div class="res-head"><h2 class="label" id="resTitle">Dyno</h2>
       <div class="seg" id="dynoMode"><button type="button" data-m="whp" aria-pressed="true">Công suất bánh</button><button type="button" data-m="nm" aria-pressed="false">Mô-men</button></div>
@@ -405,6 +472,8 @@ table.slip td { text-align: right; padding: 3px 6px; }
     tag: '<path d="M3.5 11.6V3.5h8.1l9 9-8.1 8.1z"/><circle cx="8" cy="8" r="1.3"/>',
     spring: '<path d="M12 2.5v2.5M12 19v2.5"/><path d="m7 5 10 2.3-10 2.3 10 2.3-10 2.3 10 2.3L12 19"/>',
     square: '<rect x="4.5" y="6.5" width="15" height="11" rx="1"/>',
+    smile: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.2a4.6 4.6 0 0 0 7 0M9 9.6h.01M15 9.6h.01"/>',
+    spark: '<path d="M12 3.5l2 5.6 5.5 2.4-5.5 2.4-2 5.6-2-5.6-5.5-2.4 5.5-2.4z"/><path d="M19 3.5v3M17.5 5h3"/>',
     q: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/>',
   };
   const IC = (n, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ""}</svg>`;
@@ -523,12 +592,23 @@ window.__garage = { camera, controls, scene, state, CARS, PRESETS, apply: () => 
 // ambient: two fluorescent tube fixtures over the bay (soft, neutral) + a low sky fill;
 // key: neutral spot straight above the car; accent: a softer, near-neutral shaft from the left window.
 RectAreaLightUniformsLib.init();
-scene.add(new THREE.HemisphereLight("#c9d4e4", "#2a221a", 0.42));
+// dimmer: every garage light belongs to a group with a level 0..1, so the intro can switch them on in turn
+const DIM = {}, LV = { amb: 1, neon: 1, tube0: 1, tube1: 1, key: 1, work: 1, fill: 1 };
+function dimReg(g, o) {
+  (DIM[g] = DIM[g] || []).push(o.isLight ? { o, base: o.intensity } : { o, base: o.color.clone() });
+}
+function dimApply() {
+  for (const [g, items] of Object.entries(DIM)) for (const it of items) {
+    if (it.o.isLight) it.o.intensity = it.base * LV[g]; else it.o.color.copy(it.base).multiplyScalar(LV[g]);
+  }
+}
+const hemi = new THREE.HemisphereLight("#c9d4e4", "#2a221a", 0.42); scene.add(hemi); dimReg("amb", hemi);
 for (const z of [-1.3, 1.3]) {
   const tube = new THREE.RectAreaLight("#eef3f8", 7, 1.5, 0.22);
   tube.position.set(0, 3.95, z); tube.lookAt(0, 0, z); scene.add(tube);
   const fx = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.05, 0.14), new THREE.MeshBasicMaterial({ color: new THREE.Color("#ffffff").multiplyScalar(2.2), fog: false }));
   fx.position.set(0, 3.98, z); scene.add(fx);
+  dimReg(z < 0 ? "tube0" : "tube1", tube); dimReg(z < 0 ? "tube0" : "tube1", fx.material);
   const hood = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.06, 0.24), new THREE.MeshStandardMaterial({ color: "#2b2e33", roughness: 0.6, metalness: 0.5 }));
   hood.position.set(0, 4.03, z); scene.add(hood);
   for (const x of [-0.6, 0.6]) {                      // chains to the trusses
@@ -540,31 +620,31 @@ const lamp = new THREE.SpotLight("#fff1de", 5.5, 0, Math.PI / 4.4, 0.85, 0);
 lamp.position.set(0, 4.15, -0.2); lamp.target.position.set(0, 0, -0.1);
 lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.bias = -0.0015; lamp.shadow.radius = 5;
 lamp.shadow.camera.near = 0.5; lamp.shadow.camera.far = 8;
-scene.add(lamp, lamp.target);
+scene.add(lamp, lamp.target); dimReg("key", lamp);
 const SUN_FROM = new THREE.Vector3(-13, 5.6, -2.2);
 const sun = new THREE.DirectionalLight("#fff4e6", 1.25);
 sun.position.copy(SUN_FROM); sun.target.position.set(0, 0, 0);
 sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0008; sun.shadow.normalBias = 0.02;
 Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 });
 scene.add(sun, sun.target);
-const bench = new THREE.PointLight("#ffc27a", 2.0, 6, 1.6); bench.position.set(0.3, 2.25, -4.6); scene.add(bench);
-const cool = new THREE.PointLight("#9fb6d8", 1.6, 9, 1.4); cool.position.set(4.6, 3.2, 0.8); scene.add(cool);  // right window spill
+const bench = new THREE.PointLight("#ffc27a", 2.0, 6, 1.6); bench.position.set(0.3, 2.25, -4.6); scene.add(bench); dimReg("fill", bench);
+const cool = new THREE.PointLight("#9fb6d8", 1.6, 9, 1.4); cool.position.set(4.6, 3.2, 0.8); scene.add(cool); dimReg("fill", cool);  // right window spill
 // work lights on the floor (positions = env/anchors.json, Blender xyz -> three x, z, -y)
 function workSpot(pos, target, intensity) {
   const l = new THREE.SpotLight("#fff1dc", intensity, 7, 0.62, 0.75, 1.2);
-  l.position.set(...pos); l.target.position.set(...target); scene.add(l, l.target);
+  l.position.set(...pos); l.target.position.set(...target); scene.add(l, l.target); dimReg("work", l);
 }
 workSpot([1.41, 0.27, 3.507], [0.15, 0.45, 1.9], 4.5);          // floor flood -> front bumper
 workSpot([1.75, 1.79, -3.253], [-0.1, 0.5, -1.85], 3.2);        // tripod heads -> rear bumper
 workSpot([1.453, 1.79, -3.55], [0.2, 0.5, -1.85], 3.2);
 // neon signs spill their colour onto walls, stairs and bench
 const neonRed = new THREE.RectAreaLight("#ff3020", 2.6, 1.95, 0.825);
-neonRed.position.set(-5.4, 2.0, 2.55); neonRed.lookAt(0, 2.0, 2.55); scene.add(neonRed);
+neonRed.position.set(-5.4, 2.0, 2.55); neonRed.lookAt(0, 2.0, 2.55); scene.add(neonRed); dimReg("neon", neonRed);
 const neonPurple = new THREE.RectAreaLight("#b040ff", 2.6, 1.0, 1.0);
-neonPurple.position.set(-2.45, 1.65, -5.83); neonPurple.lookAt(-2.45, 1.65, 0); scene.add(neonPurple);
+neonPurple.position.set(-2.45, 1.65, -5.83); neonPurple.lookAt(-2.45, 1.65, 0); scene.add(neonPurple); dimReg("neon", neonPurple);
 const NEON = { red: null, purple: null };
 // low kickers at wheel height so rims and lower body keep their detail
-for (const x of [-3.2, 3.2]) { const k = new THREE.PointLight("#dfe6f0", 3.2, 5.5, 1.3); k.position.set(x * 0.85, 0.45, 0.2); scene.add(k); }
+for (const x of [-3.2, 3.2]) { const k = new THREE.PointLight("#dfe6f0", 3.2, 5.5, 1.3); k.position.set(x * 0.85, 0.45, 0.2); scene.add(k); dimReg("fill", k); }
 
 // volumetric shaft: window rectangle swept along the sun direction down to the floor
 const shaftMat = new THREE.ShaderMaterial({
@@ -809,14 +889,14 @@ function prepMaterials(root, kind) {      // kind: car | wheel | env
     if (kind === "env" && name.startsWith("EMIT_neon")) {
       const mat = new THREE.MeshBasicMaterial({ map, transparent: true, blending: THREE.AdditiveBlending,
         depthWrite: false, side: THREE.DoubleSide, fog: false });
-      mat.color.setScalar(2.4);
+      mat.color.setScalar(2.4); dimReg("neon", mat);
       if (name.endsWith("red")) NEON.red = mat; else NEON.purple = mat;
       o.material = mat; o.castShadow = false; o.receiveShadow = false;
       return;
     }
     if (kind === "env" && name === "EMIT_work") {
       o.material = new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide, fog: false });
-      o.material.color.setScalar(3.5); o.castShadow = false;
+      o.material.color.setScalar(3.5); o.castShadow = false; dimReg("work", o.material);
       return;
     }
     if (kind === "env" && name.startsWith("EMIT_")) {
@@ -911,6 +991,7 @@ async function init() {
   const room = await load("assets/env/garage.json");
   prepMaterials(room, "env");
   scene.add(room); GARAGE_OBJS.push(room);
+  for (const g in LV) LV[g] = 1; dimApply();   // reflections are captured with every light on
   // reflections: capture the lit garage once into a prefiltered env map (from car height)
   const pmrem = new THREE.PMREMGenerator(renderer);
   room.position.y = -0.8;
@@ -918,8 +999,8 @@ async function init() {
   room.position.y = 0;
   Object.assign(window.__garage, { pmrem, garageEnv: scene.environment });
   carRoot.rotation.y = Math.PI;                 // nose toward the open side of the bay
-  await selectCar(state.car);
   $("loading").hidden = true;
+  enterIntro();
 }
 
 async function setSlot(stockNames, file) {
@@ -1046,6 +1127,93 @@ function updateSpec() {
     + `<span>Dấu <b>~</b> là số ước lượng hoặc suy từ mô phỏng.</span><span>${GDB.disclaimer}</span>`;
 }
 
+// ---- intro: empty garage -> pick a car (lights flicker on in turn) -> Ớt asks the budget ----------
+const SEQ = [];                       // { g, t0, steps: [[duration, level], ...], end }
+// fluorescent / neon start-up: a few uneven blinks, then steady
+function flicker(g, delay, end = 1) {
+  const r = () => 0.6 + Math.random() * 0.8, steps = [];
+  for (const [d, l] of [[0.05, 0.9], [0.11, 0], [0.04, 0.7], [0.24, 0.05], [0.06, 1], [0.09, 0.15], [0.14, 0.55], [0.05, 0]]) steps.push([d * r(), l * end]);
+  SEQ.push({ g, t0: performance.now() / 1000 + delay, steps, end });
+}
+function fade(g, delay, end, dur = 0.8) { SEQ.push({ g, t0: performance.now() / 1000 + delay, fade: dur, from: LV[g], end }); }
+function stepLights(now) {
+  for (let i = SEQ.length - 1; i >= 0; i--) {
+    const q = SEQ[i], t = now - q.t0;
+    if (t < 0) continue;
+    if (reduce) { LV[q.g] = q.end; SEQ.splice(i, 1); continue; }
+    if (q.fade) { const k = Math.min(1, t / q.fade); LV[q.g] = q.from + (q.end - q.from) * k; if (k >= 1) SEQ.splice(i, 1); continue; }
+    let acc = 0, lvl = q.end;
+    for (const [d, l] of q.steps) { acc += d; if (t < acc) { lvl = l; break; } }
+    LV[q.g] = lvl; if (t >= acc) SEQ.splice(i, 1);
+  }
+  dimApply();
+}
+const wait = s => new Promise(r => setTimeout(r, reduce ? 0 : s * 1000));
+function enterIntro() {
+  document.body.classList.add("intro");
+  carRoot.visible = false;
+  Object.assign(LV, { amb: 0.45, neon: 0, tube0: 0, tube1: 0, key: 0, work: 0, fill: 0.15 }); dimApply();
+  flicker("neon", 0.6);
+  $("intro").hidden = false;
+  const first = $("introCars").querySelector("button"); if (first) first.focus({ preventScroll: true });
+}
+async function pickFromIntro(k) {
+  $("intro").hidden = true;
+  document.body.classList.replace("intro", "asking");
+  flicker("tube0", 0.15); flicker("tube1", 0.75); fade("amb", 0.3, 1, 1.2);
+  const loaded = selectCar(k);
+  await Promise.all([loaded, wait(1.3)]);
+  flicker("key", 0); await wait(0.12); carRoot.visible = true;          // the key light reveals the car
+  flicker("work", 0.5); fade("fill", 0.6, 1, 1.0);
+  await wait(1.4);
+  openBudget();
+}
+for (const [bk, bt] of Object.entries(GDB.bodyTypes)) {
+  const list = Object.entries(CARS).filter(([, c]) => c.body === bk);
+  if (!list.length) continue;
+  const grp = document.createElement("div"); grp.className = "bodygrp";
+  grp.innerHTML = `<span>${bt.label}</span>`;
+  for (const [k] of list) {
+    const c = GDB.cars[k], b = document.createElement("button");
+    b.type = "button"; b.className = "carbtn";
+    b.innerHTML = `<b>${c.name}</b><small>${c.years} · ${c.engine.hp} hp · ${c.trans.toUpperCase()}</small>`;
+    b.addEventListener("click", () => pickFromIntro(k));
+    grp.append(b);
+  }
+  $("introCars").append(grp);
+}
+// budget card
+const goals = new Set();
+const money = v => `${v} triệu`;
+$("budgetIn").addEventListener("input", e => { $("budgetVal").textContent = money(+e.target.value); });
+document.querySelectorAll("#goals [data-goal]").forEach(b => b.addEventListener("click", () => {
+  const g = b.dataset.goal; goals.has(g) ? goals.delete(g) : goals.add(g);
+  b.setAttribute("aria-pressed", goals.has(g)); $("budgetGo").disabled = !goals.size;
+}));
+function openBudget() {
+  document.body.classList.add("asking");
+  $("budgetMsg").textContent = "Ớt tính theo giá cao của từng món nên không vượt ngân sách. Chưa gồm công thợ.";
+  $("budget").hidden = false; $("budgetIn").focus({ preventScroll: true });
+}
+function closeBudget() { $("budget").hidden = true; document.body.classList.remove("asking"); }
+$("budgetSkip").addEventListener("click", closeBudget);
+$("askBtn").addEventListener("click", openBudget);
+let toastT = 0;
+function toast(html) { $("toast").innerHTML = html; $("toast").hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { $("toast").hidden = true; }, 5000); }
+$("budgetGo").addEventListener("click", async () => {
+  const P = window.__perf, budget = +$("budgetIn").value, g = Object.fromEntries([...goals].map(x => [x, 1]));
+  $("budgetGo").disabled = true; $("budgetMsg").textContent = "Ớt đang tính…";
+  await new Promise(r => setTimeout(r, 30));
+  const r = P.plan(budget, g);
+  const extCount = Object.entries(r.ext).filter(([, v]) => v !== "stock" && v !== "none").length, n = r.keys.length + extCount;
+  $("budgetGo").disabled = false;
+  if (!n) { $("budgetMsg").textContent = `Với ${money(budget)} Ớt chưa lên được món nào đáng tiền cho mục này. Anh em nâng ngân sách lên chút thử?`; return; }
+  await P.applyBuild(r.keys, r.ext);
+  closeBudget();
+  document.querySelector('.tabs [data-tab="perf"]').click();
+  toast(`Ớt lên <b>${n} món</b>, tạm tính <b>${r.price[0]}–${r.price[1]} triệu</b>. Anh em bật tắt từng món ở dưới.`);
+});
+
 // ---- loop ---------------------------------------------------------------------------------
 function resize() {
   const w = bay.clientWidth, h = bay.clientHeight;
@@ -1064,11 +1232,10 @@ renderer.setAnimationLoop(() => {
   if ($("tSpin").checked && roomMode === "garage") carRoot.rotation.y += dt * 0.25;
   if (roomMode === "garage") stepDust(reduce ? 0 : Math.min(dt, 0.05), t);
   HOOKS.frame.forEach(f => f(reduce ? 0 : Math.min(dt, 0.05), t));
+  stepLights(performance.now() / 1000);
   // neon: steady, with a rare stutter on the red sign like an ageing transformer
-  if (NEON.red && roomMode === "garage") {
-    const stutter = !reduce && (Math.sin(t * 0.7) > 0.985) && Math.random() < 0.5;
-    const k = stutter ? 0.25 : 1;
-    NEON.red.color.setScalar(2.4 * k); neonRed.intensity = 2.6 * k;
+  if (NEON.red && roomMode === "garage" && !reduce && Math.sin(t * 0.7) > 0.985 && Math.random() < 0.5) {
+    NEON.red.color.multiplyScalar(0.25); neonRed.intensity *= 0.25;
   }
   grade.uniforms.uTime.value = t;
   controls.update();

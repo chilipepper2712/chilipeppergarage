@@ -398,5 +398,13 @@ document.querySelector("aside").addEventListener("click", e => {
 $("lower").addEventListener("input", () => { if (sel.has("coilover")) { stats(); renderCompare(); } });
 addEventListener("resize", () => { if (cmpMode === "radar") renderCompare(); });
 refresh();
+// Ớt lên đồ: budget + goals -> a build; applyBuild puts it on the car like a preset would
+function applyBuild(keys, extOver) {
+  sel = new Set(keys.filter(key => M.allowed(mod(key), car())));
+  Object.assign(G.state, extOver);
+  return G.apply().then(() => { preset = null; refresh(); });
+}
 window.__perf = { cars: CARS, current: () => current(), stock: () => stockOf(G.state.car),
-  variant: over => M.resolve(car(), [...sel], tier, { ...ext(), ...over }, CAT) };
+  variant: over => M.resolve(car(), [...sel], tier, { ...ext(), ...over }, CAT),
+  plan: (budget, goals) => GaragePlanner.plan(car(), CAT, budget, goals, tier),
+  applyBuild, label: key => mod(key).label };
