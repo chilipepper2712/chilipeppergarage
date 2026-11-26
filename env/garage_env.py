@@ -132,6 +132,14 @@ def t_pegboard():
     return img
 
 
+def t_pegwhite():
+    """white painted pegboard: 25 mm hole pitch at 64 px/m -> a hole every 2 px would alias; 4 px (~6 cm)"""
+    n = 64; yy, xx = np.mgrid[0:n, 0:n]
+    img = shade(["#b9bcbf", "#cdd0d2", "#dcdfe1"], 0.6 + noise(n, .08))
+    img[(xx % 4 == 1) & (yy % 4 == 1)] = hx("#55595e")
+    return img
+
+
 def t_simple(ramp, stripe=None, stripe_col=None, rows=False):
     n = 64; yy, xx = np.mgrid[0:n, 0:n]
     img = shade(ramp, 0.55 + noise(n, .16) - blobs(n, 2, 12, .1))
@@ -222,7 +230,7 @@ def t_epoxy():
 TEXTURES = {
     "floor": t_floor, "brick": t_brick, "plaster": t_plaster, "plaster_low": lambda: t_plaster(True),
     "wood": t_wood, "beam": lambda: t_wood(True), "roof": t_metal_roof, "steel": t_steel,
-    "window": t_window, "pegboard": t_pegboard, "grate": t_grate, "puddle": t_puddle,
+    "window": t_window, "pegboard": t_pegboard, "pegwhite": t_pegwhite, "grate": t_grate, "puddle": t_puddle,
     "cardboard": lambda: t_simple(["#5d452c", "#765838", "#8f6c46"], (28, 33), ["#b8a77f", "#cfc09a"]),
     "barrel_o": lambda: t_simple(["#7a350c", "#a54d15", "#cc6b22", "#e08a3c"], (20, 34), ["#1c2a40", "#284062", "#35557f"]),
     "barrel_b": lambda: t_simple(["#16233a", "#223656", "#2e4a74"], (24, 32), ["#a54d15", "#cc6b22"]),
@@ -401,8 +409,17 @@ def build():
     B.cyl("red", (2.8, 5.55, 0), .16, 1.1, 8)                         # gas bottle
     B.cyl("steel", (2.8, 5.55, 1.1), .05, .12, 6)
 
-    # right side: steel shelving with boxes, buckets, tyres, ladder, barrels
-    for y0 in (-1.2, 1.0):
+    # right side: the mod wall (white pegboard in a steel frame) where picked parts hang, then one steel
+    # shelf (boxed parts), buckets, tyres, ladder, barrels. Board spans y 0.95..3.25, z 0.55..2.65.
+    PB = (W - .02, 0.95, 3.25, 0.55, 2.65)               # x, y0, y1, z0, z1 (anchors -> viewer)
+    B.quad("pegwhite", [(PB[0], PB[1], PB[3]), (PB[0], PB[1], PB[4]), (PB[0], PB[2], PB[4]), (PB[0], PB[2], PB[3])])
+    for (a, b) in (((PB[1] - .05, PB[3] - .05), (PB[2] + .05, PB[3])), ((PB[1] - .05, PB[4]), (PB[2] + .05, PB[4] + .05)),
+                   ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
+        B.box("steel", (W - .06, a[0], a[1]), (W, b[0], b[1]))
+    B.box("EMIT_strip", (W - .25, PB[1], PB[4] + .12), (W - .19, PB[2], PB[4] + .15))     # light bar over the board
+    B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0),
+             "boxshelf": (W - .43, -0.15, 2.14)}           # top of the kept shelf, where boxed parts stand
+    for y0 in (-1.2,):
         for x in (W - .7, W - .1):
             for y in (y0, y0 + 2.0):
                 B.box("steel", (x - .05, y, 0), (x, y + .05, 2.6))
@@ -412,7 +429,7 @@ def build():
             for j in range(2):
                 yb = y0 + .15 + j * .95 + (k % 2) * .2
                 B.box("cardboard", (W - .68, yb, z), (W - .15, yb + .6, z + .42 - .08 * j))
-    for i, y in enumerate((-1.0, -0.55, 1.2)):
+    for i, y in enumerate((-1.0, -0.55)):
         B.cyl("bucket", (W - .4, y, .19), .16, .3, 8)
     for i in range(4):
         B.cyl("rubber", (W - .5, -2.3, .02 + i * .2), .3, .19, 10)
@@ -533,7 +550,7 @@ def main():
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "garage.blend"))
     print("verts", sum(stats.values()), stats)
     import json
-    anchors = {k: [round(c, 3) for c in v] for k, v in B.lamps.items()}
+    anchors = {k: [round(c, 3) for c in v] for k, v in {**B.lamps, **B.peg}.items()}
     anchors.update({f"sign_{k}": [round(c, 3) for c in v[0]] for k, v in B.signs.items()})
     json.dump(anchors, open(os.path.join(OUT, "anchors.json"), "w"), indent=1)
     print("anchors (blender xyz)", anchors)

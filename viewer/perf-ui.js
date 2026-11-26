@@ -407,4 +407,9 @@ function applyBuild(keys, extOver) {
 window.__perf = { cars: CARS, current: () => current(), stock: () => stockOf(G.state.car),
   variant: over => M.resolve(car(), [...sel], tier, { ...ext(), ...over }, CAT),
   plan: (budget, goals) => GaragePlanner.plan(car(), CAT, budget, goals, tier),
-  applyBuild, label: key => mod(key).label };
+  applyBuild, label: key => mod(key).label,
+  // pegboard wall: what is picked, and how to describe / drop one item
+  selected: () => [...sel],
+  info: key => { const m = mod(key), t = M.tierOf(m, tier), lv = t.dk || m.dk; return { label: m.label, brand: t.brand, price: fr(t.price), dk: lv, dkText: CAT.dk[lv] }; },
+  bodyPrice: (slot, opt) => fr(CAT.body[slot][opt].price),
+  drop: key => toggle(key, false) };

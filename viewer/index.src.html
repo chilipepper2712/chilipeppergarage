@@ -262,6 +262,16 @@ button.run:disabled { opacity: .45; cursor: not-allowed; }
 .pickrow { display: flex; gap: 6px; pointer-events: auto; }
 .pickbtn.alt { background: rgba(22,24,29,.9); color: var(--accent); border: 1px solid var(--accent); }
 @media (max-width: 760px) { .intro-cars { grid-template-columns: 1fr 1fr; } #budget { right: 50%; transform: translate(50%, -50%); } }
+/* pegboard wall: view toggle + part card */
+.viewbtn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-bottom: 6px; background: rgba(22,24,29,.9); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; font: 400 11px var(--font-display); letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.viewbtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+#wallTip { position: absolute; z-index: 8; display: grid; gap: 3px; min-width: 180px; max-width: 240px; background: rgba(22,24,29,.96);
+  border: 1px solid var(--accent); border-radius: 3px; padding: 9px 11px; font-size: 12px; pointer-events: auto; }
+#wallTip b { font: 600 13px var(--font-body); }
+#wallTip span { color: var(--muted); font: 11px var(--font-data); }
+#wallTip .dk-pass { color: #8fd18f; } #wallTip .dk-warn { color: #e3b341; } #wallTip .dk-risk { color: #e98a7a; }
+#wallTip button { margin-top: 6px; padding: 7px 10px; }
 #rooms button { display: inline-flex; align-items: center; gap: 7px; }
 .flag-legend .ic, .qbtn .ic { width: 14px; height: 14px; }
 </style>
@@ -777,7 +787,7 @@ const grade = new ShaderPass({
       gl_FragColor=vec4(c,1.); }`,
 });
 composer.addPass(grade);
-Object.assign(window.__garage, { renderer, bloom, grade, GARAGE_OBJS, HOOKS, getRoom: () => roomMode, setRoomMode: m => { roomMode = m; } });
+Object.assign(window.__garage, { renderer, bloom, grade, GARAGE_OBJS, HOOKS, dimReg: (g, o) => dimReg(g, o), controlsRef: () => controls, getRoom: () => roomMode, setRoomMode: m => { roomMode = m; } });
 
 // ---- loading & materials ----------------------------------------------------------
 const loader = new GLTFLoader();
@@ -947,6 +957,7 @@ const body = new THREE.Group(); carRoot.add(body);
 const wheelGroup = new THREE.Group(); carRoot.add(wheelGroup);
 Object.assign(window.__garage, { carRoot, body, wheelGroup, load: k => load(k), prepMaterials });
 let stock = {}, sockets = {}, swapped = {};
+const CAR_KIT = false;
 const cache = {}, carCache = {};
 const carMats = pred => { const out = new Set(); carRoot.traverse(o => { if (o.isMesh && pred(o.material)) out.add(o.material); }); return out; };
 
@@ -1014,11 +1025,15 @@ async function setSlot(stockNames, file) {
 }
 
 async function apply() {
-  await setSlot(["bumper_F"], state.bumper_F === "stock" ? null : `{n}_${state.bumper_F}`);
-  await setSlot(["bumper_R"], state.bumper_R === "stock" ? null : `{n}_${state.bumper_R}`);
-  await setSlot(["skirt_L", "skirt_R"], state.skirt === "stock" ? null : `{n}_${state.skirt}`);
-  if (swapped.spoiler) { body.remove(swapped.spoiler); delete swapped.spoiler; }
-  if (state.spoiler !== "none") { const s = (await part(`spoiler_${state.spoiler}`)).clone(true); body.add(s); swapped.spoiler = s; }
+  // body kit hangs on the pegboard wall (viewer/wall.js); the car itself keeps wheels, ride height, paint.
+  // CAR_KIT = true puts the fitted per-model parts back on the car.
+  if (CAR_KIT) {
+    await setSlot(["bumper_F"], state.bumper_F === "stock" ? null : `{n}_${state.bumper_F}`);
+    await setSlot(["bumper_R"], state.bumper_R === "stock" ? null : `{n}_${state.bumper_R}`);
+    await setSlot(["skirt_L", "skirt_R"], state.skirt === "stock" ? null : `{n}_${state.skirt}`);
+    if (swapped.spoiler) { body.remove(swapped.spoiler); delete swapped.spoiler; }
+    if (state.spoiler !== "none") { const s = (await part(`spoiler_${state.spoiler}`)).clone(true); body.add(s); swapped.spoiler = s; }
+  }
   wheelGroup.clear();
   const proto = await part(`wheel_${state.wheel}`, "wheel");
   const cs = CARS[state.car];
