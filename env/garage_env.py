@@ -409,29 +409,22 @@ def build():
     B.cyl("red", (2.8, 5.55, 0), .16, 1.1, 8)                         # gas bottle
     B.cyl("steel", (2.8, 5.55, 1.1), .05, .12, 6)
 
-    # right side: the mod wall. A long white pegboard in a steel frame replaces the two shelves; it stays
-    # below the window band (z 2.4) so the daylight still comes in. A low steel shelf runs under it for
-    # boxed parts and tyres. Board spans y -1.25..3.25, z 0.6..2.3.
-    PB = (W - .02, -1.25, 3.25, 0.6, 2.3)                # x, y0, y1, z0, z1 (anchors -> viewer)
+    # right side: the mod wall. One long white pegboard (no seams) centred under the window band
+    # (window y -3.4..1.6, z 2.4..4.1) so the daylight still comes in; ladder and the tyre stack moved to
+    # the far end. Board spans y -3.6..1.8, z 0.3..2.34.
+    PB = (W - .02, -3.6, 1.8, 0.3, 2.34)                 # x, y0, y1, z0, z1 (anchors -> viewer)
     B.quad("pegwhite", [(PB[0], PB[1], PB[3]), (PB[0], PB[1], PB[4]), (PB[0], PB[2], PB[4]), (PB[0], PB[2], PB[3])])
     for (lo, hi) in (((PB[1] - .05, PB[3] - .05), (PB[2] + .05, PB[3])), ((PB[1] - .05, PB[4]), (PB[2] + .05, PB[4] + .05)),
                      ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
         B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
-    B.box("steel", (W - .06, (PB[1] + PB[2]) / 2 - .025, PB[3]), (W, (PB[1] + PB[2]) / 2 + .025, PB[4]))   # centre stile
-    # low shelf under the board
-    B.box("steel", (W - .45, PB[1], .40), (W - .02, PB[2], .44))
-    for y in (PB[1] + .05, (PB[1] + PB[2]) / 2, PB[2] - .1):
-        for x in (W - .43, W - .08):
-            B.box("steel", (x, y, 0), (x + .04, y + .04, .40))
-    B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0),
-             "lowshelf": (W - .02, (PB[1] + PB[2]) / 2, .44)}
-    for i in range(4):
-        B.cyl("rubber", (W - .5, -2.3, .02 + i * .2), .3, .19, 10)
-    for y in (-1.95, -1.5):                                          # ladder leaning on the wall by the board
+    B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0)}
+    for i in range(4):                                               # tyre stack and ladder past the board's far end
+        B.cyl("rubber", (W - .5, 2.45, .02 + i * .2), .3, .19, 10)
+    for y in (2.95, 3.4):
         B.beam("ladder", (W - .62, y, 0), (W - .08, y, 2.35), .05, .06)
     for k in range(7):
         z = .3 + k * .3; x = W - .62 + .54 * z / 2.35
-        B.beam("ladder", (x, -1.95, z), (x, -1.5, z), .03)
+        B.beam("ladder", (x, 2.95, z), (x, 3.4, z), .03)
     B.cyl("barrel_o", (W - .6, -5.0, 0), .3, .9, 10)
     B.cyl("barrel_b", (W - 1.3, -5.5, 0), .3, .9, 10)
     B.cyl("barrel_b", (-W + .6, 1.2, 0), .3, .9, 10)

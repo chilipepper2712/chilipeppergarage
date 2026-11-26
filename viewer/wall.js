@@ -10,12 +10,12 @@ const FLAG = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // anchors from env/anchors.json (Blender xyz -> three: x, z, -y)
-const BOARD = { x: 5.46, y0: 0.6, y1: 2.3, z0: 1.25, z1: -3.25 };         // board plane, world (three) coords
-const SHELF = { x: 5.46, y: 0.44 };                                       // low shelf under the board
+const BOARD = { x: 5.46, y0: 0.3, y1: 2.34, z0: 3.6, z1: -1.8 };          // board plane, world (three) coords
+const ITEM = 1.2;                                                          // parts drawn 20% larger again for readability
 const ROWS = [                                                             // board rows, top to bottom
-  { y: 2.13, keys: ["body_spoiler_gt_wing", "body_spoiler_roof_ext", "body_bumper_F_lip", "body_bumper_F_sport", "body_bumper_R_diffuser", "body_skirt_skirt"] },
-  { y: 1.55, keys: ["coilover", "springs", "comfortshock", "strutbar", "swaybar", "brakes", "rollcage"] },
-  { y: 0.98, keys: ["intake", "turbokit", "axleback", "catback", "shortshift", "lightweight"] },
+  { y: 2.04, keys: ["body_spoiler_gt_wing", "body_spoiler_roof_ext", "body_bumper_F_lip", "body_bumper_F_sport", "body_bumper_R_diffuser", "body_skirt_skirt"] },
+  { y: 1.38, keys: ["coilover", "springs", "comfortshock", "strutbar", "swaybar", "brakes", "rollcage"] },
+  { y: 0.72, keys: ["intake", "turbokit", "axleback", "catback", "shortshift", "lightweight"] },
 ];
 const FLOOR = ["perftire", "semislick", "dragradial", "comforttire"];
 const SHELFK = ["remap", "pedalbox", "soundproof", "bushings"];
@@ -32,8 +32,8 @@ const protos = {};
 let ready = false;
 
 // a soft light washing the board (on the work-light dimmer, so it comes on with the intro sequence)
-const wash = new THREE.SpotLight("#f2f4f8", 7, 7, 0.95, 0.6, 1.4);
-wash.position.set(3.3, 3.3, -1.0); wash.target.position.set(BOARD.x, 1.45, -1.0);
+const wash = new THREE.SpotLight("#f2f4f8", 8, 8, 1.05, 0.6, 1.4);
+wash.position.set(3.1, 3.4, 0.9); wash.target.position.set(BOARD.x, 1.3, 0.9);
 G.scene.add(wash, wash.target); G.GARAGE_OBJS.push(wash); G.dimReg("work", wash);
 
 G.load("env/wall_items").then(g => {
@@ -57,19 +57,19 @@ function layout(keys) {
   for (const row of ROWS) {
     const ks = row.keys.filter(k => keys.includes(k));
     if (!ks.length) continue;
-    const ws = ks.map(k => protos[k].userData.w), gap = 0.1;
+    const ws = ks.map(k => protos[k].userData.w * ITEM), gap = 0.12;
     const total = ws.reduce((a, b) => a + b, 0) + gap * (ks.length - 1);
-    const s = Math.min(1, width / total);
+    const s = Math.min(1, width / total) * ITEM;
     let z = mid + (total * s) / 2;                                   // board runs toward -z
     ks.forEach((k, i) => {
-      const w = ws[i] * s; z -= w / 2;
+      const w = ws[i] * s / ITEM; z -= w / 2;
       pos[k] = { p: new THREE.Vector3(BOARD.x, row.y, z), s, mount: "wall" };
-      z -= w / 2 + gap * s;
+      z -= w / 2 + gap * s / ITEM;
     });
   }
-  // low shelf: boxes from the left end, the tyre at the right end
-  SHELFK.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(SHELF.x, SHELF.y, BOARD.z0 - 0.45 - i * 0.48), s: 1, mount: "shelf" }; });
-  FLOOR.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(SHELF.x, SHELF.y, BOARD.z1 + 0.45 + i * 0.42), s: 1, mount: "floor" }; });
+  // on the floor along the foot of the board: boxes from the near end, the tyre at the far end
+  SHELFK.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(BOARD.x, 0, BOARD.z0 - 0.5 - i * 0.56), s: ITEM, mount: "shelf" }; });
+  FLOOR.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(BOARD.x, 0, BOARD.z1 + 0.55 + i * 0.5), s: ITEM, mount: "floor" }; });
   return pos;
 }
 
