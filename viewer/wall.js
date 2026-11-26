@@ -136,9 +136,9 @@ function show(k, x, y, pin) {
   const d = describe(k), bay = $("bay").getBoundingClientRect();
   const flag = d.dk ? `<i class="dk-${d.lv}" title="${d.dk}" aria-label="${d.dk}">${FLAG}</i>` : "";
   tip.innerHTML = `<b>${flag}${d.name}</b><span>${d.sub}</span>`
-    + (pin ? `<button type="button" class="ghost" id="wallDrop">Gỡ món này</button>` : "");
+    + (pin ? `<button type="button" class="trash" id="wallDrop" aria-label="Gỡ món này" title="Gỡ món này">${IC("trash")}</button>` : "");
   tip.hidden = false;
-  tip.style.left = Math.min(bay.width - 250, Math.max(8, x - bay.left + 14)) + "px";
+  tip.style.left = Math.min(bay.width - 215, Math.max(8, x - bay.left + 14)) + "px";
   tip.style.top = Math.max(8, y - bay.top - 10) + "px";
   if (pin) $("wallDrop").addEventListener("click", e => {
     e.stopPropagation();
@@ -159,4 +159,4 @@ canvas.addEventListener("pointerup", ev => {
   const k = pick(ev);
   if (k) { pinned = k; show(k, ev.clientX, ev.clientY, true); } else { pinned = null; tip.hidden = true; }
 });
-window.__wall = { hung, root, wanted, ready: () => ready };
+window.__wall = { hung, root, wanted, ready: () => ready, unpin: () => { pinned = null; tip.hidden = true; } };

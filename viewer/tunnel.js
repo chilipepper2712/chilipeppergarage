@@ -345,7 +345,9 @@ function render() {
 }
 
 // ---- wiring ---------------------------------------------------------------------------------------
-document.querySelectorAll("#rooms [data-room]").forEach(b => b.addEventListener("click", () => setRoom(b.dataset.room)));
+// only the tunnel button is handled here; Xưởng / Phụ tùng độ / Dyno live in views.js, which calls back into setRoom
+document.querySelector('#rooms [data-room="tunnel"]').addEventListener("click", () => setRoom("tunnel"));
+window.__tunnel = { setRoom };
 $("wind").addEventListener("input", e => { wind = +e.target.value; lineMat.uniforms.uWind.value = wind / 100; render(); });
 $("tDark").addEventListener("change", e => { darkMode = e.target.checked; applyDark(); });
 $("tSmoke").addEventListener("change", e => { smokeOn = e.target.checked; if (smoke) smoke.visible = smokeOn; });

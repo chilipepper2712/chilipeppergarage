@@ -140,6 +140,23 @@ def t_pegwhite():
     return img
 
 
+def t_dynoplate():
+    """blue powder-coated diamond plate"""
+    n = 64; yy, xx = np.mgrid[0:n, 0:n]
+    img = shade(["#1a3a9e", "#2149bf", "#2b58d6"], 0.6 + noise(n, .06))
+    a = ((xx + yy) % 8 < 2) & ((yy // 4) % 2 == 0); b = ((xx - yy) % 8 < 2) & ((yy // 4) % 2 == 1)
+    img[a | b] = hx("#4f7cf0")
+    return img
+
+
+def t_hazard():
+    """yellow / black diagonal safety stripes"""
+    n = 64; yy, xx = np.mgrid[0:n, 0:n]
+    img = shade(["#c99a17", "#e3b52a"], 0.6 + noise(n, .06))
+    img[((xx + yy) // 8) % 2 == 1] = hx("#16161a")
+    return img
+
+
 def t_leather():
     """cognac leather with soft pleat seams"""
     n = 64; yy, xx = np.mgrid[0:n, 0:n]
@@ -266,6 +283,9 @@ TEXTURES = {
     "paper": lambda: t_simple(["#a9a493", "#c4bfad", "#dcd7c6"]),
     "EMIT_lamp": lambda: t_emit("#fff1c4"), "EMIT_strip": lambda: t_emit("#ffd994"),
     "EMIT_window": t_window,
+    "dynoplate": t_dynoplate, "dynoblue": lambda: t_simple(["#1b3fb0", "#2350d0", "#2f62e8"]), "hazard": t_hazard,
+    "console": lambda: t_simple(["#8d9298", "#a7acb2", "#bfc3c8"]),
+    "EMIT_dynoA": lambda: t_emit("#0c1a2a"), "EMIT_dynoB": lambda: t_emit("#0c1a2a"),
     "leather": t_leather, "crate": t_crate, "wiremesh": t_wiremesh,
     "blacksteel": lambda: t_simple(["#141416", "#1c1c20", "#26262b"]),
     "yellow": t_yellow, "epoxy": t_epoxy, "neon_back": lambda: t_simple(["#121214", "#18181b", "#1f1f23"]),
@@ -445,6 +465,39 @@ def build():
                      ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
         B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
     B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0)}
+    # ---- dyno cell, front-left under the red neon (reference: chassis dyno with blue diamond-plate deck)
+    # car drives on nose toward the open side; front axle over the rollers at y = DYNO_ROLL
+    DX, DROLL = -3.4, -5.0
+    B.box("dynoplate", (DX - 1.35, -6.7, 0), (DX + 1.35, -1.3, .03))
+    B.box("rubber", (DX - 1.0, DROLL - .3, .03), (DX + 1.0, DROLL + .3, .032))             # roller pit
+    for dy in (-.17, .17):
+        B.cyl("red", (DX - .95, DROLL + dy, .04), .085, 1.9, 10, axis="x")
+    for x0 in (DX - 1.35, DX + .85):                                                      # wheel-guard blocks
+        for y0, y1 in ((DROLL - .6, DROLL + .6), (-2.3, -1.4)):
+            B.box("dynoblue", (x0, y0, .03), (x0 + .5, y1, .3))
+            B.box("hazard", (x0 - .005, y0 - .005, .3), (x0 + .505, y1 + .005, .38))
+            B.box("grate", (x0 + .05, y0 + .05, .381), (x0 + .45, y1 - .05, .385))
+    B.box("rubber", (DX - .9, -1.3, 0), (DX + .9, -.75, .02))                             # drive-on ramp
+    # blower fan in front of the nose
+    B.box("dynoblue", (DX - .55, -7.0 + .25, .12), (DX + .55, -6.75 + .25, 1.05))
+    B.box("grate", (DX - .45, -6.76 + .25, .2), (DX + .45, -6.74 + .25, .95))
+    B.box("dynoblue", (DX - .3, -7.0, .12), (DX + .3, -6.75, .9))
+    for x in (DX - .45, DX + .45):
+        B.cyl("rubber", (x, -6.85, .06), .06, .05, 8, axis="x")
+    # control console on the bay side, screen facing the car
+    cx, cy = DX + 1.9, -5.4
+    B.box("console", (cx - .3, cy - .35, 0), (cx + .3, cy + .35, 1.1))
+    B.box("console", (cx - .38, cy - .4, .9), (cx + .05, cy + .4, .95))                   # keyboard shelf
+    B.box("steel", (cx + .1, cy - .02, 1.1), (cx + .14, cy + .02, 1.3))
+    B.box("blacksteel", (cx - .02, cy - .33, 1.28), (cx + .1, cy + .33, 1.72))
+    B.quad_uv("EMIT_dynoA", [(cx - .03, cy + .3, 1.31), (cx - .03, cy - .3, 1.31), (cx - .03, cy - .3, 1.69), (cx - .03, cy + .3, 1.69)],
+              [(0, 0), (1, 0), (1, 1), (0, 1)])
+    # wall monitor over the cell
+    B.box("blacksteel", (-W, DROLL + .6, 1.5), (-W + .06, DROLL + 1.6, 2.1))
+    B.quad_uv("EMIT_dynoB", [(-W + .07, DROLL + .65, 1.54), (-W + .07, DROLL + 1.55, 1.54), (-W + .07, DROLL + 1.55, 2.06), (-W + .07, DROLL + .65, 2.06)],
+              [(0, 0), (1, 0), (1, 1), (0, 1)])
+    B.peg["dyno"] = (DX, DROLL, 0.03)
+
     # lounge in front of the board: a soda-crate table with a wooden top, two black wire-mesh side chairs
     # soda-crate table: red crate on four tapered wooden legs, wooden top
     tx, ty = W - 1.5, -0.9
@@ -475,9 +528,8 @@ def build():
     B.cyl("barrel_o", (W - .6, -5.0, 0), .3, .9, 10)
     B.cyl("barrel_b", (W - 1.3, -5.5, 0), .3, .9, 10)
     B.cyl("barrel_b", (-W + .6, 1.2, 0), .3, .9, 10)
-    B.cyl("bucket", (-W + .5, -4.6, 0), .18, .32, 8)
     B.cyl("red", (W - 2.0, -2.8, 0), .12, .35, 6)                     # red jerrycan-ish
-    for x, y, a in ((-3.6, -3.2, .3), (-2.8, -3.6, -.2), (3.2, 3.6, .1)):
+    for x, y, a in ((-0.9, -4.6, .3), (3.2, 3.6, .1)):
         c, s = math.cos(a), math.sin(a)
         pts = [(x + c * dx - s * dy, y + s * dx + c * dy, .005) for dx, dy in ((-.3, -.2), (.3, -.2), (.3, .2), (-.3, .2))]
         B.quad("paper", pts)

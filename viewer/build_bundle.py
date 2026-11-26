@@ -55,5 +55,6 @@ assert out.rstrip().endswith("</script>")
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/perf-ui.js").read_text() + "</script>\n"
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/tunnel.js").read_text() + "</script>\n"
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/wall.js").read_text() + "</script>\n"
+out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/views.js").read_text() + "</script>\n"
 (ROOT / "viewer/index.html").write_text(out)
 print(len(bundle), "assets,", round(len(out) / 1e6, 2), "MB")

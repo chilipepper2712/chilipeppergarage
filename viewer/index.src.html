@@ -266,13 +266,17 @@ button.run:disabled { opacity: .45; cursor: not-allowed; }
 .viewbtn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-bottom: 6px; background: rgba(22,24,29,.9); color: var(--fg);
   border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; font: 400 11px var(--font-display); letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
 .viewbtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-#wallTip { position: absolute; z-index: 8; display: grid; gap: 3px; min-width: 180px; max-width: 240px; background: rgba(22,24,29,.96);
-  border: 1px solid var(--accent); border-radius: 3px; padding: 9px 11px; font-size: 12px; pointer-events: auto; }
-#wallTip b { font: 600 13px var(--font-body); display: flex; align-items: center; gap: 6px; }
+#wallTip { position: absolute; z-index: 8; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; align-items: center;
+  min-width: 150px; max-width: 205px; background: rgba(22,24,29,.96); border: 1px solid var(--accent); border-radius: 3px; padding: 7px 9px; font-size: 10px; pointer-events: auto; }
+#wallTip b { font: 600 11px var(--font-body); display: flex; align-items: center; gap: 5px; grid-column: 1; }
+#wallTip > span { grid-column: 1; }
+#wallTip .trash { grid-column: 2; grid-row: 1 / span 2; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; background: none;
+  border: 1px solid var(--line); border-radius: 3px; color: var(--muted); cursor: pointer; }
+#wallTip .trash:hover, #wallTip .trash:focus-visible { color: #e98a7a; border-color: #e98a7a; }
 #wallTip i { display: inline-flex; }
-#wallTip span { color: var(--muted); font: 11px var(--font-data); }
+#wallTip span { color: var(--muted); font: 9.5px var(--font-data); }
 #wallTip .dk-pass { color: #8fd18f; } #wallTip .dk-warn { color: #e3b341; } #wallTip .dk-risk { color: #e98a7a; }
-#wallTip button { margin-top: 6px; padding: 7px 10px; }
+
 #rooms button { display: inline-flex; align-items: center; gap: 7px; }
 .flag-legend .ic, .qbtn .ic { width: 14px; height: 14px; }
 </style>
@@ -298,7 +302,7 @@ button.run:disabled { opacity: .45; cursor: not-allowed; }
   </div>
   <div class="plate" id="plate">51F-213.13</div>
   <div id="roomBox">
-    <div class="seg big" id="rooms"><button type="button" data-room="garage" aria-pressed="true" title="Xưởng"><i data-ic="wrench"></i>XƯỞNG</button><button type="button" data-room="tunnel" aria-pressed="false" title="Hầm gió"><i data-ic="fan"></i><span class="rl">HẦM GIÓ</span></button></div>
+    <div class="seg big" id="rooms"><button type="button" data-room="garage" aria-pressed="true" title="Xưởng"><i data-ic="wrench"></i>XƯỞNG</button><button type="button" data-room="parts" aria-pressed="false" title="Phụ tùng độ"><i data-ic="grid"></i>PHỤ TÙNG ĐỘ</button><button type="button" data-room="dyno" aria-pressed="false" title="Dyno"><i data-ic="gauge"></i>DYNO</button><button type="button" data-room="tunnel" aria-pressed="false" title="Hầm gió"><i data-ic="fan"></i><span class="rl">HẦM GIÓ</span></button></div>
   </div>
   <details class="more foot" id="footBox">
     <summary><i data-ic="info"></i>Nguồn &amp; lưu ý</summary>
@@ -485,6 +489,7 @@ button.run:disabled { opacity: .45; cursor: not-allowed; }
     square: '<rect x="4.5" y="6.5" width="15" height="11" rx="1"/>',
     smile: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.2a4.6 4.6 0 0 0 7 0M9 9.6h.01M15 9.6h.01"/>',
     spark: '<path d="M12 3.5l2 5.6 5.5 2.4-5.5 2.4-2 5.6-2-5.6-5.5-2.4 5.5-2.4z"/><path d="M19 3.5v3M17.5 5h3"/>',
+    trash: '<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10 11v5.5M14 11v5.5"/>',
     q: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/>',
   };
   const IC = (n, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ""}</svg>`;
