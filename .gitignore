@@ -13,3 +13,6 @@ out/**/*_side.png
 out/**/*_top.png
 out/**/*_bp_check.png
 out/**/builds/
+
+# hand-made body-type models are sources, keep them
+!models/**/*.blend
