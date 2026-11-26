@@ -140,6 +140,31 @@ def t_pegwhite():
     return img
 
 
+def t_leather():
+    """cognac leather with soft pleat seams"""
+    n = 64; yy, xx = np.mgrid[0:n, 0:n]
+    img = shade(["#8e4a18", "#a65a1f", "#b96a26", "#c97a2e"], 0.55 + noise(n, .06))
+    img[(xx % 8 == 0)] = hx("#7d4116")                    # seam: one step darker, every ~12 cm
+    return img
+
+
+def t_crate():
+    """red plastic soda crate: rails with dark bottle openings"""
+    n = 64; yy, xx = np.mgrid[0:n, 0:n]
+    img = shade(["#8f1010", "#b71a17", "#d7271f"], 0.6 + noise(n, .08))
+    hole = ((xx % 8) >= 2) & ((xx % 8) <= 6) & ((yy % 16) >= 5) & ((yy % 16) <= 12)
+    img[hole] = hx("#3a0707")
+    return img
+
+
+def t_wiremesh():
+    """black perforated steel sheet"""
+    n = 64; yy, xx = np.mgrid[0:n, 0:n]
+    img = shade(["#141416", "#1f1f24", "#2b2b31"], 0.55 + noise(n, .1))
+    img[((xx + (yy // 2 % 2)) % 2 == 0) & (yy % 2 == 0)] = hx("#4a4b52")
+    return img
+
+
 def t_simple(ramp, stripe=None, stripe_col=None, rows=False):
     n = 64; yy, xx = np.mgrid[0:n, 0:n]
     img = shade(ramp, 0.55 + noise(n, .16) - blobs(n, 2, 12, .1))
@@ -241,7 +266,8 @@ TEXTURES = {
     "paper": lambda: t_simple(["#a9a493", "#c4bfad", "#dcd7c6"]),
     "EMIT_lamp": lambda: t_emit("#fff1c4"), "EMIT_strip": lambda: t_emit("#ffd994"),
     "EMIT_window": t_window,
-    "leather": lambda: t_simple(["#8a5f12", "#b07c16", "#d29a22"], rows=True),
+    "leather": t_leather, "crate": t_crate, "wiremesh": t_wiremesh,
+    "blacksteel": lambda: t_simple(["#141416", "#1c1c20", "#26262b"]),
     "yellow": t_yellow, "epoxy": t_epoxy, "neon_back": lambda: t_simple(["#121214", "#18181b", "#1f1f23"]),
     "EMIT_work": lambda: t_emit("#fff6e4"),
     "EMIT_neon_red": lambda: neon(["CHILI PEPPER", "GARAGE"], 1.95, 0.825, "#ff2a1f", "#ffd2c4", "#4a0805", 18),
@@ -419,20 +445,39 @@ def build():
                      ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
         B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
     B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0)}
-    # lounge in front of the board: mustard leather sofa against the wall, tyre-stack coffee table
-    sy0, sy1 = -1.9, 0.1
-    B.box("steel", (W - .88, sy0, 0), (W - .06, sy1, .08))                         # plinth
-    B.box("leather", (W - .9, sy0, .08), (W - .06, sy1, .3))                       # base
-    for y0, y1 in ((sy0 + .14, -0.9), (-0.9, sy1 - .14)):                          # two seat cushions
-        B.box("leather", (W - .88, y0 + .01, .3), (W - .3, y1 - .01, .44))
-    B.box("leather", (W - .3, sy0, .3), (W - .06, sy1, .8))                         # back
-    for y0, y1 in ((sy0, sy0 + .14), (sy1 - .14, sy1)):                             # arms
-        B.box("leather", (W - .9, y0, .3), (W - .06, y1, .6))
-    tx, ty = W - 1.75, -0.9
-    for i in range(2):
-        B.cyl("rubber", (tx, ty, .02 + i * .2), .33, .19, 12)
-    B.cyl("steel", (tx, ty, .41), .42, .03, 12)                                     # tabletop
-    B.box("cardboard", (tx - .12, ty - .1, .44), (tx + .1, ty + .08, .47))           # a parts catalogue
+    # lounge in front of the board: a 2-seat sofa made from a car's rear bench on a black square-tube
+    # frame, a soda-crate table with a wooden top, two black wire-mesh side chairs
+    sy0, sy1, sx0 = -1.65, -0.15, W - .78                          # sofa footprint (against the wall)
+    for y in (sy0, sy1 - .04):                                       # side frames: rectangle of square tube
+        B.box("blacksteel", (sx0, y, 0), (sx0 + .04, y + .04, .52))
+        B.box("blacksteel", (W - .12, y, 0), (W - .08, y + .04, .52))
+        B.box("blacksteel", (sx0, y, .48), (W - .08, y + .04, .52))
+        B.box("blacksteel", (sx0, y, .1), (W - .08, y + .04, .14))
+    for x in (sx0 + .1, W - .2):                                     # long rails carrying the bench
+        B.box("blacksteel", (x, sy0, .14), (x + .04, sy1, .18))
+    B.box("leather", (sx0 + .05, sy0 + .06, .18), (W - .2, sy1 - .06, .27))          # seat base, rounded front
+    B.box("leather", (sx0 + .02, sy0 + .06, .27), (W - .22, sy1 - .06, .38))         # seat cushion
+    B.quad("leather", [(W - .3, sy0 + .06, .38), (W - .3, sy1 - .06, .38), (W - .1, sy1 - .06, .9), (W - .1, sy0 + .06, .9)])  # backrest face
+    B.box("leather", (W - .22, sy0 + .06, .36), (W - .1, sy1 - .06, .9))             # backrest body
+    # soda-crate table: red crate on four tapered wooden legs, wooden top
+    tx, ty = W - 1.5, -0.9
+    for dx in (-.17, .17):
+        for dy in (-.24, .24):
+            B.beam("wood", (tx + dx * 1.1, ty + dy * 1.08, 0), (tx + dx, ty + dy, .14), .045)
+    B.box("crate", (tx - .2, ty - .28, .14), (tx + .2, ty + .28, .46))
+    B.box("wood", (tx - .25, ty - .34, .46), (tx + .25, ty + .34, .49))
+    # wire-mesh side chairs facing the table
+    def chair(cx, cy, face):                                         # face = +1 looks toward +y, -1 toward -y
+        f = face
+        for dx in (-.24, .24):
+            B.beam("blacksteel", (cx + dx, cy - f * .24, 0), (cx + dx * .95, cy + f * .02, .38), .02)   # back legs
+            B.beam("blacksteel", (cx + dx, cy + f * .26, 0), (cx + dx * .95, cy + f * .2, .38), .02)    # front legs
+        B.quad("wiremesh", [(cx - .25, cy + f * .24, .4), (cx + .25, cy + f * .24, .4), (cx + .25, cy - f * .14, .36), (cx - .25, cy - f * .14, .36)][::f])
+        B.quad("wiremesh", [(cx - .25, cy - f * .14, .36), (cx + .25, cy - f * .14, .36), (cx + .25, cy - f * .32, .8), (cx - .25, cy - f * .32, .8)][::f])
+        for dx in (-.25, .25):
+            B.beam("blacksteel", (cx + dx, cy - f * .14, .36), (cx + dx, cy - f * .32, .8), .02)
+    chair(W - 1.55, -2.15, 1)
+    chair(W - 1.55, 0.35, -1)
     for i in range(4):                                               # tyre stack and ladder past the board's far end
         B.cyl("rubber", (W - .5, 2.45, .02 + i * .2), .3, .19, 10)
     for y in (2.95, 3.4):
