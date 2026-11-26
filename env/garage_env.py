@@ -445,20 +445,7 @@ def build():
                      ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
         B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
     B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0)}
-    # lounge in front of the board: a 2-seat sofa made from a car's rear bench on a black square-tube
-    # frame, a soda-crate table with a wooden top, two black wire-mesh side chairs
-    sy0, sy1, sx0 = -1.65, -0.15, W - .78                          # sofa footprint (against the wall)
-    for y in (sy0, sy1 - .04):                                       # side frames: rectangle of square tube
-        B.box("blacksteel", (sx0, y, 0), (sx0 + .04, y + .04, .52))
-        B.box("blacksteel", (W - .12, y, 0), (W - .08, y + .04, .52))
-        B.box("blacksteel", (sx0, y, .48), (W - .08, y + .04, .52))
-        B.box("blacksteel", (sx0, y, .1), (W - .08, y + .04, .14))
-    for x in (sx0 + .1, W - .2):                                     # long rails carrying the bench
-        B.box("blacksteel", (x, sy0, .14), (x + .04, sy1, .18))
-    B.box("leather", (sx0 + .05, sy0 + .06, .18), (W - .2, sy1 - .06, .27))          # seat base, rounded front
-    B.box("leather", (sx0 + .02, sy0 + .06, .27), (W - .22, sy1 - .06, .38))         # seat cushion
-    B.quad("leather", [(W - .3, sy0 + .06, .38), (W - .3, sy1 - .06, .38), (W - .1, sy1 - .06, .9), (W - .1, sy0 + .06, .9)])  # backrest face
-    B.box("leather", (W - .22, sy0 + .06, .36), (W - .1, sy1 - .06, .9))             # backrest body
+    # lounge in front of the board: a soda-crate table with a wooden top, two black wire-mesh side chairs
     # soda-crate table: red crate on four tapered wooden legs, wooden top
     tx, ty = W - 1.5, -0.9
     for dx in (-.17, .17):
