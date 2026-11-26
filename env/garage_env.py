@@ -409,34 +409,29 @@ def build():
     B.cyl("red", (2.8, 5.55, 0), .16, 1.1, 8)                         # gas bottle
     B.cyl("steel", (2.8, 5.55, 1.1), .05, .12, 6)
 
-    # right side: the mod wall (white pegboard in a steel frame) where picked parts hang, then one steel
-    # shelf (boxed parts), buckets, tyres, ladder, barrels. Board spans y 0.95..3.25, z 0.55..2.65.
-    PB = (W - .02, 0.95, 3.25, 0.55, 2.65)               # x, y0, y1, z0, z1 (anchors -> viewer)
+    # right side: the mod wall. A long white pegboard in a steel frame replaces the two shelves; it stays
+    # below the window band (z 2.4) so the daylight still comes in. A low steel shelf runs under it for
+    # boxed parts and tyres. Board spans y -1.25..3.25, z 0.6..2.3.
+    PB = (W - .02, -1.25, 3.25, 0.6, 2.3)                # x, y0, y1, z0, z1 (anchors -> viewer)
     B.quad("pegwhite", [(PB[0], PB[1], PB[3]), (PB[0], PB[1], PB[4]), (PB[0], PB[2], PB[4]), (PB[0], PB[2], PB[3])])
-    for (a, b) in (((PB[1] - .05, PB[3] - .05), (PB[2] + .05, PB[3])), ((PB[1] - .05, PB[4]), (PB[2] + .05, PB[4] + .05)),
-                   ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
-        B.box("steel", (W - .06, a[0], a[1]), (W, b[0], b[1]))
-    B.box("EMIT_strip", (W - .25, PB[1], PB[4] + .12), (W - .19, PB[2], PB[4] + .15))     # light bar over the board
+    for (lo, hi) in (((PB[1] - .05, PB[3] - .05), (PB[2] + .05, PB[3])), ((PB[1] - .05, PB[4]), (PB[2] + .05, PB[4] + .05)),
+                     ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
+        B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
+    B.box("steel", (W - .06, (PB[1] + PB[2]) / 2 - .025, PB[3]), (W, (PB[1] + PB[2]) / 2 + .025, PB[4]))   # centre stile
+    # low shelf under the board
+    B.box("steel", (W - .45, PB[1], .40), (W - .02, PB[2], .44))
+    for y in (PB[1] + .05, (PB[1] + PB[2]) / 2, PB[2] - .1):
+        for x in (W - .43, W - .08):
+            B.box("steel", (x, y, 0), (x + .04, y + .04, .40))
     B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0),
-             "boxshelf": (W - .43, -0.15, 2.14)}           # top of the kept shelf, where boxed parts stand
-    for y0 in (-1.2,):
-        for x in (W - .7, W - .1):
-            for y in (y0, y0 + 2.0):
-                B.box("steel", (x - .05, y, 0), (x, y + .05, 2.6))
-        for z in (.15, .8, 1.45, 2.1):
-            B.box("steel", (W - .75, y0, z), (W - .1, y0 + 2.05, z + .04))
-        for k, z in enumerate((.19, .84, 1.49)):
-            for j in range(2):
-                yb = y0 + .15 + j * .95 + (k % 2) * .2
-                B.box("cardboard", (W - .68, yb, z), (W - .15, yb + .6, z + .42 - .08 * j))
-    for i, y in enumerate((-1.0, -0.55)):
-        B.cyl("bucket", (W - .4, y, .19), .16, .3, 8)
+             "lowshelf": (W - .02, (PB[1] + PB[2]) / 2, .44)}
     for i in range(4):
         B.cyl("rubber", (W - .5, -2.3, .02 + i * .2), .3, .19, 10)
-    for x in (W - 1.6, W - 1.15):                                     # ladder leaning on the shelf
-        B.beam("ladder", (x, -1.5, 0), (x, -1.3, 2.3), .05, .06)
+    for y in (-1.95, -1.5):                                          # ladder leaning on the wall by the board
+        B.beam("ladder", (W - .62, y, 0), (W - .08, y, 2.35), .05, .06)
     for k in range(7):
-        B.beam("ladder", (W - 1.6, -1.5 + k * .028, .3 + k * .3), (W - 1.15, -1.5 + k * .028, .3 + k * .3), .03)
+        z = .3 + k * .3; x = W - .62 + .54 * z / 2.35
+        B.beam("ladder", (x, -1.95, z), (x, -1.5, z), .03)
     B.cyl("barrel_o", (W - .6, -5.0, 0), .3, .9, 10)
     B.cyl("barrel_b", (W - 1.3, -5.5, 0), .3, .9, 10)
     B.cyl("barrel_b", (-W + .6, 1.2, 0), .3, .9, 10)

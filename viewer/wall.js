@@ -1,18 +1,19 @@
-// Pegboard wall: every picked part hangs on the board (or stands on the shelf / floor) instead of being
-// fitted to the car. Parts appear one after another with a little swing; hover or tap one to see what
-// it is, tap again to pin the card (with a button to take it off). A "wall" camera view frames the board.
+// Pegboard wall: every picked part hangs on the long board behind the car (boxed parts and tyres sit on
+// the low shelf under it) instead of being fitted to the car. Seen from the normal garage angle; parts
+// appear one after another with a little swing. Hover or tap one to see what it is; tap pins the card,
+// which has a button to take the part off.
 import * as THREE from "three";
 
 const G = window.__garage;
 const $ = id => document.getElementById(id);
+const FLAG = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5v13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4.2 2.2h8.6l-2 3.1 2 3.2H4.2z" fill="currentColor"/></svg>';
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // anchors from env/anchors.json (Blender xyz -> three: x, z, -y)
-const BOARD = { x: 5.46, y0: 0.55, y1: 2.65, z0: -0.95, z1: -3.25 };      // board plane, world (three) coords
-const SHELF = { x: 5.38, y: 2.14, z0: 0.65, z1: -0.75 };                    // top of the kept shelf
+const BOARD = { x: 5.46, y0: 0.6, y1: 2.3, z0: 1.25, z1: -3.25 };         // board plane, world (three) coords
+const SHELF = { x: 5.46, y: 0.44 };                                       // low shelf under the board
 const ROWS = [                                                             // board rows, top to bottom
-  { y: 2.42, keys: ["body_spoiler_gt_wing", "body_spoiler_roof_ext", "body_bumper_F_lip", "body_bumper_F_sport"] },
-  { y: 2.03, keys: ["body_bumper_R_diffuser", "body_skirt_skirt"] },
+  { y: 2.13, keys: ["body_spoiler_gt_wing", "body_spoiler_roof_ext", "body_bumper_F_lip", "body_bumper_F_sport", "body_bumper_R_diffuser", "body_skirt_skirt"] },
   { y: 1.55, keys: ["coilover", "springs", "comfortshock", "strutbar", "swaybar", "brakes", "rollcage"] },
   { y: 0.98, keys: ["intake", "turbokit", "axleback", "catback", "shortshift", "lightweight"] },
 ];
@@ -31,8 +32,8 @@ const protos = {};
 let ready = false;
 
 // a soft light washing the board (on the work-light dimmer, so it comes on with the intro sequence)
-const wash = new THREE.SpotLight("#f2f4f8", 6, 6, 0.75, 0.6, 1.4);
-wash.position.set(3.7, 3.1, -2.1); wash.target.position.set(BOARD.x, 1.6, -2.1);
+const wash = new THREE.SpotLight("#f2f4f8", 7, 7, 0.95, 0.6, 1.4);
+wash.position.set(3.3, 3.3, -1.0); wash.target.position.set(BOARD.x, 1.45, -1.0);
 G.scene.add(wash, wash.target); G.GARAGE_OBJS.push(wash); G.dimReg("work", wash);
 
 G.load("env/wall_items").then(g => {
@@ -66,12 +67,13 @@ function layout(keys) {
       z -= w / 2 + gap * s;
     });
   }
-  FLOOR.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(BOARD.x - 0.05, 0.0, BOARD.z0 - 0.45 - i * 0.5), s: 1, mount: "floor" }; });
-  SHELFK.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(SHELF.x, SHELF.y, SHELF.z0 - i * 0.46), s: 1, mount: "shelf" }; });
+  // low shelf: boxes from the left end, the tyre at the right end
+  SHELFK.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(SHELF.x, SHELF.y, BOARD.z0 - 0.45 - i * 0.48), s: 1, mount: "shelf" }; });
+  FLOOR.filter(k => keys.includes(k)).forEach((k, i) => { pos[k] = { p: new THREE.Vector3(SHELF.x, SHELF.y, BOARD.z1 + 0.45 + i * 0.42), s: 1, mount: "floor" }; });
   return pos;
 }
 
-let sig = "", wantWall = 0, wantCar = 0;
+let sig = "";
 function sync() {
   const keys = wanted(), pos = layout(keys);
   // take down what is no longer picked
@@ -98,13 +100,7 @@ function sync() {
 G.HOOKS.frame.push(() => {
   if (!ready) return;
   const s = wanted().sort().join(",") + "|" + G.state.car;
-  if (s !== sig) { const first = !sig; sig = s; const n = sync(); if (n && !first && !document.body.classList.contains("intro")) wantWall = performance.now(); }
-  // a build (Ớt) changes wheels and parts together: let the events settle, parts on the wall win
-  const t = performance.now();
-  if ((wantWall || wantCar) && t - Math.max(wantWall, wantCar) > 250) {
-    if (wantWall) focusWall(); else focusCar();
-    wantWall = wantCar = 0;
-  }
+  if (s !== sig) { const first = !sig; sig = s; const n = sync(); }
   const now = performance.now();
   for (const h of hung.values()) {
     const t = (now - h.t0) / 1000;
@@ -115,50 +111,7 @@ G.HOOKS.frame.push(() => {
     if (h.fresh && h.mount === "wall") h.obj.rotation.x = reduce ? 0 : Math.sin(t * 9) * 0.22 * Math.exp(-t * 2.6);
     if (t > 2) { h.fresh = false; h.obj.rotation.x = 0; }
   }
-  stepCam();
 });
-
-// ---- camera: car view <-> wall view -------------------------------------------------------
-const WALL_VIEW = { pos: new THREE.Vector3(1.9, 1.85, 0.25), target: new THREE.Vector3(5.3, 1.55, -1.6) };
-let carView = null, tween = null, view = "car";
-function goTo(pos, target) {
-  const c = G.controlsRef();
-  tween = { t0: performance.now(), p0: G.camera.position.clone(), q0: c.target.clone(), p1: pos.clone(), q1: target.clone() };
-  if (reduce) tween.t0 -= 1e6;
-}
-function stepCam() {
-  if (!tween) return;
-  const c = G.controlsRef(), k = Math.min(1, (performance.now() - tween.t0) / 900), e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
-  G.camera.position.lerpVectors(tween.p0, tween.p1, e); c.target.lerpVectors(tween.q0, tween.q1, e);
-  if (k >= 1) tween = null;
-}
-function focusWall() {
-  if (G.getRoom() !== "garage" || view === "wall") return;
-  const c = G.controlsRef();
-  carView = { pos: G.camera.position.clone(), target: c.target.clone() };
-  view = "wall"; goTo(WALL_VIEW.pos, WALL_VIEW.target); syncBtn();
-}
-function focusCar() {
-  if (view === "car") return;
-  view = "car";
-  if (carView) goTo(carView.pos, carView.target); else goTo(new THREE.Vector3(4.6, 1.75, 5.9), new THREE.Vector3(0, 0.65, 0));
-  syncBtn();
-}
-// view toggle above the room buttons
-const vb = document.createElement("button");
-vb.type = "button"; vb.id = "viewBtn"; vb.className = "viewbtn";
-$("roomBox").prepend(vb);
-function syncBtn() { vb.innerHTML = view === "wall" ? `${IC("car")}<span>Xem xe</span>` : `${IC("grid")}<span>Tường đồ</span>`; vb.setAttribute("aria-pressed", view === "wall"); }
-vb.addEventListener("click", () => (view === "wall" ? focusCar() : focusWall()));
-syncBtn();
-// things that change the car itself bring the camera back to it
-let carSig = "";
-G.HOOKS.change.push(() => {
-  const s = [G.state.wheel, G.state.paint, G.state.lower, G.state.car].join("|");
-  if (carSig && s !== carSig) wantCar = performance.now();
-  carSig = s;
-});
-document.querySelector("#rooms")?.addEventListener("click", () => { view = "car"; tween = null; syncBtn(); });
 
 // ---- hover / tap: what is this part ----------------------------------------------------
 const tip = document.createElement("div"); tip.id = "wallTip"; tip.hidden = true; $("bay").append(tip);
@@ -181,7 +134,8 @@ function describe(k) {
 }
 function show(k, x, y, pin) {
   const d = describe(k), bay = $("bay").getBoundingClientRect();
-  tip.innerHTML = `<b>${d.name}</b><span>${d.sub}</span>${d.dk ? `<span class="dk-${d.lv}">${d.dk}</span>` : ""}`
+  const flag = d.dk ? `<i class="dk-${d.lv}" title="${d.dk}" aria-label="${d.dk}">${FLAG}</i>` : "";
+  tip.innerHTML = `<b>${flag}${d.name}</b><span>${d.sub}</span>`
     + (pin ? `<button type="button" class="ghost" id="wallDrop">Gỡ món này</button>` : "");
   tip.hidden = false;
   tip.style.left = Math.min(bay.width - 250, Math.max(8, x - bay.left + 14)) + "px";
@@ -205,4 +159,4 @@ canvas.addEventListener("pointerup", ev => {
   const k = pick(ev);
   if (k) { pinned = k; show(k, ev.clientX, ev.clientY, true); } else { pinned = null; tip.hidden = true; }
 });
-window.__wall = { hung, root, wanted, ready: () => ready, view: () => view };
+window.__wall = { hung, root, wanted, ready: () => ready };
