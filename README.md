@@ -16,10 +16,10 @@ Mở `viewer/index.html` trong trình duyệt. File tự chứa toàn bộ model
 | `env/` | Bộ dựng garage (tường gạch, gác lửng, đèn công trình, neon) và phòng thử gió tự chế (`tunnel_env.py`) |
 | `data/` | `garage-db.json`: 10 xe, mỗi thông số có nguồn (`src`) hoặc đánh dấu ước lượng (`est`), danh sách nguồn, kiểu xe → model đại diện, disclaimer |
 | `perf/` | Mô phỏng dyno/drag/tốc độ tối đa (`sim.js`), model bản độ → 7 trục điểm, giá, đăng kiểm (`model.js`), chuyển database thành đầu vào mô phỏng (`db.js`), danh mục đồ độ gộp từ bảng benchmark Chili Paprika (`parts.json`), script hiệu chỉnh |
-| `viewer/` | Garage 3D trên web (three.js). Sửa `index.src.html`, `perf-ui.js`, `tunnel.js` (phòng gió), rồi build ra `index.html` |
+| `viewer/` | Garage 3D trên web (three.js). Sửa `index.src.html`, `perf-ui.js`, `tunnel.js` (hầm gió), `wall.js` (pegboard đồ độ), `views.js` (Xưởng / Phụ tùng độ / Dyno), rồi build ra `index.html` |
 | `out/` | Model đã build: `.glb`, `.fbx`, texture, món độ trong `parts/` |
 | `blueprints/` | `calib.json` căn tỉ lệ từng bản vẽ (ảnh blueprint không commit) |
-| `docs/` | Spec chuẩn model |
+| `docs/` | Spec chuẩn model, khung xe mẫu (`template.md`), bàn giao session (`HANDOFF.md`) |
 
 ## Build
 ```bash
@@ -28,6 +28,7 @@ python pipeline/build_car.py mazda2_2013            # xe gốc + panel zin + mâ
 python pipeline/build_car.py mazda2_2013 sport      # một biến thể đồ độ (lip | sport | diffuser | skirt)
 python env/garage_env.py                            # garage
 python env/tunnel_env.py                            # phòng thử gió
+python env/wall_items.py                            # đồ treo pegboard
 python3 viewer/build_bundle.py                      # nhúng toàn bộ vào viewer/index.html
 node perf/calibrate.js --write                      # khớp Cd·A theo tốc độ tối đa, tính hệ số thời gian theo 0–100 có nguồn
 ```
