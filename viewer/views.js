@@ -44,7 +44,7 @@ function dynoCam() {
 async function go(name) {
   if (name === view) return;
   if (window.__wall) window.__wall.unpin();
-  if (G.getRoom() === "tunnel") await window.__tunnel.setRoom("garage");
+  if (G.getRoom() === "tunnel") { await window.__tunnel.setRoom("garage"); G.carRoot.position.set(G.BAY_X, 0, 0); }
   if (view === "garage") garageCam = { pos: G.camera.position.clone(), target: G.controls.target.clone() };
   if ($("tSpin").checked) { $("tSpin").checked = false; }
   G.carRoot.rotation.y = Math.PI;
@@ -52,9 +52,9 @@ async function go(name) {
   const jobs = [];
   if (name === "dyno") { const c = dynoCam(); jobs.push(tweenCam(c.pos, c.target, 1200), tweenCar(dynoCarPos())); }
   else {
-    if (prev === "dyno") jobs.push(tweenCar(new THREE.Vector3(0, 0, 0)));
+    if (prev === "dyno") jobs.push(tweenCar(new THREE.Vector3(G.BAY_X, 0, 0)));
     if (name === "parts") { const c = partsCam(); jobs.push(tweenCam(c.pos, c.target)); }
-    else { const c = garageCam || { pos: new THREE.Vector3(-3.6, 2.4, 5.6), target: new THREE.Vector3(0.9, 0.75, -0.5) }; jobs.push(tweenCam(c.pos.clone(), c.target.clone())); }
+    else { const c = garageCam || { pos: new THREE.Vector3(-3.1, 2.4, 5.6), target: new THREE.Vector3(1.4, 0.75, -0.5) }; jobs.push(tweenCam(c.pos.clone(), c.target.clone())); }
   }
   await Promise.all(jobs);
 }

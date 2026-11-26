@@ -595,13 +595,14 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color("#050505");
 scene.fog = new THREE.FogExp2("#070605", 0.03);
 const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-camera.position.set(-3.6, 2.4, 5.6);           // from the front-left: car in front, pegboard wall behind it
+camera.position.set(-3.1, 2.4, 5.6);           // from the front-left: car in front, pegboard wall behind it
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0.9, 0.75, -0.5);
+controls.target.set(1.4, 0.75, -0.5);
 controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.49;
 controls.minDistance = 2.6; controls.maxDistance = 8;
-window.__garage = { camera, controls, scene, state, CARS, PRESETS, apply: () => apply(),
+const BAY_X = 0.5;                              // service bay centre (env/garage_env.py BX)
+window.__garage = { BAY_X, camera, controls, scene, state, CARS, PRESETS, apply: () => apply(),
   setLower: mm => { state.lower = mm; body.position.y = -mm / 1000; syncUI(); updateSpec(); HOOKS.change.forEach(f => f()); } };   // shared with the perf / tunnel modules + view checks
 
 // ---- lighting: balanced key / fill / ambient ------------------------------------
@@ -621,19 +622,19 @@ function dimApply() {
 const hemi = new THREE.HemisphereLight("#c9d4e4", "#2a221a", 0.42); scene.add(hemi); dimReg("amb", hemi);
 for (const z of [-1.3, 1.3]) {
   const tube = new THREE.RectAreaLight("#eef3f8", 7, 1.5, 0.22);
-  tube.position.set(0, 3.95, z); tube.lookAt(0, 0, z); scene.add(tube);
+  tube.position.set(BAY_X, 3.95, z); tube.lookAt(BAY_X, 0, z); scene.add(tube);
   const fx = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.05, 0.14), new THREE.MeshBasicMaterial({ color: new THREE.Color("#ffffff").multiplyScalar(2.2), fog: false }));
-  fx.position.set(0, 3.98, z); scene.add(fx);
+  fx.position.set(BAY_X, 3.98, z); scene.add(fx);
   dimReg(z < 0 ? "tube0" : "tube1", tube); dimReg(z < 0 ? "tube0" : "tube1", fx.material);
   const hood = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.06, 0.24), new THREE.MeshStandardMaterial({ color: "#2b2e33", roughness: 0.6, metalness: 0.5 }));
-  hood.position.set(0, 4.03, z); scene.add(hood);
+  hood.position.set(BAY_X, 4.03, z); scene.add(hood);
   for (const x of [-0.6, 0.6]) {                      // chains to the trusses
     const c = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.45, 0.012), hood.material);
-    c.position.set(x, 4.28, z); scene.add(c);
+    c.position.set(BAY_X + x, 4.28, z); scene.add(c);
   }
 }
 const lamp = new THREE.SpotLight("#fff1de", 5.5, 0, Math.PI / 4.4, 0.85, 0);
-lamp.position.set(0, 4.15, -0.2); lamp.target.position.set(0, 0, -0.1);
+lamp.position.set(BAY_X, 4.15, -0.2); lamp.target.position.set(BAY_X, 0, -0.1);
 lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.bias = -0.0015; lamp.shadow.radius = 5;
 lamp.shadow.camera.near = 0.5; lamp.shadow.camera.far = 8;
 scene.add(lamp, lamp.target); dimReg("key", lamp);
@@ -650,9 +651,9 @@ function workSpot(pos, target, intensity) {
   const l = new THREE.SpotLight("#fff1dc", intensity, 7, 0.62, 0.75, 1.2);
   l.position.set(...pos); l.target.position.set(...target); scene.add(l, l.target); dimReg("work", l);
 }
-workSpot([1.41, 0.27, 3.507], [0.15, 0.45, 1.9], 4.5);          // floor flood -> front bumper
-workSpot([1.75, 1.79, -3.253], [-0.1, 0.5, -1.85], 3.2);        // tripod heads -> rear bumper
-workSpot([1.453, 1.79, -3.55], [0.2, 0.5, -1.85], 3.2);
+workSpot([1.91, 0.27, 3.507], [0.65, 0.45, 1.9], 4.5);          // floor flood -> front bumper
+workSpot([2.25, 1.79, -3.253], [0.4, 0.5, -1.85], 3.2);        // tripod heads -> rear bumper
+workSpot([1.953, 1.79, -3.55], [0.7, 0.5, -1.85], 3.2);
 // neon signs spill their colour onto walls, stairs and bench
 const neonRed = new THREE.RectAreaLight("#ff3020", 2.6, 1.95, 0.825);
 neonRed.position.set(-5.4, 2.0, 2.55); neonRed.lookAt(0, 2.0, 2.55); scene.add(neonRed); dimReg("neon", neonRed);
@@ -660,7 +661,7 @@ const neonPurple = new THREE.RectAreaLight("#b040ff", 2.6, 1.0, 1.0);
 neonPurple.position.set(-2.45, 1.65, -5.83); neonPurple.lookAt(-2.45, 1.65, 0); scene.add(neonPurple); dimReg("neon", neonPurple);
 const NEON = { red: null, purple: null };
 // low kickers at wheel height so rims and lower body keep their detail
-for (const x of [-3.2, 3.2]) { const k = new THREE.PointLight("#dfe6f0", 3.2, 5.5, 1.3); k.position.set(x * 0.85, 0.45, 0.2); scene.add(k); dimReg("fill", k); }
+for (const x of [-3.2, 3.2]) { const k = new THREE.PointLight("#dfe6f0", 3.2, 5.5, 1.3); k.position.set(BAY_X + x * 0.85, 0.45, 0.2); scene.add(k); dimReg("fill", k); }
 
 // volumetric shaft: window rectangle swept along the sun direction down to the floor
 const shaftMat = new THREE.ShaderMaterial({
@@ -873,7 +874,7 @@ function pbrFromPalette(mat, flipY) {
 const SHELL = new Set(["floor", "brick", "plaster", "plaster_low", "roof", "EMIT_window", "osb", "foam", "epoxy"]);
 // See-through: any prop fragment sitting in the cone between camera and car is dropped with an
 // ordered (Bayer) dither, so shelves, benches and posts never hide the car. Shadows are unaffected.
-const CAR_FOCUS = { value: new THREE.Vector3(0, 0.7, 0) };
+const CAR_FOCUS = { value: new THREE.Vector3(BAY_X, 0.7, 0) };
 const NO_SEE_THROUGH = new Set(["floor", "epoxy", "grate", "paper"]);
 function seeThrough(mat) {
   mat.onBeforeCompile = sh => {
@@ -959,6 +960,7 @@ function recolor(mat, paint) {
 
 // ---- car assembly -------------------------------------------------------------------
 const carRoot = new THREE.Group(); scene.add(carRoot);
+carRoot.position.x = BAY_X;                     // the bay sits one floor tile (0.5 m) toward the pegboard
 const body = new THREE.Group(); carRoot.add(body);
 const wheelGroup = new THREE.Group(); carRoot.add(wheelGroup);
 Object.assign(window.__garage, { carRoot, body, wheelGroup, load: k => load(k), prepMaterials });

@@ -381,7 +381,8 @@ def build():
     B.quad("floor", [(-W, Y0, 0), (W, Y0, 0), (W, Y1, 0), (-W, Y1, 0)])
     B.quad("grate", [(0.2, 1.7, .004), (1.0, 1.7, .004), (1.0, 2.2, .004), (0.2, 2.2, .004)])
     # service bay: epoxy-coated slab between the bay lines (glossy, oil-stained), no standing water
-    B.quad("epoxy", [(-1.45, -2.9, .002), (1.45, -2.9, .002), (1.45, 2.3, .002), (-1.45, 2.3, .002)])
+    BX = 0.5                                     # bay centre x: one floor tile toward the pegboard, clear of the dyno
+    B.quad("epoxy", [(BX - 1.45, -2.9, .002), (BX + 1.45, -2.9, .002), (BX + 1.45, 2.3, .002), (BX - 1.45, 2.3, .002)])
     # walls (normals inward so the room reads from inside; backface culling opens the dollhouse)
     B.quad("plaster_low", [(-W, Y0, 0), (-W, Y1, 0), (-W, Y1, 1.2), (-W, Y0, 1.2)])
     B.quad("plaster_low", [(W, Y0, 0), (W, Y0, 1.2), (W, Y1, 1.2), (W, Y1, 0)])
@@ -550,7 +551,7 @@ def build():
 
     LAMPS = {}
     # floor flood light (stand + U frame), front-right of the nose
-    o = (1.45, -3.55, 0.0); yaw = math.atan2(1.55, -1.45) - math.pi / 2   # face the front bumper
+    o = (1.95, -3.55, 0.0); yaw = math.atan2(1.55, -1.45) - math.pi / 2   # face the front bumper
     T = placed(o, yaw)
     for x in (-.17, .17):
         B.beam("yellow", T((x, -.2, .025)), T((x, .2, .025)), .035)
@@ -565,7 +566,7 @@ def build():
     LAMPS["floor"] = lamp_head(T, 0, .27, .30, .24, .09)
 
     # twin halogen on a tripod, behind the car toward the rear bumper
-    o = (1.65, 3.45, 0.0); yaw = math.atan2(-1.65, -1.65) - math.pi / 2   # rear-right, clear of the chili sign
+    o = (2.15, 3.45, 0.0); yaw = math.atan2(-1.65, -1.65) - math.pi / 2   # rear-right, clear of the chili sign
     T = placed(o, yaw)
     for k in range(3):
         a = math.pi / 2 + k * 2 * math.pi / 3
