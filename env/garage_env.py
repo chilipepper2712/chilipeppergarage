@@ -241,6 +241,7 @@ TEXTURES = {
     "paper": lambda: t_simple(["#a9a493", "#c4bfad", "#dcd7c6"]),
     "EMIT_lamp": lambda: t_emit("#fff1c4"), "EMIT_strip": lambda: t_emit("#ffd994"),
     "EMIT_window": t_window,
+    "leather": lambda: t_simple(["#8a5f12", "#b07c16", "#d29a22"], rows=True),
     "yellow": t_yellow, "epoxy": t_epoxy, "neon_back": lambda: t_simple(["#121214", "#18181b", "#1f1f23"]),
     "EMIT_work": lambda: t_emit("#fff6e4"),
     "EMIT_neon_red": lambda: neon(["CHILI PEPPER", "GARAGE"], 1.95, 0.825, "#ff2a1f", "#ffd2c4", "#4a0805", 18),
@@ -418,6 +419,20 @@ def build():
                      ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
         B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
     B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0)}
+    # lounge in front of the board: mustard leather sofa against the wall, tyre-stack coffee table
+    sy0, sy1 = -1.9, 0.1
+    B.box("steel", (W - .88, sy0, 0), (W - .06, sy1, .08))                         # plinth
+    B.box("leather", (W - .9, sy0, .08), (W - .06, sy1, .3))                       # base
+    for y0, y1 in ((sy0 + .14, -0.9), (-0.9, sy1 - .14)):                          # two seat cushions
+        B.box("leather", (W - .88, y0 + .01, .3), (W - .3, y1 - .01, .44))
+    B.box("leather", (W - .3, sy0, .3), (W - .06, sy1, .8))                         # back
+    for y0, y1 in ((sy0, sy0 + .14), (sy1 - .14, sy1)):                             # arms
+        B.box("leather", (W - .9, y0, .3), (W - .06, y1, .6))
+    tx, ty = W - 1.75, -0.9
+    for i in range(2):
+        B.cyl("rubber", (tx, ty, .02 + i * .2), .33, .19, 12)
+    B.cyl("steel", (tx, ty, .41), .42, .03, 12)                                     # tabletop
+    B.box("cardboard", (tx - .12, ty - .1, .44), (tx + .1, ty + .08, .47))           # a parts catalogue
     for i in range(4):                                               # tyre stack and ladder past the board's far end
         B.cyl("rubber", (W - .5, 2.45, .02 + i * .2), .3, .19, 10)
     for y in (2.95, 3.4):

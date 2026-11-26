@@ -13,9 +13,9 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const BOARD = { x: 5.46, y0: 0.3, y1: 2.34, z0: 3.6, z1: -1.8 };          // board plane, world (three) coords
 const ITEM = 1.2;                                                          // parts drawn 20% larger again for readability
 const ROWS = [                                                             // board rows, top to bottom
-  { y: 2.04, keys: ["body_spoiler_gt_wing", "body_spoiler_roof_ext", "body_bumper_F_lip", "body_bumper_F_sport", "body_bumper_R_diffuser", "body_skirt_skirt"] },
-  { y: 1.38, keys: ["coilover", "springs", "comfortshock", "strutbar", "swaybar", "brakes", "rollcage"] },
-  { y: 0.72, keys: ["intake", "turbokit", "axleback", "catback", "shortshift", "lightweight"] },
+  { y: 2.1, keys: ["body_spoiler_gt_wing", "body_spoiler_roof_ext", "body_bumper_F_lip", "body_bumper_F_sport", "body_bumper_R_diffuser", "body_skirt_skirt"] },
+  { y: 1.6, keys: ["coilover", "springs", "comfortshock", "strutbar", "swaybar", "brakes", "rollcage"] },
+  { y: 1.12, keys: ["intake", "turbokit", "axleback", "catback", "shortshift", "lightweight"] },
 ];
 const FLOOR = ["perftire", "semislick", "dragradial", "comforttire"];
 const SHELFK = ["remap", "pedalbox", "soundproof", "bushings"];
@@ -59,12 +59,12 @@ function layout(keys) {
     if (!ks.length) continue;
     const ws = ks.map(k => protos[k].userData.w * ITEM), gap = 0.12;
     const total = ws.reduce((a, b) => a + b, 0) + gap * (ks.length - 1);
-    const s = Math.min(1, width / total) * ITEM;
-    let z = mid + (total * s) / 2;                                   // board runs toward -z
+    const fit = Math.min(1, width / total), s = fit * ITEM;        // widths already include ITEM
+    let z = mid + (total * fit) / 2;                                 // board runs toward -z
     ks.forEach((k, i) => {
-      const w = ws[i] * s / ITEM; z -= w / 2;
+      const w = ws[i] * fit; z -= w / 2;
       pos[k] = { p: new THREE.Vector3(BOARD.x, row.y, z), s, mount: "wall" };
-      z -= w / 2 + gap * s / ITEM;
+      z -= w / 2 + gap * fit;
     });
   }
   // on the floor along the foot of the board: boxes from the near end, the tyre at the far end
