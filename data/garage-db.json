@@ -70,6 +70,42 @@
   "mytour": {
    "name": "MyTour",
    "url": "https://mytour.vn"
+  },
+  "hondanews": {
+   "name": "Honda News (spec Civic 2007, Mỹ)",
+   "url": "https://hondanews.com"
+  },
+  "hyundaius": {
+   "name": "Hyundai Motor America (spec Accent 2018)",
+   "url": "https://www.hyundainews.com"
+  },
+  "mitsuid": {
+   "name": "Spec Xpander, đại lý Mitsubishi Indonesia",
+   "url": "https://sites.google.com/site/dealermitsubishipulogadung/spesifikasi-mitsubishi-xpander-ultimate-at"
+  },
+  "fordvn": {
+   "name": "Thông số Ranger XLS, đại lý Ford Việt Nam",
+   "url": "https://namdinhford.com.vn/xe-ford/ranger-xls-2-2l-4x2-at/"
+  },
+  "carfolio": {
+   "name": "carfolio.com",
+   "url": "https://www.carfolio.com"
+  },
+  "jordantimes": {
+   "name": "Jordan Times (bài lái thử Ranger 2.2)",
+   "url": "https://jordantimes.com/news/features/ford-ranger-xls-22-tdci-rugged-refined-and-ever-ready"
+  },
+  "ultimatespecs": {
+   "name": "ultimatespecs.com",
+   "url": "https://www.ultimatespecs.com"
+  },
+  "autoabc": {
+   "name": "auto-abc.eu",
+   "url": "https://www.auto-abc.eu"
+  },
+  "zigwheelsph": {
+   "name": "ZigWheels Philippines",
+   "url": "https://www.zigwheels.ph"
   }
  },
  "bodyTypes": {
@@ -257,16 +293,16 @@
     "engine": "bonbanh",
     "trans": "bonbanh",
     "t0100": "autoru",
-    "vmax": "autoru"
+    "vmax": "autoru",
+    "gears": "hyundaius"
    },
    "est": [
     "kerb",
-    "gears",
     "final",
     "chassis",
     "fun"
    ],
-   "note": "Bonbanh ghi khối lượng 1110–1160 kg không tách theo bản; dùng giá trị giữa.",
+   "note": "Bonbanh ghi khối lượng 1110–1160 kg không tách theo bản; dùng giá trị giữa. Tỉ số hộp số theo spec Hyundai Mỹ 2018 (cùng hộp 6AT, máy 1.6); tỉ số cầu bản 1.4 chưa có nguồn (bản 1.6 Mỹ là 3,065).",
    "fit": {
     "cda": 0.658,
     "cd": 0.308,
@@ -370,14 +406,14 @@
    "gears": [
     3.552,
     2.022,
-    1.452,
+    1.347,
     1,
-    0.708,
+    0.745,
     0.599
    ],
    "final": 4.325,
    "drive": "fwd",
-   "t0100": 11.5,
+   "t0100": 12.4,
    "vmax": 183,
    "chassis": [
     6,
@@ -395,20 +431,20 @@
     "tyre": "bonbanh",
     "engine": "bonbanh",
     "trans": "bonbanh",
-    "vmax": "mazdaom"
+    "vmax": "mazdaom",
+    "t0100": "autoabc",
+    "gears": "mazdausa"
    },
    "est": [
-    "t0100",
-    "gears",
     "final",
     "chassis",
     "fun"
    ],
-   "note": "Chưa có số 0–100 công bố cho bản 1.5 số tự động; ước lượng từ bản 1.5 cũ (10,6–10,8 s) cộng khối lượng.",
+   "note": "0–100 theo cơ sở dữ liệu châu Âu (bản 1.5 AT), chưa có bài đo thực tế. Tỉ số hộp số theo spec Mazda3 2019 của Mỹ (cùng hộp 6 cấp, bản máy 2.5); tỉ số cầu bản 1.5 chưa có nguồn.",
    "fit": {
     "cda": 0.721,
     "cd": 0.331,
-    "kT": 0.896
+    "kT": 0.952
    }
   },
   "civic_fd_2008": {
@@ -440,10 +476,10 @@
    },
    "trans": "mt",
    "gears": [
-    3.142,
-    1.869,
+    3.143,
+    1.87,
     1.235,
-    0.948,
+    0.949,
     0.727
    ],
    "final": 4.294,
@@ -467,19 +503,19 @@
     "engine": "goonet",
     "trans": "bonbanh",
     "t0100": "carsdata",
-    "vmax": "carsdata"
+    "vmax": "carsdata",
+    "gears": "hondanews",
+    "final": "hondanews"
    },
    "est": [
-    "engine.nm",
-    "gears",
-    "final",
     "chassis",
     "fun"
    ],
+   "note": "Tỉ số truyền và cầu theo spec Honda (Civic 1.8 số sàn, thị trường Mỹ, cùng máy R18A và hộp 5 số).",
    "fit": {
     "cda": 0.733,
     "cd": 0.344,
-    "kT": 0.946
+    "kT": 0.945
    }
   },
   "mazda2_2013": {
@@ -664,7 +700,7 @@
    "final": 4.624,
    "drive": "fwd",
    "t0100": 10.4,
-   "vmax": 195,
+   "vmax": 192,
    "chassis": [
     3,
     5,
@@ -681,19 +717,20 @@
     "tyre": "bonbanh",
     "engine": "paultan",
     "trans": "paultan",
-    "t0100": "paultan"
+    "t0100": "paultan",
+    "vmax": "ultimatespecs",
+    "gears": "mazdausa"
    },
    "est": [
-    "vmax",
-    "gears",
     "final",
     "chassis",
     "fun"
    ],
+   "note": "Tỉ số hộp số theo spec Mazda Mỹ 2017 (cùng hộp SKYACTIV-Drive 6 cấp, bản máy 2.5). Tỉ số cầu bản 2.0 2WD chưa có nguồn: Mỹ ghi 4,325 (FWD) / 4,624 (AWD) cho máy 2.5.",
    "fit": {
-    "cda": 0.805,
-    "cd": 0.319,
-    "kT": 1.01
+    "cda": 0.937,
+    "cd": 0.371,
+    "kT": 1.003
    }
   },
   "xpander_2020": {
@@ -729,7 +766,7 @@
     1,
     0.697
    ],
-   "final": 4.27,
+   "final": 4.375,
    "drive": "fwd",
    "t0100": 14.1,
    "vmax": 170,
@@ -749,20 +786,20 @@
     "engine": "mitsubishivn",
     "trans": "paultan",
     "t0100": "headlightmag",
-    "vmax": "headlightmag"
+    "vmax": "headlightmag",
+    "gears": "mitsuid",
+    "final": "mitsuid",
+    "kerb": "zigwheelsph"
    },
    "est": [
-    "kerb",
-    "gears",
-    "final",
     "chassis",
     "fun"
    ],
-   "note": "0–100 và tốc độ tối đa là số đo thực tế (14,1 s; 170 km/h ở số 4, 4.250 vòng/phút); tỉ số cầu suy ngược từ phép đo đó.",
+   "note": "0–100 và tốc độ tối đa là số đo thực tế (14,1 s; 170 km/h ở số 4). Tỉ số cầu 4,375 theo spec Indonesia (trước đây suy ngược từ phép đo ra 4,27: chênh do đồng hồ báo cao). Khối lượng theo bản GLS Sport AT Philippines.",
    "fit": {
-    "cda": 0.911,
-    "cd": 0.361,
-    "kT": 1.028
+    "cda": 0.751,
+    "cd": 0.298,
+    "kT": 1.057
    }
   },
   "ranger_xls_2020": {
@@ -777,7 +814,7 @@
     3220
    ],
    "clearance": 200,
-   "kerb": 1980,
+   "kerb": 1930,
    "tyre": [
     255,
     70,
@@ -801,9 +838,9 @@
     0.867,
     0.691
    ],
-   "final": 3.55,
+   "final": 3.73,
    "drive": "rwd",
-   "t0100": 12,
+   "t0100": 12.8,
    "vmax": 175,
    "chassis": [
     2,
@@ -817,24 +854,24 @@
    "src": {
     "dims": "bonbanh",
     "engine": "bonbanh",
-    "trans": "bonbanh"
+    "trans": "bonbanh",
+    "clearance": "fordvn",
+    "tyre": "fordvn",
+    "kerb": "fordvn",
+    "final": "carfolio",
+    "t0100": "jordantimes",
+    "vmax": "jordantimes"
    },
    "est": [
-    "clearance",
-    "kerb",
-    "tyre",
     "gears",
-    "final",
-    "t0100",
-    "vmax",
     "chassis",
     "fun"
    ],
-   "note": "Kích thước theo thân xe cabin kép T6 (bonbanh, bản Wildtrak cùng thân). Chưa tìm được số 0–100, khối lượng, lốp đúng bản XLS AT 4x2.",
+   "note": "Kích thước theo thân cabin kép T6. Khoảng sáng gầm, lốp, khối lượng theo thông số đại lý Ford VN (khối lượng ghi 1.884–1.948 kg tuỳ nơi, lấy ~1.930). Tỉ số cầu 3,73 theo carfolio; 0–100 và tốc độ tối đa theo bài lái thử 2.2 AT của Jordan Times. Tỉ số hộp số là bộ 6 cấp phổ biến của Ranger, chỉ số cuối khớp nguồn.",
    "fit": {
-    "cda": 1.2,
-    "cd": 0.448,
-    "kT": 0.991
+    "cda": 1.248,
+    "cd": 0.466,
+    "kT": 1.051
    }
   }
  },
