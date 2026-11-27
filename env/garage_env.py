@@ -375,6 +375,36 @@ def world_uvs(b, cyl_like=False):
             l[uvl].uv = (u, v)          # 1 UV unit = 1 m = one 64 px tile
 
 
+def placed(origin, yaw):
+    c, s_ = math.cos(yaw), math.sin(yaw)
+    return lambda p: (origin[0] + p[0] * c - p[1] * s_, origin[1] + p[0] * s_ + p[1] * c, origin[2] + p[2])
+
+
+def lamp_head(B, T, cx, cz, w, h, d, body="steel"):
+    B.beam(body, T((cx, -d / 2, cz)), T((cx, d / 2, cz)), w, h)                 # housing
+    B.beam("steel", T((cx, d / 2, cz)), T((cx, d / 2 + .012, cz)), w + .02, h + .02)  # bezel
+    a, b = w / 2 - .028, h / 2 - .028
+    y = d / 2 + .014
+    B.quad("EMIT_work", [T((cx - a, y, cz - b)), T((cx - a, y, cz + b)), T((cx + a, y, cz + b)), T((cx + a, y, cz - b))])
+    return T((cx, y, cz))
+
+
+def floor_flood(B, o, yaw):
+    """yellow floor flood light (stand + U frame) at o, lens facing local +y after yaw; returns the lens centre"""
+    T = placed(o, yaw)
+    for x in (-.17, .17):
+        B.beam("yellow", T((x, -.2, .025)), T((x, .2, .025)), .035)
+        for y in (-.21, .21):
+            B.beam("rubber", T((x, y - .02, .025)), T((x, y + .02, .025)), .042)
+        B.beam("yellow", T((x, 0, .03)), T((x, 0, .46)), .03)
+    B.beam("yellow", T((-.17, 0, .04)), T((.17, 0, .04)), .03)
+    B.beam("yellow", T((-.17, 0, .46)), T((.17, 0, .46)), .03)
+    B.beam("rubber", T((-.1, 0, .465)), T((.1, 0, .465)), .042)
+    for x in (-.17, .17):
+        B.beam("steel", T((x, -.02, .27)), T((x * .8, -.02, .27)), .03)
+    return lamp_head(B, T, 0, .27, .30, .24, .09)
+
+
 def build():
     B = Builder()
     # floor + puddles + drain
@@ -506,33 +536,9 @@ def build():
 
     # ---- work lights (garage style), aimed at the bumpers ----------------------------
     # car nose faces -Y in env space (the viewer turns the car to face the open side)
-    def placed(origin, yaw):
-        c, s_ = math.cos(yaw), math.sin(yaw)
-        return lambda p: (origin[0] + p[0] * c - p[1] * s_, origin[1] + p[0] * s_ + p[1] * c, origin[2] + p[2])
-
-    def lamp_head(T, cx, cz, w, h, d, body="steel"):
-        B.beam(body, T((cx, -d / 2, cz)), T((cx, d / 2, cz)), w, h)                 # housing
-        B.beam("steel", T((cx, d / 2, cz)), T((cx, d / 2 + .012, cz)), w + .02, h + .02)  # bezel
-        a, b = w / 2 - .028, h / 2 - .028
-        y = d / 2 + .014
-        B.quad("EMIT_work", [T((cx - a, y, cz - b)), T((cx - a, y, cz + b)), T((cx + a, y, cz + b)), T((cx + a, y, cz - b))])
-        return T((cx, y, cz))
-
     LAMPS = {}
     # floor flood light (stand + U frame), front-right of the nose
-    o = (1.95, -3.55, 0.0); yaw = math.atan2(1.55, -1.45) - math.pi / 2   # face the front bumper
-    T = placed(o, yaw)
-    for x in (-.17, .17):
-        B.beam("yellow", T((x, -.2, .025)), T((x, .2, .025)), .035)
-        for y in (-.21, .21):
-            B.beam("rubber", T((x, y - .02, .025)), T((x, y + .02, .025)), .042)
-        B.beam("yellow", T((x, 0, .03)), T((x, 0, .46)), .03)
-    B.beam("yellow", T((-.17, 0, .04)), T((.17, 0, .04)), .03)
-    B.beam("yellow", T((-.17, 0, .46)), T((.17, 0, .46)), .03)
-    B.beam("rubber", T((-.1, 0, .465)), T((.1, 0, .465)), .042)
-    for x in (-.17, .17):
-        B.beam("steel", T((x, -.02, .27)), T((x * .8, -.02, .27)), .03)
-    LAMPS["floor"] = lamp_head(T, 0, .27, .30, .24, .09)
+    LAMPS["floor"] = floor_flood(B, (1.95, -3.55, 0.0), math.atan2(1.55, -1.45) - math.pi / 2)   # face the front bumper
 
     # twin halogen on a tripod, behind the car toward the rear bumper
     o = (2.15, 3.45, 0.0); yaw = math.atan2(-1.65, -1.65) - math.pi / 2   # rear-right, clear of the chili sign
@@ -548,7 +554,7 @@ def build():
     for x in (-.21, .21):
         B.beam("steel", T((x - .1, 0, 1.63)), T((x - .1, 0, 1.78)), .015)
         B.beam("steel", T((x + .1, 0, 1.63)), T((x + .1, 0, 1.78)), .015)
-        LAMPS[f"tripod{'L' if x < 0 else 'R'}"] = lamp_head(T, x, 1.79, .2, .15, .11, body="yellow")
+        LAMPS[f"tripod{'L' if x < 0 else 'R'}"] = lamp_head(B, T, x, 1.79, .2, .15, .11, body="yellow")
         for gx in (-.06, 0, .06):                                    # wire guard
             B.beam("steel", T((x + gx, .075, 1.72)), T((x + gx, .075, 1.86)), .008)
         B.beam("rubber", T((x - .05, 0, 1.875)), T((x + .05, 0, 1.875)), .025)

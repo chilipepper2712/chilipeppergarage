@@ -101,7 +101,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - **Góc ngồi trước pegboard:** bàn két nước và 2 ghế lưới sắt. Sofa đã bỏ.
 - **Góc trước bên trái** (chỗ khu dyno cũ): đang trống.
 
-**Phòng dyno** (`env/dyno_env.py`, toạ độ Blender): rộng 7,2 m, cửa cuốn ở `y = 7`, con lăn ở `y = −1.35`, quạt thổi trước mũi xe, console và màn treo tường bên trái. Viewer đặt xe sao cho trục trước nằm trên con lăn (gốc xe `y = ROLL + wheelbase/2`).
+**Phòng dyno** (`env/dyno_env.py`, toạ độ Blender): rộng 7,2 m, cửa cuốn ở `y = 7`, con lăn ở `y = −1.35`, quạt thổi trước mũi xe, console và màn treo tường bên trái. Vật liệu giống xưởng (vữa chân tường, gạch phía trên, mái dốc trên vì kèo + xà gồ). Đèn sàn vàng (dùng chung `floor_flood()` với xưởng) đặt sau xe bên phải, chiếu vào đuôi; ống hút khói và chồng carton bên trái. Viewer đặt xe sao cho trục trước nằm trên con lăn (gốc xe `y = ROLL + wheelbase/2`).
 - **Camera mặc định:** (−3.1, 2.4, 5.6), nhìn vào (1.4, 0.75, −0.5).
 
 **Dữ liệu:**

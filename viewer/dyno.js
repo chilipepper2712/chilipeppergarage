@@ -22,13 +22,18 @@ async function ensureRoom() {
   room = await G.load("env/dyno");
   G.prepMaterials(room, "env");
   room.traverse(o => { if (o.isMesh && o.material.name === "dynoplate") { o.material.roughness = 0.55; o.material.metalness = 0.35; } });
-  lights.add(new THREE.HemisphereLight("#cfd9e8", "#2a2620", 0.9));
+  lights.add(new THREE.HemisphereLight("#cfd9e8", "#2a2620", 1.1));
   for (const x of [-1.4, 1.4]) {
-    const l = new THREE.RectAreaLight("#e8f1ff", 4.5, 0.1, 9); l.position.set(x, 3.66, -0.3); l.lookAt(x, 0, -0.3); lights.add(l);
+    const l = new THREE.RectAreaLight("#e8f1ff", 4.5, 0.1, 9); l.position.set(x, 3.42, -0.3); l.lookAt(x, 0, -0.3); lights.add(l);
   }
   const key = new THREE.SpotLight("#f4f7ff", 9, 10, 0.75, 0.6, 1.2);
   key.position.set(0.6, 3.6, 0.6); key.target.position.set(0, 0, 0.4); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
   lights.add(key, key.target);
+  // floor flood behind the car (env/dyno_anchors.json "flood"), on the rear bumper, like the garage's work lights
+  const flood = new THREE.SpotLight("#fff1dc", 6, 8, 0.62, 0.75, 1.2);
+  flood.position.set(1.611, 0.27, -4.706); flood.target.position.set(0, 0.5, -2.6); lights.add(flood, flood.target);
+  // warm bounce up in the roof so the trusses read (the LED battens hang below them)
+  for (const z of [-3.2, 1.8]) { const r = new THREE.PointLight("#ffd9a8", 4, 7, 1.4); r.position.set(0, 3.55, z); lights.add(r); }
   const fan = new THREE.PointLight("#9fc4ff", 3, 4, 1.6); fan.position.set(0, 0.8, 3.4); lights.add(fan);
   const door = new THREE.PointLight("#ffcf8a", 2.5, 6, 1.6); door.position.set(0, 2.6, -8.5); lights.add(door);
   room.visible = lights.visible = false;
