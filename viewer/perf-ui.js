@@ -265,7 +265,7 @@ function runDyno() {
     <tr><td>Bản độ</td><td>${Math.round(pb.whp)} whp @ ${pb.rpm}</td><td>${Math.round(qb.nm * tuned.car.eff)} Nm @ ${qb.rpm}</td></tr>`;
   $("resNote").textContent = "Công suất đo tại bánh (đã trừ hao hụt truyền động). Mô-men tính tại trục khuỷu nhân hiệu suất truyền động.";
   const t0 = performance.now();
-  window.__dynoRun = { t0, dur: 2200, a: lastDyno.a, b: lastDyno.b };      // the dyno cell's screens and wheels follow this
+  window.__dynoRun = { t0, dur: 2200, a: lastDyno.a, b: lastDyno.b };      // the dyno room's screens and wheels follow this
   const step = now => { drawDyno(Math.min(1, (now - t0) / 2200)); if (now - t0 < 2200) anim = requestAnimationFrame(step); };
   anim = requestAnimationFrame(step);
 }
@@ -377,7 +377,10 @@ function runDrag() {
 }
 
 // ---- wiring ---------------------------------------------------------------------------------
-$("runDyno").addEventListener("click", async () => { if (window.__views) await window.__views.go("dyno"); runDyno(); });
+$("runDyno").addEventListener("click", async () => {
+  if (window.__views) { await window.__views.go("dyno"); if (window.__views.current() !== "dyno") return; }   // left the room mid drive-in
+  runDyno();
+});
 $("runDrag").addEventListener("click", runDrag);
 document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b));

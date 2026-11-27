@@ -381,7 +381,7 @@ def build():
     B.quad("floor", [(-W, Y0, 0), (W, Y0, 0), (W, Y1, 0), (-W, Y1, 0)])
     B.quad("grate", [(0.2, 1.7, .004), (1.0, 1.7, .004), (1.0, 2.2, .004), (0.2, 2.2, .004)])
     # service bay: epoxy-coated slab between the bay lines (glossy, oil-stained), no standing water
-    BX = 0.5                                     # bay centre x: one floor tile toward the pegboard, clear of the dyno
+    BX = 0.5                                     # bay centre x: one floor tile toward the pegboard
     B.quad("epoxy", [(BX - 1.45, -2.9, .002), (BX + 1.45, -2.9, .002), (BX + 1.45, 2.3, .002), (BX - 1.45, 2.3, .002)])
     # walls (normals inward so the room reads from inside; backface culling opens the dollhouse)
     B.quad("plaster_low", [(-W, Y0, 0), (-W, Y1, 0), (-W, Y1, 1.2), (-W, Y0, 1.2)])
@@ -466,38 +466,7 @@ def build():
                      ((PB[1] - .05, PB[3]), (PB[1], PB[4])), ((PB[2], PB[3]), (PB[2] + .05, PB[4]))):
         B.box("steel", (W - .06, lo[0], lo[1]), (W, hi[0], hi[1]))
     B.peg = {"pegboard": (PB[0], (PB[1] + PB[2]) / 2, (PB[3] + PB[4]) / 2), "pegboard_size": (PB[2] - PB[1], PB[4] - PB[3], 0)}
-    # ---- dyno cell, front-left under the red neon (reference: chassis dyno with blue diamond-plate deck)
-    # car drives on nose toward the open side; front axle over the rollers at y = DYNO_ROLL
-    DX, DROLL = -3.4, -5.0
-    B.box("dynoplate", (DX - 1.35, -6.7, 0), (DX + 1.35, -1.3, .03))
-    B.box("rubber", (DX - 1.0, DROLL - .3, .03), (DX + 1.0, DROLL + .3, .032))             # roller pit
-    for dy in (-.17, .17):
-        B.cyl("red", (DX - .95, DROLL + dy, .04), .085, 1.9, 10, axis="x")
-    for x0 in (DX - 1.35, DX + .85):                                                      # wheel-guard blocks
-        for y0, y1 in ((DROLL - .6, DROLL + .6), (-2.3, -1.4)):
-            B.box("dynoblue", (x0, y0, .03), (x0 + .5, y1, .3))
-            B.box("hazard", (x0 - .005, y0 - .005, .3), (x0 + .505, y1 + .005, .38))
-            B.box("grate", (x0 + .05, y0 + .05, .381), (x0 + .45, y1 - .05, .385))
-    B.box("rubber", (DX - .9, -1.3, 0), (DX + .9, -.75, .02))                             # drive-on ramp
-    # blower fan in front of the nose
-    B.box("dynoblue", (DX - .55, -7.0 + .25, .12), (DX + .55, -6.75 + .25, 1.05))
-    B.box("grate", (DX - .45, -6.76 + .25, .2), (DX + .45, -6.74 + .25, .95))
-    B.box("dynoblue", (DX - .3, -7.0, .12), (DX + .3, -6.75, .9))
-    for x in (DX - .45, DX + .45):
-        B.cyl("rubber", (x, -6.85, .06), .06, .05, 8, axis="x")
-    # control console on the bay side, screen facing the car
-    cx, cy = DX + 1.9, -5.4
-    B.box("console", (cx - .3, cy - .35, 0), (cx + .3, cy + .35, 1.1))
-    B.box("console", (cx - .38, cy - .4, .9), (cx + .05, cy + .4, .95))                   # keyboard shelf
-    B.box("steel", (cx + .1, cy - .02, 1.1), (cx + .14, cy + .02, 1.3))
-    B.box("blacksteel", (cx - .02, cy - .33, 1.28), (cx + .1, cy + .33, 1.72))
-    B.quad_uv("EMIT_dynoA", [(cx - .03, cy + .3, 1.31), (cx - .03, cy - .3, 1.31), (cx - .03, cy - .3, 1.69), (cx - .03, cy + .3, 1.69)],
-              [(0, 0), (1, 0), (1, 1), (0, 1)])
-    # wall monitor over the cell
-    B.box("blacksteel", (-W, DROLL + .6, 1.5), (-W + .06, DROLL + 1.6, 2.1))
-    B.quad_uv("EMIT_dynoB", [(-W + .07, DROLL + .65, 1.54), (-W + .07, DROLL + 1.55, 1.54), (-W + .07, DROLL + 1.55, 2.06), (-W + .07, DROLL + .65, 2.06)],
-              [(0, 0), (1, 0), (1, 1), (0, 1)])
-    B.peg["dyno"] = (DX, DROLL, 0.03)
+    # the dyno has its own room now (env/dyno_env.py); the front-left corner is free floor
 
     # lounge in front of the board: a soda-crate table with a wooden top, two black wire-mesh side chairs
     # soda-crate table: red crate on four tapered wooden legs, wooden top

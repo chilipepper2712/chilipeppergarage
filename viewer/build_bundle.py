@@ -7,7 +7,7 @@ import json, struct, base64, pathlib, glob
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CARS = ["mazda2_2013", "civic_fd_2008", "cx5_2020", "mini_f55_2018", "ranger_raptor_2019", "xpander_2020"]
-SRC = {"env/garage": ROOT / "out/env/garage.glb", "env/tunnel": ROOT / "out/env/tunnel.glb", "env/wall_items": ROOT / "out/env/wall_items.glb"}
+SRC = {"env/garage": ROOT / "out/env/garage.glb", "env/tunnel": ROOT / "out/env/tunnel.glb", "env/dyno": ROOT / "out/env/dyno.glb", "env/wall_items": ROOT / "out/env/wall_items.glb"}
 for car in CARS:
     SRC[car] = ROOT / f"out/{car}/{car}.glb"
     for f in sorted(glob.glob(str(ROOT / f"out/{car}/parts/*.glb"))):
@@ -55,6 +55,7 @@ assert out.rstrip().endswith("</script>")
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/perf-ui.js").read_text() + "</script>\n"
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/tunnel.js").read_text() + "</script>\n"
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/wall.js").read_text() + "</script>\n"
+out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/dyno.js").read_text() + "</script>\n"
 out = out.rstrip() + '\n<script type="module">\n' + (ROOT / "viewer/views.js").read_text() + "</script>\n"
 (ROOT / "viewer/index.html").write_text(out)
 print(len(bundle), "assets,", round(len(out) / 1e6, 2), "MB")

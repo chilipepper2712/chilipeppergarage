@@ -41,13 +41,14 @@ App **độ xe tham khảo** cho xe đời thường ở Việt Nam. Đây là a
 /home/user/.venv/bin/python env/garage_env.py        # garage -> out/env/garage.glb (+ anchors.json)
 /home/user/.venv/bin/python env/wall_items.py        # đồ treo pegboard -> out/env/wall_items.glb
 /home/user/.venv/bin/python env/tunnel_env.py        # hầm gió
+/home/user/.venv/bin/python env/dyno_env.py          # phòng dyno -> out/env/dyno.glb
 /home/user/.venv/bin/python pipeline/build_car.py <car> [lip|sport|diffuser|skirt]
 node perf/calibrate.js --write                       # khớp Cd·A + hệ số thời gian kT vào data/garage-db.json
 python3 viewer/build_bundle.py                       # gói mọi thứ vào viewer/index.html (~2.95 MB)
 ```
 
 **Môi trường:**
-- Blender là module Python `bpy` (bản 5.2) nằm trong `/home/user/.venv`.
+- Blender là module Python `bpy` (bản 5.2) nằm trong `/home/user/.venv`. Container mới thì tạo lại: `python3.13 -m venv /home/user/.venv && /home/user/.venv/bin/pip install -r requirements.txt`.
 - Viewer dùng three.js 0.160 qua importmap trỏ tới jsDelivr.
 
 **Test Playwright:**
@@ -65,7 +66,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
   ```
 
 ## 4. Kiến trúc viewer
-`viewer/index.src.html` cộng các module, `build_bundle.py` gói tất cả thành `index.html`. Thứ tự nạp: `perf/*.js` (script thường) → `perf-ui.js` → `tunnel.js` → `wall.js` → `views.js`.
+`viewer/index.src.html` cộng các module, `build_bundle.py` gói tất cả thành `index.html`. Thứ tự nạp: `perf/*.js` (script thường) → `perf-ui.js` → `tunnel.js` → `wall.js` → `dyno.js` → `views.js`.
 
 **Từng file:**
 - `index.src.html`:
@@ -75,11 +76,8 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - `perf-ui.js`: tab Hiệu năng và So sánh, chạy dyno và drag (bảng kết quả `#results`), các gói độ, gọi bộ chọn đồ theo ngân sách.
 - `tunnel.js`: hầm gió (luồng khói, số khí động). Chỉ nhận nút `tunnel`; xuất ra `window.__tunnel.setRoom`.
 - `wall.js`: pegboard. Món được chọn treo lên bảng, hộp và lốp đứng dưới chân bảng. Rê chuột hoặc chạm hiện thẻ; chạm để ghim, trong thẻ có nút thùng rác để gỡ.
-- `views.js`:
-  - 3 vị trí Xưởng / Phụ tùng độ / Dyno, camera lướt giữa các vị trí;
-  - xe trượt sang băng dyno;
-  - màn hình khu dyno là canvas tự vẽ (lúc chờ tự chuyển trang, lúc đo hiện số thật từ `window.__dynoRun`);
-  - bánh xe quay khi đang đo.
+- `dyno.js`: phòng dyno riêng (như hầm gió). Vào phòng là xe lái từ cửa cuốn thẳng lên con lăn (thời gian tính theo frame, chặn dt để lần đầu biên dịch shader không làm xe nhảy cóc), bánh quay theo quãng đường. Màn hình console và màn treo tường là canvas tự vẽ (lúc chờ tự chuyển trang, lúc đo hiện số thật từ `window.__dynoRun`); bánh quay khi đo. Xuất `window.__dyno` (`enter`, `leave`, `ready`).
+- `views.js`: điều phối 4 nút. Xưởng / Phụ tùng độ là camera lướt trong garage; Dyno giao cho `dyno.js`, Hầm gió cho `tunnel.js`.
 
 **Biến toàn cục dùng chung giữa các module:**
 
@@ -90,6 +88,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 | `__wall` | trạng thái pegboard, `unpin` |
 | `__views` | `go`, `current` |
 | `__tunnel` | `setRoom` |
+| `__dyno` | `enter`, `leave`, `ready` (promise: xe đã dừng trên con lăn) |
 | `__dynoRun` | dữ liệu lần chạy dyno đang diễn ra |
 
 **Quy ước toạ độ:**
@@ -100,7 +99,9 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - **Chỗ đỗ:** tâm `x = 0.5`, tức `BAY_X`, đã dời một ô gạch 0,5 m về phía pegboard.
 - **Pegboard:** tường phải `x = 5.48`, `y` từ −3.6 đến 1.8, `z` từ 0.3 đến 2.34. Nằm dưới dải cửa sổ (z 2.4–4.1).
 - **Góc ngồi trước pegboard:** bàn két nước và 2 ghế lưới sắt. Sofa đã bỏ.
-- **Khu dyno:** góc trước bên trái, `x = −3.4`, con lăn ở `y = −5.0`, ngay dưới neon đỏ.
+- **Góc trước bên trái** (chỗ khu dyno cũ): đang trống.
+
+**Phòng dyno** (`env/dyno_env.py`, toạ độ Blender): rộng 7,2 m, cửa cuốn ở `y = 7`, con lăn ở `y = −1.35`, quạt thổi trước mũi xe, console và màn treo tường bên trái. Viewer đặt xe sao cho trục trước nằm trên con lăn (gốc xe `y = ROLL + wheelbase/2`).
 - **Camera mặc định:** (−3.1, 2.4, 5.6), nhìn vào (1.4, 0.75, −0.5).
 
 **Dữ liệu:**
@@ -123,13 +124,15 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 | Đồ độ trên xe | Chỉ mâm, hạ gầm, sơn. Mọi món khác treo trên pegboard, dạng chung, không theo từng xe |
 | Pegboard | Một tấm liền, không đường nối, canh giữa dưới cửa sổ. Đồ treo to khoảng 1,55 lần cỡ thật. Không vẽ ô trống. Thẻ thông tin dùng lá cờ màu thay cho chữ đăng kiểm |
 | Camera | Không tự chạy theo thao tác. Người dùng tự chọn bằng 4 nút: Xưởng / Phụ tùng độ / Dyno / Hầm gió |
+| Dyno | Phòng riêng, không nằm trong garage (garage chật, cầu thang chắn làn vào). Xe lái thẳng từ cửa vào băng |
+| Panel kết quả | Nền trong suốt (alpha .74) để nhìn thấy phòng phía sau |
 | Màn mở đầu | Garage trống → "Anh em đang đi xe gì?" → đèn neon chớp lần lượt → ngân sách 10–200 triệu + mục tiêu (Êm / Vui / Nhanh / Ngầu), có nút bỏ qua |
 | Sprite stacking | Đã thử, chưa dùng (ý tưởng: icon trong ô chọn xe) |
 
 ## 6. Việc còn dở
 - **Mâm:** user sẽ gửi ảnh 6–7 mẫu mâm phổ thông. Thay 5 mẫu tạm hiện tại (`stock`, `mesh`, `dish`, `steel`, `black6`). Mâm nằm trong `out/<model>/parts/wheel_*.glb`, dựng bằng `pipeline/wheel.py`.
-- **Bảng kết quả dyno** đang che khu dyno lúc đo. Đã đề xuất thu nhỏ, dạt sang một bên; **user chưa trả lời**.
-- **Xe sang băng dyno** đang trượt ngang. Có thể làm cảnh lái vào.
+- **Bảng kết quả dyno** vẫn nằm giữa khung, đã làm trong suốt hơn. Phương án thu nhỏ, dạt sang một bên vẫn còn để ngỏ.
+- **Góc trước bên trái garage** trống sau khi dời dyno đi, chưa bày gì.
 - **Đồ body kit trên pegboard** chỉ là những thanh xám, khó nhận ra. User chưa phàn nàn.
 - **Chưa test trên tablet thật** (thao tác chạm).
 - **Đề xuất cũ chưa làm:**
