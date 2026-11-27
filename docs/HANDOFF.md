@@ -128,6 +128,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 | Panel kết quả | Nền trong suốt (alpha .74) để nhìn thấy phòng phía sau |
 | Màn mở đầu | Garage trống → "Anh em đang đi xe gì?" → đèn neon chớp lần lượt → ngân sách 10–200 triệu + mục tiêu (Êm / Vui / Nhanh / Ngầu), có nút bỏ qua |
 | Mâm | 8 mẫu độ theo ảnh user gửi (6 chấu, 8 chấu, 5 chấu lip, chữ Y, lưới, rally, lỗ thoáng, 3 chấu) + zin. Chỉ lấy dáng, không logo, tên chung. Mặt mâm độ lõm (concave: vành thụt 3 cm, tâm 6 cm); zin phẳng |
+| Giá mâm | Theo mức: Phổ thông 6–9,5 tr/bộ (hàng TQ / Thái), Premium 50–85 tr/bộ (hàng Nhật chính hãng, gồm cả mâm 2 mảnh). Nhãn ghi xuất xứ, không ghi tên hãng |
 | Màu mâm | 4 màu: Chrome xám (mặc định), Đồng, Đen, Trắng. Mặt mâm vẽ bằng dải màu khoá `rimkey`, viewer đổi màu + dựng lại độ bóng/kim loại (`recolorRims`). Vành lip của 5 chấu và 3 chấu giữ kim loại đánh bóng. Mâm zin không đổi màu |
 | Sprite stacking | Đã thử, chưa dùng (ý tưởng: icon trong ô chọn xe) |
 
