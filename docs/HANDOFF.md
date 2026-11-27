@@ -127,14 +127,16 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 | Dyno | Phòng riêng, không nằm trong garage (garage chật, cầu thang chắn làn vào). Xe lái thẳng từ cửa vào băng |
 | Panel kết quả | Nền trong suốt (alpha .74) để nhìn thấy phòng phía sau |
 | Màn mở đầu | Garage trống → "Anh em đang đi xe gì?" → đèn neon chớp lần lượt → ngân sách 10–200 triệu + mục tiêu (Êm / Vui / Nhanh / Ngầu), có nút bỏ qua |
+| Mâm | 8 mẫu độ theo ảnh user gửi (6 chấu, 8 chấu, 5 chấu lip, chữ Y, lưới, rally, lỗ thoáng, 3 chấu) + zin. Chỉ lấy dáng, không logo, tên chung. Mặt mâm độ lõm (concave: vành thụt 3 cm, tâm 6 cm); zin phẳng |
+| Màu mâm | 4 màu: Chrome xám (mặc định), Đồng, Đen, Trắng. Mặt mâm vẽ bằng dải màu khoá `rimkey`, viewer đổi màu + dựng lại độ bóng/kim loại (`recolorRims`). Vành lip của 5 chấu và 3 chấu giữ kim loại đánh bóng. Mâm zin không đổi màu |
 | Sprite stacking | Đã thử, chưa dùng (ý tưởng: icon trong ô chọn xe) |
 
 ## 6. Việc còn dở
-- **Mâm:** user sẽ gửi ảnh 6–7 mẫu mâm phổ thông. Thay 5 mẫu tạm hiện tại (`stock`, `mesh`, `dish`, `steel`, `black6`). Mâm nằm trong `out/<model>/parts/wheel_*.glb`, dựng bằng `pipeline/wheel.py`.
 - **Bảng kết quả dyno** vẫn nằm giữa khung, đã làm trong suốt hơn. Phương án thu nhỏ, dạt sang một bên vẫn còn để ngỏ.
 - **Góc trước bên trái garage** trống sau khi dời dyno đi, chưa bày gì.
 - **Đồ body kit trên pegboard** chỉ là những thanh xám, khó nhận ra. User chưa phàn nàn.
 - **Chưa test trên tablet thật** (thao tác chạm).
+- **Số liệu còn ước lượng** (sau đợt rà 11/2026, mạng container chặn PDF hãng nên chỉ dựa vào kết quả search): Vios và City (tỉ số truyền + cầu), Accent (khối lượng, cầu), Mazda 3 và CX-5 (cầu), MINI (gầm, lốp, số giữa + cầu), Ranger (tỉ số hộp số). Cd hiệu chỉnh của Xpander (0,298) và CX-5 (0,371) lệch khỏi mức hợp lý, nghi vmax đo không phải giới hạn do cản gió.
 - **Đề xuất cũ chưa làm:**
   - chia sẻ bản độ qua link (`#hash`);
   - bổ sung nguồn số liệu để bớt dấu `~` (tỉ số truyền phần lớn chưa có nguồn; Ranger XLS là xe yếu dữ liệu nhất);

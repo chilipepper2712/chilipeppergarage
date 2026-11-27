@@ -60,7 +60,7 @@
     "bumper_R": "stock",
     "skirt": "skirt",
     "spoiler": "roof_ext",
-    "wheel": "black6"
+    "wheel": "six"
    }
   },
   "track": {
@@ -912,53 +912,193 @@
  "wheels": {
   "stock": {
    "wheelKg": 0,
-   "price": [
-    0,
-    0
-   ],
-   "score": {}
+   "score": {},
+   "tiers": {
+    "eco": {
+     "price": [
+      0,
+      0
+     ]
+    },
+    "pro": {
+     "price": [
+      0,
+      0
+     ]
+    }
+   }
   },
-  "mesh": {
-   "wheelKg": -2.0,
-   "price": [
-    14,
-    22
-   ],
+  "six": {
+   "wheelKg": -1.5,
    "score": {
     "h": 1
    },
-   "brand": "Mâm lưới đúc nhẹ"
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
   },
-  "dish": {
-   "wheelKg": 1.5,
-   "price": [
-    18,
-    26
-   ],
+  "eight": {
+   "wheelKg": -1.5,
+   "score": {
+    "h": 1
+   },
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
+  },
+  "five": {
+   "wheelKg": 1.0,
    "score": {
     "e": -1
    },
-   "brand": "Mâm lòng sâu, lốp mỏng"
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
   },
-  "steel": {
-   "wheelKg": 3.0,
-   "price": [
-    3,
-    5
-   ],
+  "ysp": {
+   "wheelKg": -0.5,
    "score": {},
-   "brand": "Mâm sắt"
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
   },
-  "black6": {
+  "mesh": {
    "wheelKg": -1.0,
-   "price": [
-    10,
-    15
-   ],
    "score": {
     "h": 1
    },
-   "brand": "Mâm 6 chấu đúc nhẹ"
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
+  },
+  "rally": {
+   "wheelKg": -2.0,
+   "score": {
+    "h": 1
+   },
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
+  },
+  "window": {
+   "wheelKg": 0.5,
+   "score": {},
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
+  },
+  "tri": {
+   "wheelKg": 0.5,
+   "score": {
+    "e": -1
+   },
+   "tiers": {
+    "eco": {
+     "price": [
+      6,
+      9.5
+     ],
+     "brand": "Hàng Trung Quốc / Thái (đúc theo mẫu)"
+    },
+    "pro": {
+     "price": [
+      50,
+      50
+     ],
+     "brand": "Hàng Nhật chính hãng"
+    }
+   }
   }
  },
  "body": {

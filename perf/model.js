@@ -43,9 +43,10 @@
       lo += e.price[0]; hi += e.price[1];
     }
     const w = ext.wheel && cat.wheels[ext.wheel];
-    if (w && ext.wheel !== "stock") {
-      simParts.push({ id: `wheel_${ext.wheel}`, group: "wheel", price: (w.price[0] + w.price[1]) / 2, fx: { wheelKg: w.wheelKg, fun: 1 } });
-      scoreAdd(w.score); lo += w.price[0]; hi += w.price[1];
+    if (w && ext.wheel !== "stock") {                    // price by tier: aftermarket copies vs genuine Japanese
+      const wp = tierOf(w, tier).price;
+      simParts.push({ id: `wheel_${ext.wheel}`, group: "wheel", price: (wp[0] + wp[1]) / 2, fx: { wheelKg: w.wheelKg, fun: 1 } });
+      scoreAdd(w.score); lo += wp[0]; hi += wp[1];
     }
     const catalog = { parts: [...simParts, ...cat.parts] };
     const vehicle = S.build(car, simParts.map(p => p.id), catalog);

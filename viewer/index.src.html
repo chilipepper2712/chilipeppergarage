@@ -115,6 +115,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .swatches { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .sw { aspect-ratio: 1; max-width: 100%; border: 2px solid var(--line); cursor: pointer; padding: 0; border-radius: 3px; }
 .sw[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--bg); }
+.sw:disabled { opacity: .35; cursor: not-allowed; }
+.swatches.rimcols { grid-template-columns: repeat(4, minmax(0, 36px)); }
 .toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 13px; }
 .toggles label { display: flex; gap: 7px; align-items: center; cursor: pointer; }
 .toggles input { accent-color: var(--accent); }
@@ -369,6 +371,10 @@ button.run:disabled { opacity: .45; cursor: not-allowed; }
     </div>
     <div class="col">
       <section><h2 class="label" id="rimLabel">Mâm 15″ · lốp 185/55</h2><div class="rims" id="rims"></div></section>
+      <section>
+        <div class="line"><h2 class="label">Màu mâm</h2><span class="val" id="rimColName"></span></div>
+        <div class="swatches rimcols" id="rimColors"></div>
+      </section>
     </div>
     <div class="col">
       <section>
@@ -551,7 +557,17 @@ const SLOTS = [
   { key: "skirt",    label: "Ốp sườn",   opts: [["stock","Zin"],["skirt","Hạ 45mm"]] },
   { key: "spoiler",  label: "Cánh gió",  opts: [["none","Không"],["roof_ext","Đuôi dài"],["gt_wing","GT wing"]] },
 ];
-const RIMS = [["stock","Zin"],["mesh","Lưới"],["dish","Lòng sâu"],["steel","Mâm sắt"],["black6","6 chấu"]];
+const RIMS = [["stock","Zin"],["six","6 chấu"],["eight","8 chấu"],["five","5 chấu lip"],["ysp","Chữ Y"],["mesh","Lưới"],["rally","Rally"],["window","Lỗ thoáng"],["tri","3 chấu"]];
+// rim colours: the aftermarket rim face is painted in a key ramp (pipeline/palette.py "rimkey"), swapped here
+const RIM_KEY = ["#0b3a1e","#135a2e","#1d7a40","#2a9c55","#46c172"];
+const RIM_COLORS = {
+  "Chrome xám": { ramp: ["#2b2e33","#4b4f56","#71767e","#a3a9b1","#dde2e8"], pbr: [0.2, 0.9] },
+  "Đồng":       { ramp: ["#3a2810","#5e4220","#86602f","#ab8146","#d0a86a"], pbr: [0.42, 0.65] },
+  "Đen":        { ramp: ["#0a0a0c","#141417","#1f2024","#2e3036","#474a52"], pbr: [0.55, 0.3] },
+  "Trắng":      { ramp: ["#8d9299","#b1b6bc","#cfd3d8","#e6e8eb","#f7f8f9"], pbr: [0.45, 0.05] },
+};
+put(RIM_KEY, [0.3, 0.6, null]);                                                           // rim face before recolour
+for (const c of Object.values(RIM_COLORS)) put(c.ramp, [...c.pbr, null]);
 // exterior reset used when switching cars; the build presets live in perf/parts.json (one list for the garage)
 const PRESETS = { stock: { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wheel:"stock", spoiler:"none" } };
 // cars come from data/garage-db.json; cars without their own model borrow their body type's model,
@@ -572,7 +588,7 @@ const CARS = Object.fromEntries(Object.entries(GDB.cars).map(([k, c]) => {
     cam: Math.max(1, c.dims[0] / 4500, c.dims[2] / 1600),
   }];
 }));
-const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", lights: false };
+const state = { car: "mazda2_2013", ...PRESETS.stock, lower: 0, paint: "Xanh Mazda", rimColor: "Chrome xám", lights: false };
 const $ = id => document.getElementById(id);
 $("narrowGo").addEventListener("click", () => { $("narrow").hidden = true; });
 $("pickBtn").addEventListener("click", () => { const p = $("carPop"); p.hidden = !p.hidden; $("pickBtn").setAttribute("aria-expanded", !p.hidden); });
@@ -758,10 +774,10 @@ function stepDust(dt, t) {
   dGeo.attributes.position.needsUpdate = true; dGeo.attributes.aAlpha.needsUpdate = true;
 }
 
-// parking bay lines
+// parking bay lines, on the edges of the epoxy slab (env/garage_env.py: BX +- 1.45, z -2.3..2.9)
 {
   const lineM = new THREE.MeshStandardMaterial({ color: "#a8741f", roughness: 0.7 });
-  for (const x of [-1.45, 1.45]) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 5.2), lineM); l.rotation.x = -Math.PI/2; l.position.set(x, 0.006, 0.3); l.receiveShadow = true; scene.add(l); }
+  for (const dx of [-1.45, 1.45]) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 5.2), lineM); l.rotation.x = -Math.PI/2; l.position.set(BAY_X + dx, 0.006, 0.3); l.receiveShadow = true; scene.add(l); }
 }
 
 // everything added so far (lights, fixtures, light shaft, dust, bay lines) belongs to the garage room
@@ -934,18 +950,18 @@ function prepMaterials(root, kind) {      // kind: car | wheel | env
       if (map) pbrFromPalette(mat, map.flipY);
       o.castShadow = true;
       if (kind === "car" && map) mat.userData.paint = true;
-      if (map) mat.userData.surface = true;
+      if (map && kind !== "wheel") mat.userData.surface = true;     // body paint swap; rims recolour on their own (recolorRims)
     }
     mat.name = name;
     o.material = mat; o.receiveShadow = true;
   });
 }
 
-function recolor(mat, paint) {
+function recolor(mat, paint, from = SRC) {
   const tex = mat.map;
   if (!origPixels.has(mat)) origPixels.set(mat, { data: pixels(tex.image), flipY: tex.flipY });
   const { data, flipY } = origPixels.get(mat);
-  const src = SRC.ramp.map(hex), dst = paint.ramp.map(hex), sSeam = hex(SRC.seam), dSeam = hex(paint.seam);
+  const src = from.ramp.map(hex), dst = paint.ramp.map(hex), sSeam = hex(from.seam || "#000001"), dSeam = hex(paint.seam || "#000001");
   const out = new ImageData(new Uint8ClampedArray(data.data), data.width, data.height);
   const p = out.data;
   for (let i = 0; i < p.length; i += 4) {
@@ -956,6 +972,13 @@ function recolor(mat, paint) {
     else if (r === sSeam[0] && g === sSeam[1] && b === sSeam[2]) p.set(dSeam, i);
   }
   mat.map = canvasTex(out, flipY, true); mat.needsUpdate = true;
+  return flipY;
+}
+// rim colour: swap the key ramp, then rebuild roughness / metalness from the new pixels (chrome shines, powder coat doesn't)
+function recolorRims() {
+  const c = RIM_COLORS[state.rimColor];
+  const mats = new Set(); wheelGroup.traverse(o => { if (o.isMesh && o.material.map) mats.add(o.material); });
+  for (const m of mats) { const flipY = recolor(m, c, { ramp: RIM_KEY }); pbrFromPalette(m, flipY); }
 }
 
 // ---- car assembly -------------------------------------------------------------------
@@ -1054,6 +1077,7 @@ async function apply() {
     wheelGroup.add(w);
   }
   body.position.y = -state.lower / 1000;
+  recolorRims();
   HOOKS.change.forEach(f => f());
   for (const m of carMats(m => m.userData.surface)) recolor(m, PAINTS[state.paint]);
   for (const m of carMats(m => m.userData.glow)) m.emissiveIntensity = state.lights ? 2.2 : 0;
@@ -1089,9 +1113,15 @@ for (const [v, txt] of RIMS) {
   rimsEl.append(b);
 }
 function refreshRims() {
+  const src = RIM_KEY.map(hex), dst = RIM_COLORS[state.rimColor].ramp.map(hex);
   for (const b of rimsEl.querySelectorAll(".rim")) {
     const c = b.querySelector("canvas"), img = new Image();
-    img.onload = () => { const g = c.getContext("2d"); g.clearRect(0, 0, 76, 76); g.imageSmoothingEnabled = false; g.drawImage(img, 2, 2, 76, 76, 0, 0, 76, 76); };
+    img.onload = () => {
+      const g = c.getContext("2d"); g.clearRect(0, 0, 76, 76); g.imageSmoothingEnabled = false; g.drawImage(img, 2, 2, 76, 76, 0, 0, 76, 76);
+      const d = g.getImageData(0, 0, 76, 76), p = d.data;
+      for (let i = 0; i < p.length; i += 4) { const k = src.findIndex(s => s[0] === p[i] && s[1] === p[i+1] && s[2] === p[i+2]); if (k >= 0) p.set(dst[k], i); }
+      g.putImageData(d, 0, 0);
+    };
     img.src = BUNDLE[`${CARS[state.car].model}/parts/wheel_${b.dataset.val}`].images[0];
   }
 }
@@ -1118,6 +1148,16 @@ for (const [name, p] of Object.entries(PAINTS)) {
   sws.append(b);
 }
 
+const rimCols = $("rimColors");
+for (const [name, c] of Object.entries(RIM_COLORS)) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "sw"; b.title = name; b.setAttribute("aria-label", "Mâm màu " + name);
+  b.style.background = `linear-gradient(180deg, ${c.ramp[4]} 0 35%, ${c.ramp[2]} 35% 75%, ${c.ramp[1]} 75%)`;
+  b.dataset.rimcol = name;
+  b.addEventListener("click", () => { state.rimColor = name; recolorRims(); refreshRims(); syncUI(); });
+  rimCols.append(b);
+}
+
 const lower = $("lower");
 lower.addEventListener("input", () => { state.lower = +lower.value; body.position.y = -state.lower / 1000; syncUI(); updateSpec(); });
 $("tPixel").addEventListener("change", e => { bay.classList.toggle("pixel", e.target.checked); resize(); });
@@ -1127,7 +1167,9 @@ $("tLights").addEventListener("change", e => { state.lights = e.target.checked; 
 function syncUI() {
   document.querySelectorAll("[data-car]").forEach(b => b.setAttribute("aria-pressed", state.car === b.dataset.car));
   document.querySelectorAll("[data-slot]").forEach(b => b.setAttribute("aria-pressed", state[b.dataset.slot] === b.dataset.val));
-  document.querySelectorAll(".sw").forEach(b => b.setAttribute("aria-pressed", state.paint === b.dataset.paint));
+  document.querySelectorAll("#swatches .sw").forEach(b => b.setAttribute("aria-pressed", state.paint === b.dataset.paint));
+  document.querySelectorAll("#rimColors .sw").forEach(b => { b.setAttribute("aria-pressed", state.rimColor === b.dataset.rimcol); b.disabled = state.wheel === "stock"; });
+  $("rimColName").textContent = state.wheel === "stock" ? "Mâm zin" : state.rimColor;
   lower.value = state.lower;
   $("lowerVal").textContent = `${state.lower} mm`;
   $("paintName").textContent = state.paint;

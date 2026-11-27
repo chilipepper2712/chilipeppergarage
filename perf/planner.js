@@ -8,7 +8,7 @@
 
   // how much each goal values a build, measured against stock
   const LOOK = { bumper_F: { lip: 1, sport: 1.5 }, bumper_R: { diffuser: 1 }, skirt: { skirt: 0.8 },
-    spoiler: { roof_ext: 0.6, gt_wing: 1.5 }, wheel: { mesh: 1.5, dish: 1.6, black6: 1.4 } };
+    spoiler: { roof_ext: 0.6, gt_wing: 1.5 }, wheel: { six: 1.5, eight: 1.5, five: 1.7, ysp: 1.3, mesh: 1.5, rally: 1.4, window: 1.3, tri: 1.6 } };
   const LOOK_MOD = { coilover: 1.2, springs: 1.0, axleback: 0.5, catback: 0.7 };
 
   function value(r, s, build, goals) {
@@ -37,7 +37,7 @@
     for (const [slot, opts] of Object.entries(cat.body))
       for (const [opt, e] of Object.entries(opts)) out.push({ kind: "ext", slot, opt, hi: e.price[1] });
     for (const [opt, w] of Object.entries(cat.wheels))
-      if (opt !== "stock" && opt !== "steel") out.push({ kind: "ext", slot: "wheel", opt, hi: w.price[1] });
+      if (opt !== "stock") out.push({ kind: "ext", slot: "wheel", opt, hi: M.tierOf(w, tier).price[1] });
     return out;
   }
 

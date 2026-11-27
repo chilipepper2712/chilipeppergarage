@@ -10,6 +10,8 @@ RAMPS = {
     "glass": ["#081a20", "#0f2c35", "#17414d", "#235a68", "#3d8494"],
     "tyre":  ["#111113", "#1b1b1e", "#26262a", "#34343a"],
     "metal": ["#3a3d42", "#5d6168", "#878c94", "#b3b8bf", "#e2e6ea"],
+    # rim face key: never shown as is, the viewer swaps it for the picked rim colour (chrome / bronze / black / white)
+    "rimkey": ["#0b3a1e", "#135a2e", "#1d7a40", "#2a9c55", "#46c172"],
 }
 SINGLE = {
     "black": "#121215", "plastic": "#24252a", "under": "#0d0d0f",

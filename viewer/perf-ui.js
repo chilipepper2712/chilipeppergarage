@@ -24,7 +24,8 @@ function vehicles() { return { stock: stockOf(G.state.car).vehicle, tuned: curre
 const peak = (v, k) => S.dyno(v).reduce((a, b) => (b[k] > a[k] ? b : a));
 const f1 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const f2 = n => n.toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fr = ([a, b]) => (a === b ? `${a} tr` : `${a}–${b} tr`);
+const vn = n => (+n.toFixed(1)).toLocaleString("vi-VN");
+const fr = ([a, b]) => (a === b ? `${vn(a)} tr` : `${vn(a)}–${vn(b)} tr`);
 
 // ---- picking ---------------------------------------------------------------------------
 function toggle(key, on) {
@@ -109,7 +110,7 @@ function stats() {
   const e = ext(), exteriorBits = [];
   for (const [slot, v] of [["bumper_F", e.bumper_F], ["bumper_R", e.bumper_R], ["skirt", e.skirt], ["spoiler", e.spoiler]])
     if (CAT.body[slot] && CAT.body[slot][v]) exteriorBits.push(CAT.body[slot][v].price);
-  if (e.wheel !== "stock") exteriorBits.push(CAT.wheels[e.wheel].price);
+  if (e.wheel !== "stock") exteriorBits.push(M.tierOf(CAT.wheels[e.wheel], tier).price);
   const exSum = exteriorBits.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]);
   $("priceBreak").innerHTML = items.length || exSum[1] ? items.map(([l, p]) => `${l}: ${fr(p)}`).join("<br>") + (exSum[1] ? `${items.length ? "<br>" : ""}Ngoại thất: ${fr(exSum)}` : "") : "Chưa chọn món nào.";
   $("dkList").innerHTML = b.dk.length ? b.dk.map(d => `<span class="dk-${d.level}">${FLAG}</span> ${d.label}: ${CAT.dk[d.level].toLowerCase()}${d.note ? `, ${d.note}` : ""}`).join("<br>")

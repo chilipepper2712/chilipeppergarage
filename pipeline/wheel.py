@@ -15,14 +15,58 @@ SEG = 12
 STOCK_RIM = dict(style="spoke", spokes=5, spoke_w=0.030, hub_r=0.055, lip=0.014,
                  color="metal", dish=0.0)
 
-# aftermarket rims: universal, scaled only by the car's tyre size
+CONCAVE = (0.03, 0.06)     # aftermarket rims: face sunk 3 cm at the rim edge, 6 cm at the hub
+
+# aftermarket rims: universal, scaled only by the car's tyre size. Generic shapes of common aftermarket
+# designs, no maker names or logos. The face is painted in the "rimkey" ramp so the viewer can recolour it
+# (chrome grey / bronze / black / white); a polished lip ("lip_metal") stays bare metal whatever the colour.
 RIMS = {
-    "stock": STOCK_RIM,
-    "mesh":  dict(style="mesh", spokes=10, spoke_w=0.008, hub_r=0.045, lip=0.016, color="metal"),
-    "dish":  dict(style="dish", spokes=5, spoke_w=0.022, hub_r=0.05, lip=0.045, color="metal"),
-    "steel": dict(style="steel", spokes=6, spoke_w=0.0, hub_r=0.04, lip=0.02, color="black"),
-    "black6": dict(style="spoke", spokes=6, spoke_w=0.020, hub_r=0.05, lip=0.010, color="black"),
+    "stock":  STOCK_RIM,
+    "six":    dict(style="six", spokes=6, hub_r=0.05, lip=0.012, color="rimkey", concave=CONCAVE),
+    "eight":  dict(style="eight", spokes=8, hub_r=0.045, lip=0.012, color="rimkey", concave=CONCAVE),
+    "five":   dict(style="five", spokes=5, hub_r=0.05, lip=0.042, color="rimkey", concave=CONCAVE, lip_metal=True),
+    "ysp":    dict(style="ysp", spokes=5, hub_r=0.045, lip=0.012, color="rimkey", concave=CONCAVE),
+    "mesh":   dict(style="mesh", spokes=14, spoke_w=0.006, hub_r=0.05, lip=0.016, color="rimkey", concave=CONCAVE),
+    "rally":  dict(style="rally", spokes=12, hub_r=0.07, lip=0.014, color="rimkey", concave=CONCAVE),
+    "window": dict(style="window", spokes=12, hub_r=0.06, lip=0.014, color="rimkey", concave=CONCAVE),
+    "tri":    dict(style="tri", spokes=3, hub_r=0.055, lip=0.03, color="rimkey", concave=CONCAVE, lip_metal=True),
 }
+
+
+def ang(th, n, twist=0.0):
+    """angle from the nearest of n spokes (radians, -pi/n..pi/n), spoke 0 pointing up"""
+    return (th + math.pi / 2 + twist) % (2 * math.pi / n) - math.pi / n
+
+
+def face_mask(style, rim, r, th, r_in):
+    """spoke / face pixels between the hub and the inner edge of the lip (r_in)"""
+    n, u = rim["spokes"], np.clip(r / r_in, 0, 1)
+    perp = lambda d: np.abs(r * np.sin(d))
+    if style == "six":                     # thick straight spokes flaring toward the rim
+        return perp(ang(th, n)) < 0.017 + 0.012 * u
+    if style == "eight":                   # thin spokes splitting into a narrow pair toward the rim
+        d = ang(th, n); off = 0.11 * np.clip((u - 0.45) / 0.55, 0, 1)
+        return (np.abs(r * np.sin(d - off)) < 0.0085) | (np.abs(r * np.sin(d + off)) < 0.0085)
+    if style == "five":                    # wide spokes, broad at the hub, narrowing into the deep lip
+        return perp(ang(th, n)) < 0.034 - 0.016 * u
+    if style == "ysp":                     # five spokes forking into a Y that meets the next fork at the rim
+        d = ang(th, n); k = np.clip((u - 0.5) / 0.5, 0, 1) * (math.pi / n) * 0.82
+        stem = (perp(d) < 0.012) & (u < 0.56)
+        return stem | (np.abs(r * np.sin(d - k)) < 0.0105) & (u >= 0.5) | (np.abs(r * np.sin(d + k)) < 0.0105) & (u >= 0.5)
+    if style == "mesh":                    # cross-laced mesh: two spoke sets twisted against each other + inner ring
+        tw = u * 1.1
+        d1, d2 = ang(th, n, tw), ang(th, n, -tw)
+        w = rim["spoke_w"] * (0.6 + 0.6 * u)
+        return (np.abs(r * np.sin(d1)) < w) | (np.abs(r * np.sin(d2)) < w) | (np.abs(r - r_in * 0.55) < 0.005)
+    if style == "rally":                   # twelve straight even spokes from a solid centre
+        return perp(ang(th, n)) < 0.0085
+    if style == "window":                  # solid face with one ring of trapezoid windows
+        d = ang(th, n)
+        win = (np.abs(d) < (math.pi / n) * (0.3 + 0.35 * u)) & (u > 0.36) & (u < 0.9)
+        return ~win
+    if style == "tri":                     # three broad swept spokes
+        return perp(ang(th, n, 0.55 * u)) < 0.03 + 0.012 * u
+    return perp(ang(th, n)) < rim.get("spoke_w", 0.02)
 
 
 def export_rim(prof, style, pdir):
@@ -31,7 +75,7 @@ def export_rim(prof, style, pdir):
     rim = RIMS[style]
     tex = os.path.join(pdir, f"wheel_{style}.png")
     Image.fromarray(paint_wheel(prof.TYRE, rim)).save(tex)
-    me = build_mesh(prof.TYRE, f"wheel_{style}")
+    me = build_mesh(prof.TYRE, f"wheel_{style}", rim.get("concave"))
     mat = bpy.data.materials.new(f"wheel_{style}"); mat.use_nodes = True
     nt = mat.node_tree; b = nt.nodes["Principled BSDF"]; b.inputs["Roughness"].default_value = 0.6
     t = nt.nodes.new("ShaderNodeTexImage"); t.image = bpy.data.images.load(tex); t.interpolation = "Closest"
@@ -76,29 +120,24 @@ def paint_wheel(tyre, rim):
     img[rimm] = C["black"]                                     # gaps / shadow
     img[rimm & (r < 0.14) & (r > 0.06)] = C["brake"]           # disc brake
     lip = rimm & (r > r_rim - rim["lip"])
-    n = rim["spokes"]
-    dth = (th + math.pi / 2) % (2 * math.pi / n) - math.pi / n
-    perp = np.abs(r * np.sin(dth))
-    sw = rim["spoke_w"] * (0.55 + 0.45 * r / r_rim)
-    spoke = rimm & (perp < sw) & (np.abs(dth) < math.pi / 2)
     style = rim.get("style", "spoke")
-    if style == "mesh":          # cross-laced mesh: two spoke sets twisted against each other
-        tw = r / r_rim * 0.9
-        d1 = (th + tw) % (2 * math.pi / n) - math.pi / n
-        d2 = (th - tw) % (2 * math.pi / n) - math.pi / n
-        spoke = rimm & ((np.abs(r * np.sin(d1)) < sw) | (np.abs(r * np.sin(d2)) < sw)) & (r > 0.05)
-    elif style == "dish":        # wide polished lip, short spokes
-        spoke = spoke & (r < r_rim - rim["lip"] + 0.004)
-    elif style == "steel":       # steelie: solid disc with round holes
-        holes = np.zeros_like(rimm)
-        for k in range(n):
-            a = 2 * math.pi * k / n
-            cx, cy = 0.105 * math.cos(a), 0.105 * math.sin(a)
-            holes |= np.hypot(dx - cx, dy - cy) < 0.024
-        spoke = rimm & (r < r_rim - rim["lip"]) & ~holes & (r > 0.03)
+    r_in = r_rim - rim["lip"]
+    if style == "spoke":         # stock rim: the original generic spoke
+        n = rim["spokes"]
+        dth = (th + math.pi / 2) % (2 * math.pi / n) - math.pi / n
+        sw = rim["spoke_w"] * (0.55 + 0.45 * r / r_rim)
+        spoke = rimm & (np.abs(r * np.sin(dth)) < sw) & (np.abs(dth) < math.pi / 2)
+    else:
+        spoke = rimm & (r < r_in + 0.003) & face_mask(style, rim, r, th, r_in)
     hub = rimm & (r < rim["hub_r"])
     face = lip | spoke | hub
     img[face] = PAL.dither(metal, lum[face], bay[face])
+    if rim.get("lip_metal"):     # polished lip + a ring of rivets, bare metal whatever colour the face gets
+        m = lip & (r > r_in + 0.6 / DENS)
+        img[m] = PAL.dither(PAL.ramp("metal"), 0.35 + 0.65 * lum[m], bay[m])
+        for k in range(2 * 12):
+            a = 2 * math.pi * k / 24
+            img[rimm & (np.hypot(dx - (r_in + .006) * math.cos(a), dy - (r_in + .006) * math.sin(a)) < 0.0035)] = C["metal4"]
     img[rimm & (np.abs(r - (r_rim - rim["lip"])) < 0.6 / DENS)] = C["metal0"]
     img[rimm & (r < 0.022)] = C["metal1"]                      # centre cap
     for k in range(4):
@@ -119,33 +158,40 @@ def paint_wheel(tyre, rim):
     return PAL.to_rgb(img)
 
 
-def build_mesh(tyre, name):
+def build_mesh(tyre, name, concave=None):
+    """tyre + rim. concave=None: flat outer face (stock). concave=(edge, centre) in metres: the rim face is
+    sunk into the tyre (barrel down to `edge`) and dished further to `centre` at the hub - a concave face."""
     w, r_rim, r_t = tyre_dims(tyre)
     DENS = dens_for(r_t)
     bm = bmesh.new()
     uvl = bm.loops.layers.uv.new("UV1_atlas")
-    outer, inner = [], []
-    for i in range(SEG):
-        a = 2 * math.pi * i / SEG
-        outer.append(bm.verts.new((w / 2, r_t * math.cos(a), r_t * math.sin(a))))
-        inner.append(bm.verts.new((-w / 2, r_t * math.cos(a), r_t * math.sin(a))))
-    def disc_uv(cx, a):
+    A = [2 * math.pi * i / SEG for i in range(SEG)]
+    ring = lambda x, rr: [bm.verts.new((x, rr * math.cos(a), rr * math.sin(a))) for a in A]
+    def duv(cx, rr, a):
         # (cos a, sin a) on Y,Z -> pixel; Y forward = image +x, Z up = image -row
-        px = cx + r_t * DENS * math.cos(a); py = 40 - r_t * DENS * math.sin(a)
-        return (px / TEX, 1 - py / TEX)
-    f = bm.faces.new(outer)
-    for l in f.loops:
-        a = math.atan2(l.vert.co.z, l.vert.co.y); l[uvl].uv = disc_uv(40, a)
-    f = bm.faces.new(list(reversed(inner)))
-    for l in f.loops:
-        a = math.atan2(l.vert.co.z, l.vert.co.y); l[uvl].uv = disc_uv(104, -a + math.pi)
+        return ((cx + rr * DENS * math.cos(a)) / TEX, 1 - (40 - rr * DENS * math.sin(a)) / TEX)
+    def face(vs, uvs):
+        f = bm.faces.new(vs)
+        for l, uv in zip(f.loops, uvs): l[uvl].uv = uv
+    outer, inner = ring(w / 2, r_t), ring(-w / 2, r_t)
+    if concave is None:
+        face(outer, [duv(40, r_t, a) for a in A])
+    else:
+        edge, centre = concave
+        rimo = ring(w / 2, r_rim)                       # tyre bead line on the outer face
+        rimi = ring(w / 2 - edge, r_rim)                # rim edge, sunk into the tyre
+        hub = bm.verts.new((w / 2 - centre, 0, 0))      # hub, deepest point
+        for i in range(SEG):
+            j = (i + 1) % SEG
+            face([outer[i], outer[j], rimo[j], rimo[i]], [duv(40, r_t, A[i]), duv(40, r_t, A[j]), duv(40, r_rim, A[j]), duv(40, r_rim, A[i])])
+            rl = r_rim - 0.006                          # barrel wall takes the lip's pixels
+            face([rimo[i], rimo[j], rimi[j], rimi[i]], [duv(40, r_rim, A[i]), duv(40, r_rim, A[j]), duv(40, rl, A[j]), duv(40, rl, A[i])])
+            face([rimi[i], rimi[j], hub], [duv(40, r_rim, A[i]), duv(40, r_rim, A[j]), (40 / TEX, 1 - 40 / TEX)])
+    face(list(reversed(inner)), [duv(104, r_t, -a + math.pi) for a in reversed(A)])
     for i in range(SEG):
         j = (i + 1) % SEG
-        f = bm.faces.new([outer[i], inner[i], inner[j], outer[j]])
-        uu = [i / SEG, i / SEG, (i + 1) / SEG, (i + 1) / SEG]
-        vv = [1 - 104 / TEX, 0.0, 0.0, 1 - 104 / TEX]
-        for l, u, v in zip(f.loops, uu, vv):
-            l[uvl].uv = (u, v)
+        face([outer[i], inner[i], inner[j], outer[j]],
+             [(i / SEG, 1 - 104 / TEX), (i / SEG, 0.0), ((i + 1) / SEG, 0.0), ((i + 1) / SEG, 1 - 104 / TEX)])
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     return me
