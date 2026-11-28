@@ -1,6 +1,6 @@
 """Convert a car from Cosmo's "Low Poly Cars" pack (cosmo-art.itch.io, user-modified) into a garage body model.
 
-usage: python pipeline/cosmo_import.py <car.fbx> <name> <L> <W> <H> [--ref civic_fd_2008] [--grid 1000x720@40] [--nose -y|+y]
+usage: python pipeline/cosmo_import.py <car.fbx> <name> <L> <W> <H> [--ref civic_fd_2008] [--grid 1000x720@40] [--nose -y|+y] [--flat]
 
 LICENCE: the pack may be used in the app but its files may not be redistributed, even edited. So the
 source FBX lives in private/ and the converted model in out/<name>/; both are git-ignored. Only the
@@ -15,6 +15,9 @@ What it does (same contract as kenney_import.py):
     face's cell tells its role. Grey cells: the one with the most upward-facing area is the body paint
     -> our KEY ramp (the viewer repaints it, shaded by face angle); darker greys -> plastic trim,
     lighter -> bare metal. Glass and lamps keep their own roles (head / tail by end of the car).
+  * pixel texture (default): re-unwraps the body at 64 px/m like the loft cars and paints it with the
+    same baked light + Bayer dither as build_car.paint_uv1, dark seams where the paint folds sharply
+    or meets another role, framed and streaked glass. --flat keeps one solid swatch per face instead.
 Output: out/<name>/<name>.glb + out/<name>/parts/wheel_*.glb (copied from --ref).
 """
 import sys, os, shutil, glob, math, json, colorsys
@@ -35,7 +38,53 @@ def argv():
     for k in list(opt):
         if k in a:
             i = a.index(k); opt[k] = a[i + 1]; a = a[:i] + a[i + 2:]
+    opt["--flat"] = "--flat" in a; a = [x for x in a if x != "--flat"]
     return a[0], a[1], float(a[2]) / 1000, float(a[3]) / 1000, float(a[4]) / 1000, opt
+
+
+def pixel_texture(ob, png):
+    """Re-unwrap at 64 px/m and paint like the loft cars (build_car.paint_uv1): baked light, Bayer dither."""
+    import build_car as BC
+    from PIL import Image
+    me = ob.data
+    old = me.uv_layers.active
+    size, _ = BC.uv1_unwrap(ob)
+    me.uv_layers.remove(me.uv_layers[old.name]) if old.name != "UV1_atlas" else None
+    me.attributes.new("ring_v", "FLOAT", "POINT")                 # raster() reads it; unused here
+    fid, P, V, EDGE, EOTH, fN = BC.raster(ob, size, "UV1_atlas")
+    role = np.zeros(len(me.polygons), int); me.attributes["role"].data.foreach_get("value", role)
+    m = fid >= 0; f = fid[m]; Pm = P[m]; N = fN[f]; R = role[f]
+    yy, xx = np.nonzero(m); bay = PAL.BAYER4[yy % 4, xx % 4]
+    C = PAL.INDEX; body = PAL.ramp("blue")
+    idx = np.zeros(len(f), int)
+    # paint: the loft cars' baked light, ordered dither into the key ramp
+    lum = 0.50 + 0.26 * N[:, 2] + 0.16 * (Pm[:, 2] - 0.65) - 0.05 * np.abs(N[:, 1])
+    idx[:] = PAL.dither(body, lum, bay, spread=0.22)
+    gl = R == 1                                                    # glass with a diagonal reflection streak
+    glum = 0.35 + 0.35 * N[:, 2] + 0.1 * (Pm[:, 2] - 1.0)
+    streak = (np.floor((Pm[:, 1] * 0.8 + Pm[:, 2]) * 64) % 23) < 3
+    idx[gl] = PAL.dither(PAL.ramp("glass"), glum + 0.25 * streak, bay)[gl]
+    hl = R == 2
+    idx[hl] = PAL.dither(PAL.ramp("white"), 0.35 + 0.4 * N[hl, 2] + 0.25 * N[hl, 1], bay[hl], 0.6)
+    tl = R == 3; idx[tl] = np.where(((xx[tl] + yy[tl]) % 3) == 0, C["tail_hi"], C["tail"])
+    idx[R == 9] = C["tail"]; idx[R == 8] = C["amber"]
+    pl = R == 4; idx[pl] = PAL.dither(PAL.ramp("black"), 0.25 + 0.2 * N[pl, 2], bay[pl], 0.5)
+    idx[R == 5] = C["under"]
+    mt = (R == 6) | (R == 7)
+    idx[mt] = PAL.dither(PAL.ramp("metal"), 0.45 + 0.3 * N[mt, 2] + 0.25 * (R[mt] == 7), bay[mt], 0.6)
+    # seams: 1 px where the paint folds sharply or meets another role; glass gets a 2 px black frame
+    ED = EDGE[m]; EO = EOTH[m]
+    for kk in range(3):
+        other = EO[:, kk]; has = other >= 0; o = np.where(has, other, 0)
+        fold = has & (np.einsum("ij,ij->i", N, fN[o]) < np.cos(np.radians(32)))
+        diff = has & (role[o] != R)
+        idx[gl & (ED[:, kk] < 2.0) & (diff | (other == -2))] = C["black"]
+        idx[(R == 0) & (ED[:, kk] < 1.0) & ((diff & (role[o] != 1)) | fold | (other == -2))] = C["seam_blue"]
+    img = np.full((size, size), -1, int); img[m] = idx
+    img = PAL.dilate(img, 4)
+    Image.fromarray(PAL.to_rgb(img)).save(png)
+    im = bpy.data.images.load(png); im.pack()
+    return im, size
 
 
 def main():
@@ -104,6 +153,9 @@ def main():
     print("paint = grey row", paint_row, {r: round(a, 2) for r, a in sorted(up.items())})
 
     stats = {}
+    rl = bm.faces.layers.int.new("role")
+    ROLE = {blue[1]: 0, blue[2]: 0, blue[3]: 0, "#3d8494": 1, "#17414d": 1, "#dfe2e5": 2, "#d3262b": 3, "#7a0d10": 9,
+            "#e08a1c": 8, "#1c1d22": 4, "#2a2b31": 4, "#111113": 5, "#878c94": 6, "#b3b8bf": 7}
     for i, f in enumerate(bm.faces):
         m = mats[i].lower(); c = f.calc_center_median(); nz = f.normal.z
         front = c.y > yF - 0.6; rear = c.y < yR + 0.6
@@ -123,17 +175,24 @@ def main():
         else:
             cls = "#2a2b31"
         stats[cls] = stats.get(cls, 0) + f.calc_area()
+        f[rl] = ROLE[cls]
         for l in f.loops: l[uvl].uv = uvs[cls]
 
     me = bpy.data.meshes.new("body"); bm.to_mesh(me); bm.free()
     for o in list(bpy.context.scene.objects): bpy.data.objects.remove(o)
+    for p in me.polygons: p.use_smooth = False
+    body = bpy.data.objects.new("body", me); bpy.context.scene.collection.objects.link(body)
+    out = os.path.join(ROOT, "out", name); os.makedirs(os.path.join(out, "parts"), exist_ok=True)
+    if not opt["--flat"]:
+        img, size = pixel_texture(body, os.path.join(out, f"{name}_uv1.png"))
+        print(f"  pixel texture {size}x{size} @ 64 px/m")
     mat = bpy.data.materials.new(name); mat.use_nodes = True
     nt = mat.node_tree; bsdf = nt.nodes.get("Principled BSDF")
     tex = nt.nodes.new("ShaderNodeTexImage"); tex.image = img; tex.interpolation = "Closest"
+    if not opt["--flat"]:
+        uvn = nt.nodes.new("ShaderNodeUVMap"); uvn.uv_map = "UV1_atlas"; nt.links.new(uvn.outputs["UV"], tex.inputs["Vector"])
     nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     me.materials.clear(); me.materials.append(mat)
-    for p in me.polygons: p.use_smooth = False
-    body = bpy.data.objects.new("body", me); bpy.context.scene.collection.objects.link(body)
 
     # sockets at the pack's wheel centres; our rims (sized for --ref's tyre) touch the ground
     t = json.load(open(os.path.join(ROOT, "data", "garage-db.json")))["models"][opt["--ref"]]["tyre"]
@@ -143,7 +202,6 @@ def main():
         e = bpy.data.objects.new("SOCKET_wheel_" + key, None)
         e.location = (c.x * k.x, (c.y - ymid) * k.y, rref)
         bpy.context.scene.collection.objects.link(e)
-    out = os.path.join(ROOT, "out", name); os.makedirs(os.path.join(out, "parts"), exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=os.path.join(out, name + ".glb"), export_format="GLB", export_yup=True)
     for f_ in glob.glob(os.path.join(ROOT, "out", opt["--ref"], "parts", "wheel_*.glb")):
         shutil.copy(f_, os.path.join(out, "parts"))
