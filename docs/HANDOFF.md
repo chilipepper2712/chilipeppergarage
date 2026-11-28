@@ -114,6 +114,12 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - 6 model loft đại diện 6 kiểu thân: Civic, Mazda 2, Mini, CX-5, Xpander, Ranger Raptor.
 - `CAR_KIT = false`: body kit không gắn lên xe mà treo trên pegboard. Trên xe chỉ còn mâm, hạ gầm và màu sơn.
 
+**Model sedan thử (Cosmo low-poly cars, 28/11):**
+- Nguồn: https://cosmo-art.itch.io/low-poly-cars, user sửa coupe thành sedan. Được dùng trong app, **cấm phân phối lại file kể cả đã sửa** → FBX ở `private/cosmo/`, model đã chuyển ở `out/cosmo_sedan/`, cả hai nằm trong `.gitignore`. Container mới không có: phải xin user gửi lại `sedan.fbx`.
+- Chuyển: `/home/user/.venv/bin/python pipeline/cosmo_import.py private/cosmo/sedan.fbx cosmo_sedan 4540 1750 1450 --ref civic_fd_2008`. Màu lấy theo ô của bảng màu 1000×720, ô 40 px (không cần file texture): ô xám có nhiều mặt hướng lên nhất là sơn, xám tối hơn là nhựa, sáng hơn là kim loại.
+- `bodyTypes.sedan.model = cosmo_sedan`, `fallback = civic_fd_2008`: viewer tự quay về model loft nếu bản build không có `cosmo_sedan`. Civic FD vẫn dùng model riêng.
+- Đang chờ user duyệt. Bản thử: https://claude.ai/artifact/LNzuQYHZmaPXavfay2x9h6. `viewer/index.html` trong repo build **không** kèm model này.
+
 **Công cụ phụ:**
 - `pipeline/make_template.py` + `template_export.py`: khung sedan mẫu cho user tự dựng model, hướng dẫn ở `docs/template.md`.
 - `pipeline/kenney_import.py`: nhập xe từ Kenney Car Kit (CC0). Đã thử và user **không dùng** cho xe (nhìn cục mịch). Gói zip nằm ở máy user, không có trong repo.
