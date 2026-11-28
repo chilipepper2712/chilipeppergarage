@@ -115,6 +115,7 @@ function stats() {
   $("priceBreak").innerHTML = items.length || exSum[1] ? items.map(([l, p]) => `${l}: ${fr(p)}`).join("<br>") + (exSum[1] ? `${items.length ? "<br>" : ""}Ngoại thất: ${fr(exSum)}` : "") : "Chưa chọn món nào.";
   $("dkList").innerHTML = b.dk.length ? b.dk.map(d => `<span class="dk-${d.level}">${FLAG}</span> ${d.label}: ${CAT.dk[d.level].toLowerCase()}${d.note ? `, ${d.note}` : ""}`).join("<br>")
     : (items.length ? '<span class="dk-pass">' + FLAG + "</span> Cả bản độ qua đăng kiểm." : "");
+  for (const id of ["priceTotal", "priceBreak", "dkList"]) $(id + "X").innerHTML = $(id).innerHTML;   // the same estimate on the exterior tab
 }
 
 function refresh() {

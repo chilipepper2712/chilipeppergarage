@@ -72,7 +72,8 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - `index.src.html`:
   - cảnh, đèn có bộ điều độ sáng (`dimReg`, các nhóm `amb / neon / tube0 / tube1 / key / work / fill`);
   - màn mở đầu: garage trống → chọn xe → đèn chớp lần lượt → thẻ ngân sách **Ớt lên đồ**;
-  - layout: thông tin xe góc trái trên, 4 nút vị trí góc phải dưới, các tab bên dưới (Ngoại thất / Hiệu năng / So sánh / Khí động).
+  - layout: thông tin xe góc trái trên, nút hiển thị (PS1 / 15-bit / Đèn / Xoay) góc phải trên (không còn biển số), 4 nút vị trí góc phải dưới, các tab bên dưới (Ngoại thất / Hiệu năng / So sánh / Khí động). Cột 4 tab Ngoại thất là cụm tạm tính, chép từ tab Hiệu năng (`priceTotalX`…);
+  - khổ ≤ 1280 px (iPad ngang): thanh tab giữ một hàng, dải chip gói độ cuộn ngang.
 - `perf-ui.js`: tab Hiệu năng và So sánh, chạy dyno và drag (bảng kết quả `#results`), các gói độ, gọi bộ chọn đồ theo ngân sách.
 - `tunnel.js`: hầm gió (luồng khói, số khí động). Chỉ nhận nút `tunnel`; xuất ra `window.__tunnel.setRoom`.
 - `wall.js`: pegboard. Món được chọn treo lên bảng, hộp và lốp đứng dưới chân bảng. Rê chuột hoặc chạm hiện thẻ; chạm để ghim, trong thẻ có nút thùng rác để gỡ.
@@ -105,7 +106,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - **Camera mặc định:** (−3.1, 2.4, 5.6), nhìn vào (1.4, 0.75, −0.5).
 
 **Dữ liệu:**
-- `data/garage-db.json`: 10 xe, nguồn từng thông số, danh sách kiểu thân → model đại diện.
+- `data/garage-db.json`: 13 xe (tên xe không kèm trim; trim nằm ở field `trim`, hiện ở dòng phụ "Số liệu bản …"), nguồn từng thông số, danh sách kiểu thân → model đại diện.
 - `perf/parts.json`: danh mục đồ độ, các gói độ, đồ ngoại thất.
 - `perf/planner.js`: Ớt chọn đồ theo ngân sách và mục tiêu, tính theo giá cao của từng món.
 
@@ -136,7 +137,9 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - **Bảng kết quả dyno** vẫn nằm giữa khung, đã làm trong suốt hơn. Phương án thu nhỏ, dạt sang một bên vẫn còn để ngỏ.
 - **Góc trước bên trái garage** trống sau khi dời dyno đi, chưa bày gì.
 - **Đồ body kit trên pegboard** chỉ là những thanh xám, khó nhận ra. User chưa phàn nàn.
-- **Chưa test trên tablet thật** (thao tác chạm).
+- **Chưa test trên tablet thật** (thao tác chạm). Đã kiểm tra bố cục ở 1024 / 1180 / 1280 px.
+- **VinFast VF3** user muốn thêm, đang chờ quyết: là xe điện, bộ mô phỏng chưa có động cơ điện (một cấp số, mô-men phẳng rồi công suất không đổi) và phần lớn đồ độ hiệu năng không áp được; dáng hộp dài ~3,2 m, model hatchback kéo ra sẽ sai dáng.
+- **Số liệu xe mới:** Swift (CVT, 0–100, tối đa ước lượng; nguồn VN lệch mô-men 108–113 Nm, lốp R16/R17), Corolla Cross (CVT, 0–100, tối đa ước lượng; Cd hiệu chỉnh 0,399 cao), XL7 (đủ nguồn trừ vòng tua tối đa).
 - **Số liệu còn ước lượng** (sau đợt rà 11/2026, mạng container chặn PDF hãng nên chỉ dựa vào kết quả search): Vios và City (tỉ số truyền + cầu), Accent (khối lượng, cầu), Mazda 3 và CX-5 (cầu), MINI (gầm, lốp, số giữa + cầu), Ranger (tỉ số hộp số). Cd hiệu chỉnh của Xpander (0,298) và CX-5 (0,371) lệch khỏi mức hợp lý, nghi vmax đo không phải giới hạn do cản gió.
 - **Đề xuất cũ chưa làm:**
   - chia sẻ bản độ qua link (`#hash`);

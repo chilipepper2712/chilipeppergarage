@@ -106,6 +106,34 @@
   "zigwheelsph": {
    "name": "ZigWheels Philippines",
    "url": "https://www.zigwheels.ph"
+  },
+  "vnexpress": {
+   "name": "VnExpress (thông số xe)",
+   "url": "https://vnexpress.net/oto-xe-may/v-car"
+  },
+  "suzukivn": {
+   "name": "Suzuki Việt Nam",
+   "url": "https://suzuki.com.vn"
+  },
+  "suzukith": {
+   "name": "Suzuki Thái Lan (spec XL7)",
+   "url": "https://www.suzuki.co.th/en/model/xl7/specification"
+  },
+  "suzukidealer": {
+   "name": "Thông số Swift, đại lý Suzuki Việt Nam",
+   "url": "https://suzukivungtau.info/suzuki-swift-glx-2021-1242095.html"
+  },
+  "torqueanalyst": {
+   "name": "torqueanalyst.com",
+   "url": "https://torqueanalyst.com/suzuki-xl7-facelift-debuts/"
+  },
+  "autotraderza": {
+   "name": "AutoTrader Nam Phi (Corolla Cross 1.8)",
+   "url": "https://www.autotrader.co.za/cars/news-and-advice/buying-a-car/how-is-the-toyota-corolla-cross-performance/11854"
+  },
+  "autocatalog": {
+   "name": "automobile-catalog.com",
+   "url": "https://www.automobile-catalog.com"
   }
  },
  "bodyTypes": {
@@ -172,7 +200,7 @@
  },
  "cars": {
   "vios_2020": {
-   "name": "Toyota Vios 1.5 G CVT",
+   "name": "Toyota Vios 1.5 CVT",
    "short": "Vios",
    "body": "sedan",
    "years": "2018–2022",
@@ -232,6 +260,7 @@
     "fun"
    ],
    "note": "Kích thước, khối lượng, lốp theo bản 1.5E CVT cùng thế hệ; 0–100 là số đo thực tế.",
+   "trim": "G",
    "fit": {
     "cda": 0.765,
     "cd": 0.356,
@@ -310,7 +339,7 @@
    }
   },
   "city_2021": {
-   "name": "Honda City 1.5 RS",
+   "name": "Honda City 1.5 CVT",
    "short": "City",
    "body": "sedan",
    "years": "2020–nay",
@@ -370,6 +399,7 @@
     "fun"
    ],
    "note": "0–100 theo spec Malaysia; một bài đo ở Ấn Độ ra 11,3 s.",
+   "trim": "RS",
    "fit": {
     "cda": 0.658,
     "cd": 0.305,
@@ -377,7 +407,7 @@
    }
   },
   "mazda3_2020": {
-   "name": "Mazda 3 1.5 Luxury sedan",
+   "name": "Mazda 3 1.5 AT sedan",
    "short": "Mazda 3",
    "body": "sedan",
    "years": "2019–nay",
@@ -441,6 +471,7 @@
     "fun"
    ],
    "note": "0–100 theo cơ sở dữ liệu châu Âu (bản 1.5 AT), chưa có bài đo thực tế. Tỉ số hộp số theo spec Mazda3 2019 của Mỹ (cùng hộp 6 cấp, bản máy 2.5); tỉ số cầu bản 1.5 chưa có nguồn.",
+   "trim": "Luxury",
    "fit": {
     "cda": 0.721,
     "cd": 0.331,
@@ -588,6 +619,76 @@
     "kT": 0.975
    }
   },
+  "swift_2021": {
+   "name": "Suzuki Swift 1.2 CVT",
+   "trim": "GLX",
+   "short": "Swift",
+   "body": "hatch",
+   "years": "2021–2023",
+   "dims": [
+    3845,
+    1735,
+    1495,
+    2450
+   ],
+   "clearance": 120,
+   "kerb": 920,
+   "tyre": [
+    185,
+    55,
+    16
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 83,
+    "rpmP": 6000,
+    "nm": 113,
+    "rpmT": 4200,
+    "redline": 6500
+   },
+   "trans": "cvt",
+   "gears": [
+    4.006,
+    0.55
+   ],
+   "final": 3.757,
+   "drive": "fwd",
+   "t0100": 12,
+   "vmax": 170,
+   "chassis": [
+    5,
+    4,
+    3,
+    5
+   ],
+   "fun": 40,
+   "paint": "Đỏ Soul",
+   "plate": "51K-120.21",
+   "src": {
+    "dims": "suzukidealer",
+    "clearance": "suzukidealer",
+    "kerb": "suzukidealer",
+    "tyre": "suzukidealer",
+    "engine": "vnexpress",
+    "trans": "suzukidealer"
+   },
+   "est": [
+    "engine.rpmP",
+    "engine.redline",
+    "gears",
+    "final",
+    "t0100",
+    "vmax",
+    "chassis",
+    "fun"
+   ],
+   "note": "Mô-men xoắn các nguồn VN ghi 108–113 Nm, khối lượng 896–920 kg, lốp 185/55 R16 hoặc R17; lấy theo đại lý. 0–100 và tốc độ tối đa theo số ước tính / công bố cho Swift 1.2 CVT thị trường khác (automobile-catalog). Tỉ số CVT chưa có nguồn.",
+   "fit": {
+    "cda": 0.702,
+    "cd": 0.322,
+    "kT": 0.958
+   }
+  },
   "mini_f55_2018": {
    "name": "MINI Cooper S 5 cửa MT",
    "short": "MINI S",
@@ -662,7 +763,7 @@
    }
   },
   "cx5_2020": {
-   "name": "Mazda CX-5 2.0 Premium",
+   "name": "Mazda CX-5 2.0 AT",
    "short": "CX-5",
    "body": "suv",
    "years": "2017–2023",
@@ -727,10 +828,80 @@
     "fun"
    ],
    "note": "Tỉ số hộp số theo spec Mazda Mỹ 2017 (cùng hộp SKYACTIV-Drive 6 cấp, bản máy 2.5). Tỉ số cầu bản 2.0 2WD chưa có nguồn: Mỹ ghi 4,325 (FWD) / 4,624 (AWD) cho máy 2.5.",
+   "trim": "Premium",
    "fit": {
     "cda": 0.937,
     "cd": 0.371,
     "kT": 1.003
+   }
+  },
+  "corolla_cross_2021": {
+   "name": "Toyota Corolla Cross 1.8 CVT",
+   "trim": "V",
+   "short": "Corolla Cross",
+   "body": "suv",
+   "years": "2020–2023",
+   "dims": [
+    4460,
+    1825,
+    1620,
+    2640
+   ],
+   "clearance": 161,
+   "kerb": 1360,
+   "tyre": [
+    225,
+    50,
+    18
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 138,
+    "rpmP": 6400,
+    "nm": 172,
+    "rpmT": 4000,
+    "redline": 6600
+   },
+   "trans": "cvt",
+   "gears": [
+    2.48,
+    0.396
+   ],
+   "final": 5.698,
+   "drive": "fwd",
+   "t0100": 10.8,
+   "vmax": 180,
+   "chassis": [
+    5,
+    5,
+    2,
+    6
+   ],
+   "fun": 30,
+   "paint": "Trắng",
+   "plate": "30K-180.21",
+   "src": {
+    "dims": "bonbanh",
+    "clearance": "bonbanh",
+    "kerb": "bonbanh",
+    "tyre": "bonbanh",
+    "engine": "autotraderza",
+    "trans": "bonbanh"
+   },
+   "est": [
+    "engine.redline",
+    "gears",
+    "final",
+    "t0100",
+    "vmax",
+    "chassis",
+    "fun"
+   ],
+   "note": "Kích thước, khối lượng, lốp theo bonbanh; vòng tua công suất và mô-men theo bản 1.8 CVT Nam Phi. Chưa có số 0–100 đáng tin: một bài Nam Phi ghi 9,2 s (thấp bất thường cho 138 hp, 1.360 kg, CVT), nên dùng ước lượng. Tốc độ tối đa bài đó ghi lúc 175 lúc 185 km/h. Tỉ số CVT chưa có nguồn.",
+   "fit": {
+    "cda": 0.964,
+    "cd": 0.399,
+    "kT": 0.968
    }
   },
   "xpander_2020": {
@@ -802,8 +973,79 @@
     "kT": 1.057
    }
   },
+  "xl7_2021": {
+   "name": "Suzuki XL7 1.5 AT",
+   "trim": "GLX",
+   "short": "XL7",
+   "body": "mpv",
+   "years": "2020–2024",
+   "dims": [
+    4450,
+    1775,
+    1710,
+    2740
+   ],
+   "clearance": 200,
+   "kerb": 1175,
+   "tyre": [
+    195,
+    60,
+    16
+   ],
+   "engine": {
+    "type": "na",
+    "hp": 103,
+    "rpmP": 6000,
+    "nm": 138,
+    "rpmT": 4400,
+    "redline": 6200
+   },
+   "trans": "at",
+   "gears": [
+    2.875,
+    1.568,
+    1,
+    0.697
+   ],
+   "final": 4.375,
+   "drive": "fwd",
+   "t0100": 12.9,
+   "vmax": 170,
+   "chassis": [
+    3,
+    4,
+    2,
+    7
+   ],
+   "fun": 25,
+   "paint": "Bạc",
+   "plate": "51K-157.21",
+   "src": {
+    "dims": "vnexpress",
+    "clearance": "suzukivn",
+    "kerb": "vnexpress",
+    "tyre": "vnexpress",
+    "engine": "vnexpress",
+    "trans": "vnexpress",
+    "gears": "suzukith",
+    "final": "suzukith",
+    "t0100": "torqueanalyst",
+    "vmax": "torqueanalyst"
+   },
+   "est": [
+    "engine.redline",
+    "chassis",
+    "fun"
+   ],
+   "note": "Khoảng sáng gầm VnExpress ghi 220 mm, Suzuki VN 200 mm; khối lượng nguồn khác ghi 1.215 kg. Tỉ số hộp số và cầu theo spec Suzuki Thái Lan (cùng máy K15B, hộp 4 cấp). 0–100 các nguồn ghi 12,6–13,0 s.",
+   "fit": {
+    "cda": 0.861,
+    "cd": 0.341,
+    "kT": 0.966
+   }
+  },
   "ranger_xls_2020": {
-   "name": "Ford Ranger XLS 2.2 AT 4x2",
+   "name": "Ford Ranger 2.2 AT 4x2",
    "short": "Ranger",
    "body": "pickup",
    "years": "2018–2022",
@@ -868,6 +1110,7 @@
     "fun"
    ],
    "note": "Kích thước theo thân cabin kép T6. Khoảng sáng gầm, lốp, khối lượng theo thông số đại lý Ford VN (khối lượng ghi 1.884–1.948 kg tuỳ nơi, lấy ~1.930). Tỉ số cầu 3,73 theo carfolio; 0–100 và tốc độ tối đa theo bài lái thử 2.2 AT của Jordan Times. Tỉ số hộp số là bộ 6 cấp phổ biến của Ranger, chỉ số cuối khớp nguồn.",
+   "trim": "XLS",
    "fit": {
     "cda": 1.248,
     "cd": 0.466,
