@@ -16,3 +16,7 @@ out/**/builds/
 
 # hand-made body-type models are sources, keep them
 !models/**/*.blend
+
+# third-party asset pack (Cosmo, low-poly cars): usable in the app, not redistributable as files
+private/
+out/cosmo_*/

@@ -593,9 +593,12 @@ const PRESETS = { stock: { bumper_F:"stock", bumper_R:"stock", skirt:"stock", wh
 // cars come from data/garage-db.json; cars without their own model borrow their body type's model,
 // stretched to their real length / width / height
 const GDB = JSON.parse(document.getElementById("perfdata").textContent).db;
+const BUNDLE = JSON.parse(document.getElementById("bundle").textContent);
+const BUNDLE_KEYS = new Set(Object.keys(BUNDLE));
 const tyreD = t => t[2] * 25.4 + 2 * t[0] * t[1] / 100;
 const CARS = Object.fromEntries(Object.entries(GDB.cars).map(([k, c]) => {
-  const bt = GDB.bodyTypes[c.body], model = c.model || bt.model || bt.fallback, md = GDB.models[model], own = model === k;   // the car is drawn by its own model (or is its body type's representative)
+  // a body model whose files aren't in this build (e.g. a licensed pack kept out of the repo) falls back
+  const bt = GDB.bodyTypes[c.body], model = [c.model, bt.model, bt.fallback].find(m => m && BUNDLE_KEYS.has(m)), md = GDB.models[model], own = model === k;   // the car is drawn by its own model (or is its body type's representative)
   const est = f => (c.est || []).some(e => e === f || e.startsWith(f + "."));
   return [k, {
     name: c.short, body: c.body, model, own, est,
@@ -836,7 +839,6 @@ Object.assign(window.__garage, { renderer, bloom, grade, GARAGE_OBJS, HOOKS, dim
 const loader = new GLTFLoader();
 // Every model is inlined in #bundle (the mobile viewer refuses side files): geometry is base64,
 // rebuilt into a GLB and parsed; textures are data: images attached here, never fetched.
-const BUNDLE = JSON.parse(document.getElementById("bundle").textContent);
 const imgCache = new Map();
 function image(uri) {
   if (!imgCache.has(uri)) imgCache.set(uri, new Promise((res, rej) => {

@@ -139,13 +139,14 @@
  "bodyTypes": {
   "sedan": {
    "label": "Sedan",
-   "model": "civic_fd_2008",
+   "model": "cosmo_sedan",
    "cl": [
     0.09,
     0.1
    ],
    "front": 0.61,
-   "hcg": 0.53
+   "hcg": 0.53,
+   "fallback": "civic_fd_2008"
   },
   "hatch": {
    "label": "Hatchback",
@@ -1196,6 +1197,20 @@
     55,
     16
    ]
+  },
+  "cosmo_sedan": {
+   "dims": [
+    4540,
+    1750,
+    1450
+   ],
+   "area": 2.135,
+   "tyre": [
+    195,
+    65,
+    15
+   ],
+   "note": "Cosmo low-poly cars (cosmo-art.itch.io), coupe sửa thành sedan; kéo về kích thước Civic FD. File không có trong repo."
   }
  }
 }

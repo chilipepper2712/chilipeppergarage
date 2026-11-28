@@ -7,6 +7,8 @@ import json, struct, base64, pathlib, glob
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CARS = ["mazda2_2013", "civic_fd_2008", "cx5_2020", "mini_f55_2018", "ranger_raptor_2019", "xpander_2020"]
+# licensed pack models (Cosmo low-poly cars, see pipeline/cosmo_import.py): built locally, never committed
+CARS += [p.name for p in sorted((ROOT / "out").glob("cosmo_*")) if (p / f"{p.name}.glb").exists()]
 SRC = {"env/garage": ROOT / "out/env/garage.glb", "env/tunnel": ROOT / "out/env/tunnel.glb", "env/dyno": ROOT / "out/env/dyno.glb", "env/wall_items": ROOT / "out/env/wall_items.glb"}
 for car in CARS:
     SRC[car] = ROOT / f"out/{car}/{car}.glb"
