@@ -131,6 +131,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 | Mâm | 8 mẫu độ theo ảnh user gửi (6 chấu, 8 chấu, 5 chấu lip, chữ Y, lưới, rally, lỗ thoáng, 3 chấu) + zin. Chỉ lấy dáng, không logo, tên chung. Mặt mâm độ lõm (concave: vành thụt 3 cm, tâm 6 cm); zin phẳng |
 | Giá mâm | Theo mức: Phổ thông 6–9,5 tr/bộ (hàng TQ / Thái), Premium 50–85 tr/bộ (hàng Nhật chính hãng, gồm cả mâm 2 mảnh). Nhãn ghi xuất xứ, không ghi tên hãng |
 | Màu mâm | 4 màu: Chrome xám (mặc định), Đồng, Đen, Trắng. Mặt mâm vẽ bằng dải màu khoá `rimkey`, viewer đổi màu + dựng lại độ bóng/kim loại (`recolorRims`). Vành lip của 5 chấu và 3 chấu giữ kim loại đánh bóng. Mâm zin không đổi màu |
+| Xe điện | Chưa hỗ trợ; VF3 để sau |
 | Sprite stacking | Đã thử, chưa dùng (ý tưởng: icon trong ô chọn xe) |
 
 ## 6. Việc còn dở
@@ -138,7 +139,7 @@ python3 viewer/build_bundle.py                       # gói mọi thứ vào vie
 - **Góc trước bên trái garage** trống sau khi dời dyno đi, chưa bày gì.
 - **Đồ body kit trên pegboard** chỉ là những thanh xám, khó nhận ra. User chưa phàn nàn.
 - **Chưa test trên tablet thật** (thao tác chạm). Đã kiểm tra bố cục ở 1024 / 1180 / 1280 px.
-- **VinFast VF3** user muốn thêm, đang chờ quyết: là xe điện, bộ mô phỏng chưa có động cơ điện (một cấp số, mô-men phẳng rồi công suất không đổi) và phần lớn đồ độ hiệu năng không áp được; dáng hộp dài ~3,2 m, model hatchback kéo ra sẽ sai dáng.
+- **VinFast VF3:** chốt **chưa thêm** (28/11) cho tới khi mở rộng sang xe điện. Lý do: là xe điện, bộ mô phỏng chưa có động cơ điện (một cấp số, mô-men phẳng rồi công suất không đổi) và phần lớn đồ độ hiệu năng không áp được; dáng hộp dài ~3,2 m, model hatchback kéo ra sẽ sai dáng.
 - **Số liệu xe mới:** Swift (CVT, 0–100, tối đa ước lượng; nguồn VN lệch mô-men 108–113 Nm, lốp R16/R17), Corolla Cross (CVT, 0–100, tối đa ước lượng; Cd hiệu chỉnh 0,399 cao), XL7 (đủ nguồn trừ vòng tua tối đa).
 - **Số liệu còn ước lượng** (sau đợt rà 11/2026, mạng container chặn PDF hãng nên chỉ dựa vào kết quả search): Vios và City (tỉ số truyền + cầu), Accent (khối lượng, cầu), Mazda 3 và CX-5 (cầu), MINI (gầm, lốp, số giữa + cầu), Ranger (tỉ số hộp số). Cd hiệu chỉnh của Xpander (0,298) và CX-5 (0,371) lệch khỏi mức hợp lý, nghi vmax đo không phải giới hạn do cản gió.
 - **Đề xuất cũ chưa làm:**
