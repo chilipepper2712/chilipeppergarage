@@ -39,6 +39,10 @@ def argv():
         if k in a:
             i = a.index(k); opt[k] = a[i + 1]; a = a[:i] + a[i + 2:]
     opt["--flat"] = "--flat" in a; a = [x for x in a if x != "--flat"]
+    if "--wide" in a:                                  # keep some of the pack's chunky width: W x factor
+        i = a.index("--wide"); opt["--wide"] = float(a[i + 1]); a = a[:i] + a[i + 2:]
+    else:
+        opt["--wide"] = 1.0
     return a[0], a[1], float(a[2]) / 1000, float(a[3]) / 1000, float(a[4]) / 1000, opt
 
 
@@ -138,7 +142,7 @@ def main():
 
     # stretch to real size, origin midway between the axles, ground at z = 0
     vs = np.array([v.co[:] for v in bm.verts]); lo, hi = vs.min(0), vs.max(0)
-    k = Vector((W / (hi[0] - lo[0]), L / (hi[1] - lo[1]), H / hi[2]))        # the pack sits its tyres on z = 0
+    k = Vector((W * opt["--wide"] / (hi[0] - lo[0]), L / (hi[1] - lo[1]), H / hi[2]))        # the pack sits its tyres on z = 0
     ys = [c.y for c in WC]; ymid = (max(ys) + min(ys)) / 2 if ys else (lo[1] + hi[1]) / 2
     for v in bm.verts:
         v.co = Vector((v.co.x * k.x, (v.co.y - ymid) * k.y, v.co.z * k.z))
